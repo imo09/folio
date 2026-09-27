@@ -1,0 +1,18 @@
+{
+  "id": "/",
+  "name": "folio",
+  "short_name": "folio",
+  "description": "Blocco note calmo, a pagine. I Fogli restano sul tuo dispositivo.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F6F0E3",
+  "theme_color": "#F6F0E3",
+  "lang": "it",
+  "icons": [
+    { "src": "icona-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icona-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icona-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
