@@ -2,7 +2,8 @@
 <html lang="it" data-tema="chiaro">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Yx0vceP6m/ZHHJUbs/7mefYfLQKQi6vzZvy8MWk+1Y0=' 'sha256-OJjHeyOk0iyyVZDfCDkwJNAov2wTow59IvjbJ3+h0cM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'self'; manifest-src 'self'">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>folio</title>
 <meta name="description" content="Blocco note semplice. Le pagine restano sul tuo dispositivo.">
 <meta name="theme-color" content="#F6F0E3">
@@ -15,10 +16,11 @@
 <meta name="mobile-web-app-capable" content="yes">
 <style>
 :root{
-  --carta:#F6F0E3; --superficie:#FDFAF3; --superficie-2:#F0E9DA; --fascia:#EDE5D4;
-  --inchiostro:#332E27; --tenue:#6E6559; --bordo:#E2D8C5;
-  --ottone:#8F5F22; --ottone-tenue:#F0E2CB; --allarme:#9A4A3F;
-  --grigio:#E6E1D7;
+  /* tema chiaro: carta calda ma con piani e bordi che si distinguono */
+  --carta:#F2EBDC; --superficie:#FBF8F1; --superficie-2:#E9E0CD; --fascia:#E5D9C1;
+  --inchiostro:#26211B; --tenue:#5A5045; --bordo:#CEBFA2;
+  --ottone:#82531A; --ottone-tenue:#EED7B0; --allarme:#8E3B31;
+  --grigio:#E2DCD0;
   --raggio:10px; --ombra:0 1px 2px rgba(60,48,30,.07);
   --corpo:var(--sans); --corpo-px:17px; --colonna:640px; --barra:54px;
   --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -26,19 +28,23 @@
   --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
   --ui:var(--sans);
 }
+/* tema scuro: luce di lampada, con piani e bordi distinguibili come nel chiaro */
 html[data-tema="scuro"]{
-  --carta:#1C1917; --superficie:#242019; --superficie-2:#2E2921; --fascia:#2B2620;
-  --inchiostro:#EDE3D1; --tenue:#A0968A; --bordo:#3A342A;
-  --ottone:#D9A860; --ottone-tenue:#3A2F1E; --allarme:#D98A7E;
-  --grigio:#332E27;
+  --carta:#1B1815; --superficie:#24201A; --superficie-2:#332D24; --fascia:#352E24;
+  --inchiostro:#F1E8D7; --tenue:#B5AA9A; --bordo:#4A4134;
+  --ottone:#E0B26C; --ottone-tenue:#4A3A22; --allarme:#E39486;
+  --grigio:#3A342B;
   --ombra:0 1px 2px rgba(0,0,0,.3);
 }
 *{box-sizing:border-box}
 html,body{height:100%}
+/* il corpo della pagina coincide con la parte visibile dello schermo, tastiera esclusa */
 body{
   margin:0;background:var(--carta);color:var(--inchiostro);
   font:15px/1.5 var(--ui);-webkit-text-size-adjust:100%;overscroll-behavior:none;
   padding-top:env(safe-area-inset-top,0px);
+  position:fixed;left:0;right:0;top:var(--su,0px);height:100vh;height:var(--alto,100dvh);
+  display:flex;flex-direction:column;overflow:hidden;
 }
 button,input,select,textarea{font:inherit;color:inherit}
 button{background:none;border:0;cursor:pointer;padding:0}
@@ -74,22 +80,22 @@ button{background:none;border:0;cursor:pointer;padding:0}
 
 /* ---------- barra in alto, sempre presente ---------- */
 #barra{
-  height:var(--barra);display:flex;align-items:center;gap:4px;padding:0 10px;
+  height:var(--barra);display:flex;align-items:center;gap:4px;padding:0 10px;flex:none;
   border-bottom:1px solid var(--bordo);background:var(--carta);
-  position:sticky;top:0;z-index:20;transition:background .18s;
+  position:relative;z-index:20;transition:background .18s;
 }
-#marchio{position:absolute;left:50%;transform:translateX(-50%);pointer-events:none}
+#marchio{flex:none;pointer-events:none}
 body[data-modo="selezione"] #barra{background:var(--ottone-tenue)}
 body[data-modo="cestino"] #barra{background:var(--grigio)}
 #marchio{display:flex;align-items:center;gap:8px;min-width:0}
-#logo{width:26px;height:26px;flex:none;display:block;margin:0 6px 0 4px}
+#logo{width:26px;height:26px;flex:none;display:block;margin:0 2px 0 4px}
 #marchio b{font-size:18px;font-weight:600;letter-spacing:.05em}
 #marchio b{display:inline-flex;align-items:baseline}
 #marchio .punto{
   display:inline-block;vertical-align:baseline;width:6px;height:6px;border-radius:50%;
   background:var(--ottone);margin-left:1px;flex:none;
 }
-#percorso{display:none;flex:1;min-width:0;font-size:13.5px;color:var(--tenue);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#percorso{display:none;flex:1;min-width:0;font-size:13.5px;color:var(--tenue);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left:8px;padding-left:10px;border-left:1px solid var(--bordo)}
 .cresce{flex:1;min-width:0}
 #lato,#principale{min-width:0}
 body[data-modo="ricerca"] #barra > .cresce{display:none}
@@ -113,7 +119,7 @@ body[data-modo="ricerca"] #barra > .cresce{display:none}
 @keyframes giro{from{transform:rotate(-140deg)}to{transform:rotate(0)}}
 
 /* ---------- impianto ---------- */
-#app{display:grid;grid-template-columns:306px minmax(0,1fr);height:calc(100dvh - var(--barra) - env(safe-area-inset-top,0px))}
+#app{display:grid;grid-template-columns:306px minmax(0,1fr);flex:1;min-height:0}
 #lato{border-right:1px solid var(--bordo);background:var(--superficie);display:flex;flex-direction:column;min-height:0}
 #principale{display:flex;flex-direction:column;min-height:0;position:relative}
 body[data-modo="cestino"] #app{display:block}
@@ -152,6 +158,11 @@ body[data-modo="cestino"] #lato,body[data-modo="cestino"] #principale{display:no
 .mini.piu:hover,.ico.piu:hover{background:var(--ottone);color:var(--carta)}
 html[data-tema="scuro"] .mini.piu:hover,html[data-tema="scuro"] .ico.piu:hover{color:#1C1917}
 .mini.piu svg,.ico.piu svg{stroke-width:2.2}
+/* il più è pieno in entrambi i temi: si vede su ogni fondo */
+html[data-tema="chiaro"] .mini.piu,html[data-tema="chiaro"] .ico.piu{background:var(--ottone);color:#FFF9EE}
+html[data-tema="chiaro"] .mini.piu:hover,html[data-tema="chiaro"] .ico.piu:hover{background:#6E4513;color:#FFF9EE}
+html[data-tema="scuro"] .mini.piu,html[data-tema="scuro"] .ico.piu{background:var(--ottone);color:#1B1815}
+html[data-tema="scuro"] .mini.piu:hover,html[data-tema="scuro"] .ico.piu:hover{background:#F0C686;color:#1B1815}
 .cap-sezione .mini svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .sezione.chiusa .fogli{display:none}
 .conta{font-variant-numeric:tabular-nums;opacity:.7;font-weight:600}
@@ -163,6 +174,7 @@ html[data-tema="scuro"] .mini.piu:hover,html[data-tema="scuro"] .ico.piu:hover{c
 .voce:hover{background:var(--superficie-2)}
 .voce.attiva{background:var(--ottone-tenue);font-weight:600}
 .voce .tit{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.voce .lucchetto{width:13px;height:13px;fill:none;stroke:var(--tenue);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-1px;margin-right:5px}
 .voce .frammento{display:block;font-size:12.5px;color:var(--tenue);font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .spunto{
   width:17px;height:17px;flex:none;margin-top:2px;border:1.6px solid var(--tenue);border-radius:5px;
@@ -198,30 +210,58 @@ html[data-tema="scuro"] .primaria{color:#1C1917}
 .piccolo.rischio{color:var(--allarme)}
 
 /* ---------- foglio ---------- */
-#zona{flex:1;overflow:auto;min-height:0;scroll-padding-bottom:120px}
-.foglio{max-width:var(--colonna);margin:0 auto;padding:24px 22px 200px}
+#zona{flex:1;overflow:auto;min-height:0;scroll-padding-bottom:120px;order:1}
+.foglio{max-width:var(--colonna);margin:0 auto;padding:24px 22px 200px;position:relative}
+/* maniglie per spostare righe e colonne: stanno sopra la tabella, mai dentro il testo */
+#maniglie{position:absolute;inset:0;pointer-events:none;z-index:4}
+.maniglia{
+  position:absolute;pointer-events:auto;touch-action:none;cursor:grab;display:grid;place-items:center;
+  background:var(--ottone);color:#FFF9EE;border-radius:6px;box-shadow:0 1px 4px rgba(40,30,15,.25);
+}
+.maniglia.riga{width:16px;height:26px}
+.maniglia.colonna{width:26px;height:16px}
+.maniglia svg{width:12px;height:12px;fill:currentColor}
+html[data-tema="scuro"] .maniglia{color:#1C1917}
+.linea-posto{position:absolute;background:var(--ottone);border-radius:2px;pointer-events:none}
+#corpo .in-spostamento,#corpo .in-spostamento td,#corpo .in-spostamento th{background:var(--ottone-tenue)}
 #titolo{width:100%;border:0;background:none;font:600 29px/1.25 var(--corpo);margin-bottom:2px;padding:0}
 #titolo::placeholder{color:var(--tenue);opacity:.55}
 .meta{font-size:12.5px;color:var(--tenue);margin-bottom:18px}
+/* sommario: fermo sotto la barra in alto, il Foglio scorre sotto */
 #sommario{
-  margin:0 0 22px;padding:12px 14px;border:1px solid var(--bordo);border-radius:10px;
-  background:var(--superficie);
+  flex:none;order:-1;z-index:7;margin:8px auto 0;width:calc(100% - 16px);max-width:var(--colonna);
+  padding:3px 4px 3px 12px;border:1px solid var(--bordo);border-radius:12px;background:var(--superficie);box-shadow:var(--ombra);
 }
-#sommario .capo{
-  display:flex;align-items:center;gap:6px;width:100%;font-size:11.5px;font-weight:700;
-  letter-spacing:.06em;text-transform:uppercase;color:var(--tenue);
+#sommario .capo{display:flex;align-items:center;gap:2px;min-height:34px}
+#sommario .apri-som{
+  flex:1;min-width:0;display:flex;align-items:center;gap:7px;text-align:left;font-size:11.5px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--tenue);padding:6px 0;
 }
-#sommario .capo svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;margin-left:auto}
-#sommario ol{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:2px}
+#sommario .apri-som svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex:none}
+#sommario .apri-som .conta{font-size:11.5px}
+#sommario .mini{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;color:var(--tenue);flex:none}
+#sommario .mini:hover{background:var(--superficie-2);color:var(--inchiostro)}
+#sommario .mini svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#sommario ol{list-style:none;margin:2px 0 8px;padding:0 8px 0 0;display:flex;flex-direction:column;gap:2px;max-height:38vh;overflow:auto}
+#sommario button.voce-som.chiusa::after{content:" \203A";color:var(--ottone)}
+/* paragrafi pieghevoli: la freccia sta all'estremo destro della riga del titolo */
+#corpo>h1,#corpo>h2,#corpo>h3{position:relative;padding-right:34px}
+#corpo>h1::after,#corpo>h2::after,#corpo>h3::after{
+  content:"";position:absolute;right:2px;top:50%;width:22px;height:22px;margin-top:-11px;cursor:pointer;
+  background:var(--tenue);opacity:.55;transition:transform .15s,opacity .15s;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/17px no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/17px no-repeat;
+}
+#corpo>h1:hover::after,#corpo>h2:hover::after,#corpo>h3:hover::after{opacity:1}
+#corpo>.capo-piegato::after{transform:rotate(-90deg);background:var(--ottone);opacity:1}
+#corpo>.piegato{display:none}
 #sommario li{margin:0}
 #sommario button.voce-som{
   text-align:left;font-size:14px;color:var(--inchiostro);padding:3px 0;line-height:1.4;
   border-bottom:1px solid transparent;
 }
 #sommario button.voce-som:hover{border-bottom-color:var(--ottone);color:var(--ottone)}
-#sommario .liv2{padding-left:14px;font-size:13.5px;color:var(--tenue)}
-#sommario .liv3{padding-left:28px;font-size:13px;color:var(--tenue)}
-#sommario.chiuso ol{display:none}
+#sommario button.voce-som.liv2{padding-left:16px;font-size:13.5px;color:var(--tenue)}
+#sommario button.voce-som.liv3{padding-left:32px;font-size:13px;color:var(--tenue)}
 
 #corpo{font:var(--corpo-px)/1.62 var(--corpo);outline:none;min-height:46vh;position:relative}
 #corpo[data-vuoto="1"]>*:first-child::before{
@@ -235,18 +275,28 @@ html[data-tema="scuro"] .primaria{color:#1C1917}
   font:14.5px/1.6 var(--mono);resize:vertical;
 }
 
-/* ---------- barra strumenti ---------- */
+/* ---------- barra strumenti: in alto, sopra la tastiera, o libera ---------- */
 #strumenti{
-  position:sticky;bottom:0;z-index:6;margin:0 auto;max-width:var(--colonna);
+  z-index:6;flex:none;order:0;margin:8px auto 0;width:calc(100% - 16px);max-width:var(--colonna);
   background:var(--superficie);border:1px solid var(--bordo);border-radius:12px;
   box-shadow:var(--ombra);display:flex;align-items:center;gap:2px;padding:5px;
-  transform:translateY(calc(-1 * var(--kb,0px)));transition:transform .12s;
 }
+#strumenti[data-pos="tastiera"]{order:2;margin:6px auto calc(8px + env(safe-area-inset-bottom,0px))}
+#strumenti[data-pos="libera"]{
+  position:absolute;margin:0;width:auto;max-width:calc(100% - 16px);
+  box-shadow:0 6px 20px rgba(40,30,15,.2);
+}
+#strumenti[data-pos="libera"][data-lato="sinistra"]{flex-direction:row-reverse}
+#strumenti[data-pos="libera"] .avvolgi{touch-action:none;cursor:grab}
+#strumenti.in-volo{opacity:.9;cursor:grabbing}
+#strumenti.calamita{transition:left .3s cubic-bezier(.3,1.35,.5,1),top .25s ease-out}
 .avvolgi{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;flex:none;color:var(--tenue)}
+.avvolgi:hover{background:var(--superficie-2);color:var(--inchiostro)}
 .avvolgi svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;transition:transform .18s}
-#strumenti.arrotolata .avvolgi svg{transform:rotate(180deg)}
-#strumenti.arrotolata .attrezzi{display:none}
-#strumenti.arrotolata{width:42px;margin-left:auto;margin-right:0}
+.avvolgi[data-verso="sinistra"] svg{transform:rotate(180deg)}
+#strumenti.arrotolata .attrezzi,#strumenti.arrotolata .fisso{display:none}
+#strumenti.arrotolata{width:42px;margin-left:auto;margin-right:8px}
+#strumenti[data-pos="libera"].arrotolata{margin:0}
 .attrezzi{display:flex;align-items:center;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
 .attrezzi::-webkit-scrollbar{display:none}
 .att{min-width:32px;height:30px;padding:0 7px;border-radius:7px;display:grid;place-items:center;color:var(--inchiostro);font-size:14px;flex:none}
@@ -260,17 +310,22 @@ html[data-tema="scuro"] .primaria{color:#1C1917}
 #corpo>*:first-child{margin-top:0}
 #corpo h1,#corpo h2,#corpo h3,#corpo h4{line-height:1.3;margin:1.5em 0 .45em;font-weight:600}
 #corpo h1{font-size:1.5em}#corpo h2{font-size:1.26em}#corpo h3{font-size:1.09em}#corpo h4{font-size:1em}
-#corpo p{margin:0 0 .85em}
-#corpo ul,#corpo ol{margin:0 0 .85em;padding-left:1.35em}
-#corpo li{margin:.18em 0}
+/* stessa distanza fra le righe sempre: a capo, elenchi, numeri e caselle */
+#corpo{--passo:0}
+#corpo p,#corpo div{margin:0 0 var(--passo)}
+#corpo ul,#corpo ol{margin:0 0 var(--passo);padding-left:1.35em}
+#corpo li{margin:0 0 var(--passo)}
+#corpo li>p{margin:0}
 #corpo li::marker{color:var(--ottone)}
 #corpo ul ul{list-style-type:circle}
 #corpo ul ul ul{list-style-type:square}
 #corpo ol{list-style-type:decimal}
 #corpo ol ol{list-style-type:lower-alpha}
 #corpo ol ol ol{list-style-type:lower-roman}
-#corpo li>ul,#corpo li>ol{margin-top:.18em;margin-bottom:0}
-#corpo li.spunta-voce{display:flex;gap:.55em;align-items:flex-start;list-style:none;margin-left:-1.15em}
+#corpo li>ul,#corpo li>ol{margin:var(--passo) 0 0}
+/* la casella prende il posto del pallino: il testo resta normale, a capo compreso */
+#corpo li.spunta-voce{list-style:none;position:relative}
+#corpo li.spunta-voce>input[type=checkbox]{position:absolute;left:-1.35em;top:.31em;margin:0}
 #corpo blockquote{margin:0 0 .9em;padding:.1em 0 .1em 1em;border-left:2px solid var(--ottone);color:var(--tenue)}
 #corpo code{font:.88em/1.5 var(--mono);background:var(--superficie-2);padding:.12em .35em;border-radius:5px}
 #corpo pre{background:var(--superficie-2);border:1px solid var(--bordo);border-radius:9px;padding:12px 14px;overflow-x:auto;margin:0 0 .9em}
@@ -283,7 +338,7 @@ html[data-tema="scuro"] .primaria{color:#1C1917}
 }
 #corpo a.interno.rotto{background:none;box-shadow:none;color:var(--tenue);border-bottom:1px dashed var(--tenue)}
 #corpo input[type=checkbox]{
-  appearance:none;width:1.02em;height:1.02em;margin:.28em 0 0;flex:none;cursor:pointer;
+  appearance:none;-webkit-appearance:none;width:1.02em;height:1.02em;margin:.28em 0 0;flex:none;cursor:pointer;background:var(--superficie);
   border:1.6px solid var(--tenue);border-radius:4px;display:grid;place-items:center;
 }
 #corpo input[type=checkbox]:checked{background:var(--ottone);border-color:var(--ottone)}
@@ -304,6 +359,13 @@ html[data-tema="scuro"] .primaria{color:#1C1917}
 .titolo-ricerca .dove2{font-weight:400;letter-spacing:0;text-transform:none;font-size:12px;opacity:.85}
 .marca{background:var(--ottone-tenue);color:var(--inchiostro);border-radius:3px;padding:0 1px;font-weight:600}
 .riassunto-ricerca{padding:10px 10px 2px;font-size:13px;color:var(--tenue)}
+.fogli.recenti{border-left:0;margin-left:0;padding-left:0}
+/* cambiando Volume col dito, l'elenco entra dal lato giusto */
+#albero.da-destra{animation:daDestra .22s ease-out}
+#albero.da-sinistra{animation:daSinistra .22s ease-out}
+@keyframes daDestra{from{opacity:.2;transform:translateX(28px)}}
+@keyframes daSinistra{from{opacity:.2;transform:translateX(-28px)}}
+#capQuaderno{touch-action:pan-y}
 
 .rimandi{max-width:var(--colonna);margin:0 auto;padding:14px 22px 0;border-top:1px solid var(--bordo);font-size:13.5px;color:var(--tenue)}
 .rimandi a{color:var(--ottone);cursor:pointer;text-decoration:none;border-bottom:1px solid var(--bordo)}
@@ -341,6 +403,11 @@ html[data-tema="scuro"] .primaria{color:#1C1917}
 .versione{margin:22px 0 2px;text-align:center;font-size:12px;color:var(--tenue);letter-spacing:.03em}
 .versione b{font-weight:600;color:var(--inchiostro)}
 .riga-imp{display:flex;align-items:center;gap:10px;padding:10px 0}
+/* impostazioni: ogni sezione in un riquadro a fondo tenue */
+.blocco-imp{background:color-mix(in srgb, var(--fascia) 55%, var(--superficie));border-radius:12px;padding:2px 14px 8px;margin:0 0 12px}
+.blocco-imp h3,.scheda .blocco-imp h3:first-child{margin:12px 0 0}
+.blocco-imp .opz,.blocco-imp .piccolo,.blocco-imp .avvertenza{background:var(--superficie)}
+.blocco-imp .campo{margin:10px 0 6px}
 .riga-imp .dati{flex:1;min-width:0}
 .riga-imp .dati small{display:block;color:var(--tenue);font-size:12.5px}
 .scheda .corpo-scheda{padding:6px 18px 16px;overflow:auto}
@@ -351,6 +418,7 @@ html[data-tema="scuro"] .primaria{color:#1C1917}
 html[data-tema="scuro"] .bott.pieno{color:#1C1917}
 .bott.rischio{color:var(--allarme)}
 .campo{display:block;margin:12px 0}
+.errore{color:var(--allarme);font-size:13.5px;margin:2px 0 0}
 .campo span{display:block;font-size:13px;color:var(--tenue);margin-bottom:5px}
 .campo input,.campo select,.campo textarea{width:100%;background:var(--carta);border:1px solid var(--bordo);border-radius:8px;padding:9px 11px}
 .gruppo{display:flex;gap:6px;flex-wrap:wrap}
@@ -385,14 +453,13 @@ html[data-tema="scuro"] .avviso button{color:#E8BE7C}
   body[data-vista="elenco"] #principale{display:none}
   .foglio{padding:20px 16px 190px}
   #titolo{font-size:25px}
-  #strumenti{position:fixed;left:8px;right:8px;max-width:none;margin:0;bottom:calc(8px + var(--kb,0px) + env(safe-area-inset-bottom,0px))}
-  #strumenti.arrotolata{left:auto;right:8px;width:42px}
+  #strumenti{max-width:none;margin-top:6px}
   .rimandi{padding:14px 16px 0}
   .pie-lato{padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
 }
 @media (min-width:900px){ #bIndietro{display:none} }
 @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}#splash{display:none}}
-@media print{#barra,#lato,#strumenti,.rimandi{display:none}#zona{overflow:visible}.foglio{padding:0;max-width:none}}
+@media print{body{position:static;height:auto;overflow:visible;display:block}#app{display:block}#barra,#lato,#strumenti,#sommario,.rimandi{display:none}#corpo>.piegato{display:block}#corpo>h1::after,#corpo>h2::after,#corpo>h3::after{display:none}#zona{overflow:visible}.foglio{padding:0;max-width:none}}
 </style>
 </head>
 <body data-vista="elenco">
@@ -460,12 +527,46 @@ html[data-tema="scuro"] .avviso button{color:#E8BE7C}
   </aside>
 
   <main id="principale">
+    <nav id="sommario" class="nascosto" aria-label="Sommario del Foglio"></nav>
+    <div id="strumenti">
+      <div class="attrezzi" id="attrezzi">
+        <button class="att" data-cmd="h1" title="Titolo grande">H1</button>
+        <button class="att" data-cmd="h2" title="Titolo medio">H2</button>
+        <button class="att" data-cmd="h3" title="Titolo piccolo">H3</button>
+        <span class="sep"></span>
+        <button class="att" data-cmd="grassetto" title="Grassetto (Ctrl+B)"><b>B</b></button>
+        <button class="att" data-cmd="corsivo" title="Corsivo (Ctrl+I)"><i>I</i></button>
+        <button class="att" data-cmd="barrato" title="Barrato"><s>S</s></button>
+        <button class="att" data-cmd="codice" title="Codice"><svg viewBox="0 0 24 24"><path d="m9 8-4 4 4 4m6-8 4 4-4 4"/></svg></button>
+        <span class="sep"></span>
+        <button class="att" data-cmd="elenco" title="Elenco puntato"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r="1.3" fill="currentColor" stroke="none"/></svg></button>
+        <button class="att" data-cmd="numerato" title="Elenco numerato"><svg viewBox="0 0 24 24"><path d="M10 6h10M10 12h10M10 18h10"/><path d="M4 5.5h1.4V10M3.6 14.2c.3-.8 1-1 1.5-.8.7.2.9 1 .4 1.6L3.6 18h2.6" stroke-width="1.6"/></svg></button>
+        <button class="att" data-cmd="spunta" title="Casella da spuntare"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="m8.4 12.2 2.6 2.6 4.6-5.4"/></svg></button>
+        <button class="att" data-cmd="sporgenza" title="Rientro a sinistra"><svg viewBox="0 0 24 24"><path d="M10 6h10M10 12h10M10 18h10"/><path d="m6 9-3 3 3 3"/></svg></button>
+        <button class="att" data-cmd="rientro" title="Rientro a destra"><svg viewBox="0 0 24 24"><path d="M10 6h10M10 12h10M10 18h10"/><path d="m3 9 3 3-3 3"/></svg></button>
+        <button class="att" data-cmd="citazione" title="Citazione"><svg viewBox="0 0 24 24"><path d="M6 5v14"/><path d="M11 8h8M11 12h8M11 16h5"/></svg></button>
+        <span class="sep"></span>
+        <button class="att" data-cmd="collega" title="Collega (Ctrl+K)"><svg viewBox="0 0 24 24"><path d="M10 13a4 4 0 0 0 5.7.3l2.6-2.6a4 4 0 0 0-5.7-5.7L11 6.7"/><path d="M14 11a4 4 0 0 0-5.7-.3l-2.6 2.6a4 4 0 0 0 5.7 5.7L13 17.3"/></svg></button>
+        <button class="att" data-cmd="tabella" title="Tabella"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M9.5 9.5v10M15 9.5v10"/></svg></button>
+        <button class="att" data-cmd="riga" title="Linea separatrice"><svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg></button>
+        <span class="sep nascosto" id="sepTabella"></span>
+        <span id="tabellaAttrezzi" class="nascosto" style="display:contents">
+          <button class="att" data-tab="riga+" title="Aggiungi riga">+riga</button>
+          <button class="att" data-tab="riga-" title="Togli riga">-riga</button>
+          <button class="att" data-tab="col+" title="Aggiungi colonna">+col</button>
+          <button class="att" data-tab="col-" title="Togli colonna">-col</button>
+        </span>
+      </div>
+      <span class="sep fisso"></span>
+      <button class="att fisso" data-cmd="annulla" title="Annulla (Ctrl+Z)" aria-label="Annulla"><svg viewBox="0 0 24 24"><path d="M9 7 5 11l4 4"/><path d="M5 11h9a5 5 0 0 1 0 10h-3"/></svg></button>
+      <button class="avvolgi" id="bAvvolgi" aria-label="Riduci o apri la barra"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+    </div>
     <div id="zona">
       <div class="foglio" id="foglio">
         <input id="titolo" placeholder="Titolo del Foglio" autocomplete="off">
         <div class="meta" id="metaFoglio"></div>
-        <nav id="sommario" class="nascosto"></nav>
         <div id="corpo" contenteditable="true" spellcheck="true"></div>
+        <div id="maniglie" aria-hidden="true"></div>
         <textarea id="grezzo" class="nascosto" spellcheck="false"></textarea>
       </div>
       <div class="senza-foglio nascosto" id="senzaFoglio">
@@ -473,39 +574,6 @@ html[data-tema="scuro"] .avviso button{color:#E8BE7C}
         <button class="bott pieno" id="bPrimoFoglio">Crea un Foglio</button>
       </div>
       <div class="rimandi nascosto" id="rimandi"></div>
-      <div id="strumenti">
-        <div class="attrezzi" id="attrezzi">
-          <button class="att" data-cmd="h1" title="Titolo grande">H1</button>
-          <button class="att" data-cmd="h2" title="Titolo medio">H2</button>
-          <button class="att" data-cmd="h3" title="Titolo piccolo">H3</button>
-          <span class="sep"></span>
-          <button class="att" data-cmd="grassetto" title="Grassetto (Ctrl+B)"><b>B</b></button>
-          <button class="att" data-cmd="corsivo" title="Corsivo (Ctrl+I)"><i>I</i></button>
-          <button class="att" data-cmd="barrato" title="Barrato"><s>S</s></button>
-          <button class="att" data-cmd="codice" title="Codice"><svg viewBox="0 0 24 24"><path d="m9 8-4 4 4 4m6-8 4 4-4 4"/></svg></button>
-          <span class="sep"></span>
-          <button class="att" data-cmd="elenco" title="Elenco puntato"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r="1.3" fill="currentColor" stroke="none"/></svg></button>
-          <button class="att" data-cmd="numerato" title="Elenco numerato"><svg viewBox="0 0 24 24"><path d="M10 6h10M10 12h10M10 18h10"/><path d="M4 5.5h1.4V10M3.6 14.2c.3-.8 1-1 1.5-.8.7.2.9 1 .4 1.6L3.6 18h2.6" stroke-width="1.6"/></svg></button>
-          <button class="att" data-cmd="spunta" title="Casella da spuntare"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="m8.4 12.2 2.6 2.6 4.6-5.4"/></svg></button>
-          <button class="att" data-cmd="sporgenza" title="Rientro a sinistra"><svg viewBox="0 0 24 24"><path d="M10 6h10M10 12h10M10 18h10"/><path d="m6 9-3 3 3 3"/></svg></button>
-          <button class="att" data-cmd="rientro" title="Rientro a destra"><svg viewBox="0 0 24 24"><path d="M10 6h10M10 12h10M10 18h10"/><path d="m3 9 3 3-3 3"/></svg></button>
-          <button class="att" data-cmd="citazione" title="Citazione"><svg viewBox="0 0 24 24"><path d="M6 5v14"/><path d="M11 8h8M11 12h8M11 16h5"/></svg></button>
-          <span class="sep"></span>
-          <button class="att" data-cmd="collega" title="Collega (Ctrl+K)"><svg viewBox="0 0 24 24"><path d="M10 13a4 4 0 0 0 5.7.3l2.6-2.6a4 4 0 0 0-5.7-5.7L11 6.7"/><path d="M14 11a4 4 0 0 0-5.7-.3l-2.6 2.6a4 4 0 0 0 5.7 5.7L13 17.3"/></svg></button>
-          <button class="att" data-cmd="tabella" title="Tabella"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M9.5 9.5v10M15 9.5v10"/></svg></button>
-          <button class="att" data-cmd="riga" title="Linea separatrice"><svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg></button>
-          <span class="sep nascosto" id="sepTabella"></span>
-          <span id="tabellaAttrezzi" class="nascosto" style="display:contents">
-            <button class="att" data-tab="riga+" title="Aggiungi riga">+riga</button>
-            <button class="att" data-tab="riga-" title="Togli riga">-riga</button>
-            <button class="att" data-tab="col+" title="Aggiungi colonna">+col</button>
-            <button class="att" data-tab="col-" title="Togli colonna">-col</button>
-          </span>
-          <span class="sep"></span>
-          <button class="att" data-cmd="annulla" title="Annulla (Ctrl+Z)"><svg viewBox="0 0 24 24"><path d="M9 7 5 11l4 4"/><path d="M5 11h9a5 5 0 0 1 0 10h-3"/></svg></button>
-        </div>
-        <button class="avvolgi" id="bAvvolgi" aria-label="Riduci o apri la barra"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
-      </div>
     </div>
   </main>
 
@@ -1674,7 +1742,7 @@ return exports;
 (function(){
 'use strict';
 
-const VERSIONE_APP = '6.0';
+const VERSIONE_APP = '7.3';
 
 /* ============ utilità ============ */
 const $ = s => document.querySelector(s);
@@ -1718,7 +1786,10 @@ function nomeUnico(base, occupato){
 }
 
 /* ============ deposito: IndexedDB, con localStorage di scorta ============ */
-const DB = 'folio', NEGOZIO = 'dati', K_ARCHIVIO = 'archivio', K_RISERVA = 'riserva';
+/* Dalla 7.2 l'archivio sta in pezzi: una "struttura" (Volumi, Capitoli, titoli, impostazioni)
+   e un record per ogni Foglio ("f:" + id). Si riscrive solo ciò che cambia, sempre in un'unica
+   scrittura che riesce tutta o niente. "archivio" è il vecchio blocco unico, letto una volta sola. */
+const DB = 'folio', NEGOZIO = 'dati', K_ARCHIVIO = 'archivio', K_RISERVA = 'riserva', K_STRUTTURA = 'struttura';
 const K_VECCHIA = 'folio.archivio.v1', K_VECCHIA_RIS = 'folio.riserva.v1';
 let idb = null, soloMemoria = {};
 
@@ -1750,6 +1821,41 @@ function scriviIdb(k, v){
     try {
       const tx = idb.transaction(NEGOZIO,'readwrite');
       tx.objectStore(NEGOZIO).put(v, k);
+      tx.oncomplete = () => res(true);
+      tx.onerror = () => rif(tx.error || new Error('scrittura fallita'));
+      tx.onabort = () => rif(tx.error || new Error('scrittura interrotta'));
+    } catch(e){ rif(e); }
+  });
+}
+/* letture che distinguono "non c'è" (null) da "non riesco a leggere" (errore) */
+function leggiIdbCerto(k){
+  return new Promise((res, rif) => {
+    if (!idb) return res(null);
+    try {
+      const q = idb.transaction(NEGOZIO,'readonly').objectStore(NEGOZIO).get(k);
+      q.onsuccess = () => res(q.result == null ? null : q.result);
+      q.onerror = () => rif(q.error || new Error('lettura fallita'));
+    } catch(e){ rif(e); }
+  });
+}
+function leggiRecord(){
+  return new Promise((res, rif) => {
+    const m = new Map();
+    if (!idb) return res(m);
+    try {
+      const q = idb.transaction(NEGOZIO,'readonly').objectStore(NEGOZIO).openCursor(IDBKeyRange.bound('f:', 'f:\uffff'));
+      q.onsuccess = () => { const c = q.result; if (c){ m.set(String(c.key).slice(2), c.value); c.continue(); } else res(m); };
+      q.onerror = () => rif(q.error || new Error('lettura fallita'));
+    } catch(e){ rif(e); }
+  });
+}
+function scriviMolti(metti, togli){
+  return new Promise((res, rif) => {
+    if (!idb) return rif(new Error('nessun database'));
+    try {
+      const tx = idb.transaction(NEGOZIO,'readwrite'), st = tx.objectStore(NEGOZIO);
+      togli.forEach(k => st.delete(k));
+      metti.forEach(([k, v]) => st.put(v, k));
       tx.oncomplete = () => res(true);
       tx.onerror = () => rif(tx.error || new Error('scrittura fallita'));
       tx.onabort = () => rif(tx.error || new Error('scrittura interrotta'));
@@ -1792,17 +1898,17 @@ function archivioNuovo(){
 | un nuovo Capitolo | il **+** sulla riga del Volume |
 | cambiare Volume | il nome del Volume, in alto a sinistra |
 | le opzioni di un Capitolo | i tre punti, oppure tieni premuto |
-| cercare | la lente in alto |
+| cercare, o ritrovare gli ultimi aperti | la lente in alto |
 
 Il salvataggio è automatico: l'icona in alto fa un giro quando ha salvato.
 
 ## Scrivere e formattare
 
-La barra in basso ha i formati essenziali: titoli, **grassetto**, *corsivo*, ~~barrato~~, \`codice\`, elenchi, citazioni, tabelle e linee. Si arrotola con la freccia a destra.
+La barra di formattazione ha i formati essenziali: titoli, **grassetto**, *corsivo*, ~~barrato~~, \`codice\`, elenchi, caselle, citazioni, tabelle e linee. Si arrotola con la freccia; nelle Impostazioni scegli se tenerla in alto, sopra la tastiera o libera di spostarsi.
 
 1. Le frecce di rientro spostano una voce di elenco
    1. e al secondo livello i numeri diventano lettere
-2. Nelle tabelle tocca una cella: compaiono +riga, -riga, +col e -col
+2. Nelle tabelle tocca una cella: compaiono +riga, -riga, +col e -col, e le maniglie per trascinare righe e colonne
 
 > Incolla un testo in markdown, per esempio scritto da un assistente AI: folio lo formatta da solo.
 
@@ -1815,10 +1921,12 @@ Lo stesso elenco accetta un indirizzo web, come [nautargo.com](https://nautargo.
 ## Funzioni utili
 
 - **Preferiti**: la stella porta un Foglio in cima, da qualunque Volume.
-- **Sommario**: con tre o più titoli compare sopra al testo, come qui.
+- **Gesti**: su un Foglio scorri verso destra per tornare all'elenco; sul nome del Volume scorri per passare a un altro.
+- **Sommario e paragrafi**: appena scrivi un titolo, il sommario compare in alto; la freccia a destra di ogni titolo chiude o apre il suo paragrafo, e dal sommario li chiudi tutti insieme.
 - **Selezione**: dal menu del Volume scegli più Fogli o Capitoli da spostare, condividere o eliminare.
 - **Condividi e copia**: dal menu a tre punti di un Foglio.
 - **Vista testo**: l'icona in alto mostra il markdown così com'è.
+- **Fogli protetti**: dal menu a tre punti un Foglio si chiude con una password. Una password sola li apre tutti.
 - **Cestino**: ciò che elimini resta 30 giorni, poi sparisce. Lo trovi nelle Impostazioni.
 
 ## I tuoi dati
@@ -1844,8 +1952,11 @@ Lo stesso elenco accetta un indirizzo web, come [nautargo.com](https://nautargo.
       tema:'auto', font:'sans', dimensione:17, colonna:640,
       ordinamento:'modificata', barraAperta:true, quaderno:qid, foglio:null,
       sezioniChiuse:[], ultimoBackup:null, modificheDaSalvare:false,
-      splash:true, preferitiChiusi:false, sommario:true
-    }
+      splash:true, preferitiChiusi:false, sommario:true, sommarioAperto:false,
+      barraPosizione:'alto', barraLibera:{ lato:'destra', y:0.4 },
+      recenti:[]
+    },
+    cassaforte: null
   };
 }
 
@@ -1863,19 +1974,27 @@ function normalizza(a){
   a.impostazioni = Object.assign({}, b.impostazioni, a.impostazioni || {});
   if (a.impostazioni.pagina && !a.impostazioni.foglio) a.impostazioni.foglio = a.impostazioni.pagina;
   delete a.impostazioni.pagina;
+  const bl = a.impostazioni.barraLibera;
+  a.impostazioni.barraLibera = { lato: bl && bl.lato === 'sinistra' ? 'sinistra' : 'destra', y: bl && isFinite(bl.y) ? Math.min(1, Math.max(0, +bl.y)) : 0.4 };
+  if (!['alto','tastiera','libera'].includes(a.impostazioni.barraPosizione)) a.impostazioni.barraPosizione = 'alto';
+  a.impostazioni.recenti = Array.isArray(a.impostazioni.recenti) ? a.impostazioni.recenti.filter(x => x && x.id && x.quando).slice(0, 30) : [];
+  a.cassaforte = (a.cassaforte && a.cassaforte.sale && a.cassaforte.verifica) ? a.cassaforte : null;
   if (!a.sezioni.length) a.sezioni = [{ id:id(), quadernoId:a.quaderni[0].id, nome:'Appunti', creata:oggi() }];
   const quadOk = new Set(a.quaderni.map(q => q.id));
   a.sezioni.forEach(s => { if (!s.id) s.id = id(); if (!quadOk.has(s.quadernoId)) s.quadernoId = a.quaderni[0].id; });
   const sezOk = new Set(a.sezioni.map(s => s.id));
+  const visti = new Set();
   a.fogli.forEach(p => {
-    if (!p.id) p.id = id();
+    if (!p.id || visti.has(p.id)) p.id = id();
+    visti.add(p.id);
     if (!sezOk.has(p.sezioneId)) p.sezioneId = a.sezioni[0].id;
     p.titolo = String(p.titolo || 'Senza titolo');
     p.md = String(p.md || '');
     p.creata = p.creata || oggi(); p.modificata = p.modificata || p.creata;
     p.preferito = !!p.preferito;
+    p.protetto = !!(p.protetto && p.cifra);
   });
-  a.cestino.fogli.forEach(p => { p.eliminato = p.eliminato || oggi(); });
+  a.cestino.fogli.forEach(p => { p.eliminato = p.eliminato || oggi(); p.protetto = !!(p.protetto && p.cifra); });
   a.cestino.sezioni.forEach(s => { s.eliminata = s.eliminata || oggi(); s.fogli = Array.isArray(s.fogli) ? s.fogli : []; });
   if (!quadOk.has(a.impostazioni.quaderno)) a.impostazioni.quaderno = a.quaderni[0].id;
   a.v = 2;
@@ -1891,10 +2010,41 @@ function scadenzeCestino(){
   return prima - (A.cestino.fogli.length + A.cestino.sezioni.length);
 }
 
+/* cosa c'è su disco per ogni Foglio, per riscrivere solo ciò che cambia */
+const suDisco = new Map();
+let pezziScritti = false;
+
+/* se il disco non si lascia leggere, folio non salva niente: meglio fermarsi che sovrascrivere */
+let letturaFallita = false;
 async function carica(){
   idb = await apriIdb();
-  let dati = await leggiIdb(K_ARCHIVIO);
-  let nota = '';
+  let dati = null, nota = '';
+  let s, rec;
+  try { s = await leggiIdbCerto(K_STRUTTURA); if (s && Array.isArray(s.fogli)) rec = await leggiRecord(); }
+  catch(e){
+    letturaFallita = true;
+    return { a: archivioNuovo(), nota:'' };
+  }
+  if (s && Array.isArray(s.fogli)){
+    const senza = [];
+    s.fogli.forEach(p => {
+      const r = rec.get(p.id);
+      if (r){ p.md = r.md || ''; if (r.cifra) p.cifra = r.cifra; else delete p.cifra; suDisco.set(p.id, r); }
+      else senza.push(p);
+    });
+    /* un Foglio senza il suo record (non dovrebbe succedere): si prende dalla copia di riserva */
+    if (senza.length){
+      const ris = await leggiIdb(K_RISERVA);
+      senza.forEach(p => {
+        const v = ris && Array.isArray(ris.fogli) ? ris.fogli.find(x => x.id === p.id) : null;
+        p.md = v ? v.md || '' : ''; if (v && v.cifra) p.cifra = v.cifra;
+      });
+    }
+    /* i record rimasti senza Foglio verranno tolti al prossimo salvataggio */
+    rec.forEach((r, fid) => { if (!suDisco.has(fid)) suDisco.set(fid, r); });
+    dati = s; pezziScritti = true;
+  }
+  if (!dati) dati = await leggiIdb(K_ARCHIVIO);
   if (!dati && idb){
     const vecchio = leggiLocale(K_VECCHIA);          /* migrazione dalla versione precedente */
     if (vecchio){ dati = vecchio; nota = 'Archivio trasferito nella memoria estesa del browser.'; }
@@ -1905,16 +2055,47 @@ async function carica(){
   catch(e){ return { a: archivioNuovo(), nota:'Archivio illeggibile: si riparte da vuoto.' }; }
 }
 
-async function salvaOra(){
+/* i salvataggi vanno in fila: la cifratura dei Fogli protetti è asincrona e non deve accavallarsi */
+let codaSalvataggi = Promise.resolve();
+function inFila(lavoro){
+  codaSalvataggi = codaSalvataggi.then(lavoro, lavoro);
+  return codaSalvataggi;
+}
+const salvaOra = () => inFila(salvaDavvero);
+let riservaDaPulire = 0;       /* quante protezioni nuove aspettano una riserva ripulita */
+async function salvaDavvero(){
+  if (letturaFallita || inPausa) return;
+  const pulire = riservaDaPulire;
   try {
+    await aggiornaCifre();
+    const dati = perSalvare(A);
     if (idb){
-      if (Date.now() - ultimaRiserva > 60000){
-        const vecchio = await leggiIdb(K_ARCHIVIO);
-        if (vecchio){ try { await scriviIdb(K_RISERVA, vecchio); ultimaRiserva = Date.now(); } catch(e){} }
-      }
-      await scriviIdb(K_ARCHIVIO, A);
+      const struttura = Object.assign({}, dati, {
+        pezzi: true,
+        fogli: dati.fogli.map(p => { const m = Object.assign({}, p); delete m.md; delete m.cifra; return m; })
+      });
+      const metti = [[K_STRUTTURA, struttura]], togli = [], vivi = new Set();
+      dati.fogli.forEach(p => {
+        vivi.add(p.id);
+        const rec = p.cifra ? { md:'', cifra:p.cifra } : { md:p.md };
+        const prima = suDisco.get(p.id);
+        if (!prima || prima.md !== rec.md || prima.cifra !== rec.cifra) metti.push(['f:' + p.id, rec]);
+      });
+      suDisco.forEach((r, fid) => { if (!vivi.has(fid)) togli.push('f:' + fid); });
+      if (!pezziScritti) togli.push(K_ARCHIVIO);       /* il vecchio blocco unico sparisce con la prima scrittura a pezzi */
+      /* copia intera di riserva: ogni 10 minuti, e subito quando un Foglio diventa protetto */
+      const riserva = pulire > 0 || Date.now() - ultimaRiserva > 600000;
+      /* un Foglio protetto ancora senza cifra (protetto proprio adesso) rimanda la pulizia della riserva */
+      const tuttiCifrati = !dati.fogli.some(p => p.protetto && !p.cifra);
+      if (riserva) metti.push([K_RISERVA, dati]);
+      await scriviMolti(metti, togli);
+      metti.forEach(([k, v]) => { if (k.startsWith('f:')) suDisco.set(k.slice(2), v); });
+      togli.forEach(k => { if (k.startsWith('f:')) suDisco.delete(k.slice(2)); });
+      if (!pezziScritti){ try { localStorage.removeItem(K_VECCHIA); localStorage.removeItem(K_VECCHIA_RIS); } catch(e){} }
+      pezziScritti = true;
+      if (riserva){ if (tuttiCifrati) riservaDaPulire -= pulire; ultimaRiserva = Date.now(); }
     } else {
-      scriviLocale(K_VECCHIA, A);
+      scriviLocale(K_VECCHIA, dati);
     }
     salvataggioRotto = false;
     segnaStato('salvato');
@@ -1927,6 +2108,228 @@ async function salvaOra(){
   }
 }
 function salva(){ A.impostazioni.modificheDaSalvare = true; salvaOra(); }
+
+/* ============ Fogli protetti: una password sola li apre tutti ============ */
+/* Il testo dei Fogli protetti si salva solo cifrato (AES-GCM, chiave da PBKDF2).
+   La chiave resta in memoria finché i Fogli sono aperti; il titolo resta leggibile. */
+let chiave = null;
+const cifrati = new Map();          /* id -> testo già cifrato in questa sessione */
+const illeggibili = new Set();      /* Fogli che la password attuale non apre: non si toccano */
+const INATTIVITA = 10 * 60000;        /* dopo 10 minuti senza toccare niente si richiudono */
+const SEGNAPOSTO = 'Foglio protetto: il testo resta cifrato e si legge solo in folio, con la password.';
+const sbloccato = () => !!chiave;
+const cassaforteDisponibile = () => !!(window.crypto && crypto.subtle && window.isSecureContext !== false);
+const tuttiIFogli = () => [...A.fogli, ...A.cestino.fogli, ...A.cestino.sezioni.flatMap(s => s.fogli || [])];
+const chiuso = p => !!(p && p.protetto && (!chiave || illeggibili.has(p.id)));
+/* il testo di un Foglio protetto non esce mai in chiaro: né file .md, né condivisione, né copia */
+const mdDi = p => p && p.protetto ? SEGNAPOSTO : p.md;
+/* quali titoli richiamano i Fogli protetti: si sa solo dopo averli aperti almeno una volta,
+   e resta solo in memoria, mai salvato */
+let rimandiProtetti = null;
+function aggiornaRimandiProtetti(){
+  rimandiProtetti = new Set();
+  tuttiIFogli().forEach(p => {
+    if (p.protetto) (p.md.match(/\[\[([^\[\]]+)\]\]/g) || []).forEach(m => rimandiProtetti.add(senzaAccenti(m.slice(2,-2)).trim()));
+  });
+}
+
+function inB64(buf){
+  const b = new Uint8Array(buf); let s = '';
+  for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+const daB64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function derivaChiave(password, sale, giri){
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name:'PBKDF2', salt:daB64(sale), iterations:giri, hash:'SHA-256' },
+    base, { name:'AES-GCM', length:256 }, false, ['encrypt','decrypt']);
+}
+async function cifra(k, testo){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const dati = await crypto.subtle.encrypt({ name:'AES-GCM', iv }, k, new TextEncoder().encode(testo));
+  return { iv:inB64(iv), dati:inB64(dati) };
+}
+async function decifra(k, c){
+  return new TextDecoder().decode(await crypto.subtle.decrypt({ name:'AES-GCM', iv:daB64(c.iv) }, k, daB64(c.dati)));
+}
+
+/* prima di ogni salvataggio: si ricifra solo ciò che è cambiato */
+async function aggiornaCifre(){
+  const k = chiave;
+  if (!k) return;
+  for (const p of tuttiIFogli()){
+    if (!p.protetto || illeggibili.has(p.id)) continue;
+    if (p.cifra && !cifrati.has(p.id)) continue;            /* mai aperto qui: vale la cifra salvata */
+    if (p.cifra && cifrati.get(p.id) === p.md) continue;
+    const testo = p.md;
+    p.cifra = await cifra(k, testo);
+    if (chiave === k) cifrati.set(p.id, testo);
+  }
+}
+/* la copia che va su disco: dei Fogli protetti resta solo la cifra */
+function perSalvare(a){
+  const via = p => (p.protetto && p.cifra) ? Object.assign({}, p, { md:'' }) : p;
+  const tutti = [...a.fogli, ...a.cestino.fogli, ...a.cestino.sezioni.flatMap(s => s.fogli || [])];
+  if (!tutti.some(p => p.protetto)) return a;
+  return Object.assign({}, a, {
+    fogli: a.fogli.map(via),
+    cestino: { fogli: a.cestino.fogli.map(via), sezioni: a.cestino.sezioni.map(s => Object.assign({}, s, { fogli:(s.fogli || []).map(via) })) }
+  });
+}
+
+async function sblocca(password){
+  const c = A.cassaforte;
+  if (!c || !cassaforteDisponibile()) return false;
+  let k;
+  try { k = await derivaChiave(password, c.sale, c.giri); await decifra(k, c.verifica); }
+  catch(e){ return false; }
+  await apriCifre(k);
+  chiave = k;
+  aggiornaRimandiProtetti();
+  disegnaLato();
+  return true;
+}
+async function apriCifre(k){
+  for (const p of tuttiIFogli()){
+    if (!p.protetto || !p.cifra || cifrati.has(p.id)) continue;
+    try { p.md = await decifra(k, p.cifra); cifrati.set(p.id, p.md); illeggibili.delete(p.id); }
+    catch(e){ illeggibili.add(p.id); }
+  }
+}
+
+async function blocca(silenzioso){
+  if (!chiave) return;
+  if (corrente && corrente.protetto){ chiudiGrezzo(); scriviCorrente(); }
+  await salvaOra();
+  const tutti = tuttiIFogli().filter(p => p.protetto && !illeggibili.has(p.id));
+  if (tutti.some(p => !p.cifra || cifrati.get(p.id) !== p.md)){
+    if (!silenzioso) avviso('Non riesco a chiudere i Fogli protetti: riprova.');
+    return;
+  }
+  aggiornaRimandiProtetti();
+  tutti.forEach(p => { p.md = ''; });
+  chiave = null; cifrati.clear();
+  if (corrente && corrente.protetto){ mostraVuoto(); if (stretto()) vista('elenco'); }
+  disegnaLato();
+  if (!silenzioso) avviso('Fogli protetti chiusi.');
+}
+
+async function impostaPassword(pw){
+  const sale = inB64(crypto.getRandomValues(new Uint8Array(16)));
+  const giri = 250000;
+  const k = await derivaChiave(pw, sale, giri);
+  const verifica = await cifra(k, 'folio');
+  /* tutto in fila con i salvataggi, e solo se ogni Foglio protetto è aperto e leggibile:
+     altrimenti la password nuova lascerebbe indietro Fogli che nessuna password apre più */
+  await inFila(async () => {
+    if (A.cassaforte){
+      const fermi = tuttiIFogli().some(p => p.protetto && !cifrati.has(p.id));
+      if (illeggibili.size) throw new Error('illeggibili');
+      if (!chiave || fermi) throw new Error('chiusi');
+    }
+    tuttiIFogli().forEach(p => { if (p.protetto && cifrati.has(p.id)) cifrati.set(p.id, null); });
+    A.cassaforte = { sale, giri, verifica };
+    chiave = k;
+    await salvaDavvero();
+  });
+}
+
+/* chiede la password, poi esegue quello che serviva */
+function chiediSblocco(poi, spiega){
+  if (!cassaforteDisponibile()){ avviso('I Fogli protetti funzionano solo con una connessione sicura (https).'); return; }
+  let campo, nota, d;
+  d = dialogo('Fogli protetti', c => {
+    c.appendChild(el('p', null, spiega || 'La password apre tutti i Fogli protetti, finché non li chiudi.'));
+    const l = el('label','campo'); l.appendChild(el('span', null, 'Password'));
+    campo = el('input'); campo.type = 'password'; campo.autocomplete = 'current-password';
+    l.appendChild(campo); c.appendChild(l);
+    nota = el('p','errore nascosto','Password sbagliata.'); c.appendChild(nota);
+    setTimeout(() => campo.focus(), 20);
+  }, () => {
+    const pw = campo.value;
+    if (!pw) return false;
+    campo.disabled = true; nota.classList.add('nascosto');
+    sblocca(pw).then(ok => {
+      campo.disabled = false;
+      if (ok){ d.chiudi(); avviso('Fogli protetti aperti.'); if (poi) poi(); }
+      else { nota.classList.remove('nascosto'); campo.select(); campo.focus(); }
+    });
+    return false;
+  }, 'Apri');
+}
+
+/* password nuova: la prima volta, oppure per cambiarla, sempre dopo aver verificato quella attuale */
+function dialogoPassword(alFatto, cambio){
+  if (!cassaforteDisponibile()){ avviso('I Fogli protetti funzionano solo con una connessione sicura (https).'); return; }
+  let vecchia, a, b, nota, d;
+  d = dialogo(cambio ? 'Cambia password' : 'Password dei Fogli protetti', c => {
+    c.appendChild(el('p', null, 'Una password sola apre tutti i Fogli protetti.'));
+    const campo = (etichetta, attuale) => {
+      const l = el('label','campo'); l.appendChild(el('span', null, etichetta));
+      const i = el('input'); i.type = 'password'; i.autocomplete = attuale ? 'current-password' : 'new-password';
+      l.appendChild(i); c.appendChild(l); return i;
+    };
+    if (cambio) vecchia = campo('Password attuale', true);
+    a = campo(cambio ? 'Nuova password' : 'Password');
+    b = campo('Ripetila');
+    nota = el('p','errore nascosto'); c.appendChild(nota);
+    c.appendChild(el('p','avvertenza','Se la dimentichi, i Fogli protetti non si possono più aprire: nessuno può recuperarla.'));
+    setTimeout(() => (vecchia || a).focus(), 20);
+  }, () => {
+    const errore = t => { nota.textContent = t; nota.classList.remove('nascosto'); return false; };
+    if (cambio && !vecchia.value) return errore('Scrivi la password attuale.');
+    if (a.value.length < 4) return errore('La password nuova vuole almeno 4 caratteri.');
+    if (a.value !== b.value) return errore('Le due password nuove non coincidono.');
+    const campi = [vecchia, a, b].filter(Boolean);
+    campi.forEach(x => x.disabled = true);
+    nota.classList.add('nascosto');
+    /* prima si verifica la password attuale (che apre anche tutti i Fogli), poi si cambia */
+    (cambio ? sblocca(vecchia.value) : Promise.resolve(true))
+      .then(giusta => { if (!giusta) throw new Error('attuale'); return impostaPassword(a.value); })
+      .then(() => { d.chiudi(); if (alFatto) alFatto(); })
+      .catch(e => {
+        campi.forEach(x => x.disabled = false);
+        const m = e && e.message;
+        errore(m === 'attuale' ? 'La password attuale non è giusta.'
+          : m === 'chiusi' ? 'I Fogli protetti si sono richiusi: riprova.'
+          : m === 'illeggibili' ? 'Alcuni Fogli protetti non si aprono con questa password: non posso cambiarla.'
+          : 'Qualcosa è andato storto: riprova.');
+        if (m === 'attuale'){ vecchia.select(); vecchia.focus(); }
+      });
+    return false;
+  }, cambio ? 'Cambia' : 'Imposta');
+}
+
+/* se il Foglio è protetto e chiuso, prima la password */
+function seAperto(p, fai){
+  if (p && p.protetto && chiave && illeggibili.has(p.id)){ avviso('Questo Foglio non si apre con la password attuale.'); return; }
+  chiuso(p) ? chiediSblocco(fai) : fai();
+}
+
+function proteggi(p){
+  if (!cassaforteDisponibile()){ avviso('I Fogli protetti funzionano solo con una connessione sicura (https).'); return; }
+  const fai = () => {
+    if (corrente && corrente.id === p.id){ chiudiGrezzo(); scriviCorrente(); }
+    p.protetto = true;
+    riservaDaPulire++;
+    /* la vecchia copia della prima versione, se c'è, conteneva il testo in chiaro */
+    if (idb){ try { localStorage.removeItem(K_VECCHIA); localStorage.removeItem(K_VECCHIA_RIS); } catch(e){} }
+    salva(); disegnaLato();
+    avviso('Foglio protetto: si apre con la password.');
+  };
+  if (!A.cassaforte) dialogoPassword(fai);
+  else if (!chiave) chiediSblocco(fai);
+  else fai();
+}
+/* togliere la protezione rimette il testo in chiaro: serve sempre la password */
+function sproteggi(p){
+  if (p.protetto && chiave && illeggibili.has(p.id)){ avviso('Questo Foglio non si apre con la password attuale.'); return; }
+  chiediSblocco(() => {
+    p.protetto = false; delete p.cifra; cifrati.delete(p.id);
+    salva(); disegnaLato();
+    avviso('Protezione tolta: il Foglio è di nuovo in chiaro.');
+  }, 'Per togliere la protezione serve la password: il testo tornerà in chiaro.');
+}
 const salvaPresto = rimbalzo(salva, 500);
 
 /* un lampo dell'icona conferma il salvataggio; se qualcosa non va resta accesa in rosso */
@@ -2047,8 +2450,61 @@ function nodoInterno(nome){
   return a;
 }
 
+/* Chrome, rientrando una voce, mette il sotto-elenco accanto alla voce e non dentro:
+   a schermo sembra annidato, ma il markdown lo appiattirebbe. Qui lo si rimette dentro
+   alla voce precedente e si uniscono gli elenchi uguali rimasti vicini. */
+function normalizzaElenchi(radice){
+  let mosso = false;
+  /* un elenco dentro a un paragrafo esce dal paragrafo */
+  radice.querySelectorAll('p > ul, p > ol').forEach(l => {
+    const p = l.parentNode, resto = document.createElement('p');
+    while (l.nextSibling) resto.appendChild(l.nextSibling);
+    p.parentNode.insertBefore(l, p.nextSibling);
+    if (resto.textContent.trim() || resto.querySelector(':not(br)')) l.parentNode.insertBefore(resto, l.nextSibling);
+    if (!p.textContent.trim() && !p.querySelector('img,input')) p.remove();
+    mosso = true;
+  });
+  /* una voce finita dentro un'altra voce (succede uscendo da un rientro) torna sua sorella */
+  [...radice.querySelectorAll('li > li')].reverse().forEach(v => {     /* dal fondo: l'ordine resta giusto */
+    const madre = v.parentNode, lista = madre.parentNode;
+    if (!lista) return;
+    const punto = madre.nextSibling, metti = n => lista.insertBefore(n, punto);
+    const coda = [];
+    for (let n = v.nextSibling; n; n = n.nextSibling) coda.push(n);
+    metti(v);
+    /* ciò che seguiva la voce resta dopo di lei, nello stesso ordine */
+    let sciolta = null;
+    coda.forEach(n => {
+      if (n.nodeName === 'LI'){ sciolta = null; metti(n); return; }
+      if (n.nodeType === 3 && !n.nodeValue.trim()){ n.remove(); return; }
+      if (!sciolta){ sciolta = document.createElement('li'); metti(sciolta); }
+      sciolta.appendChild(n);
+    });
+    mosso = true;
+  });
+  radice.querySelectorAll('ul,ol').forEach(l => {
+    const madre = l.parentNode;
+    if (!madre || (madre.nodeName !== 'UL' && madre.nodeName !== 'OL')) return;
+    let voce = l.previousElementSibling;
+    if (!voce || voce.nodeName !== 'LI'){ voce = document.createElement('li'); madre.insertBefore(voce, l); }
+    voce.appendChild(l);
+    mosso = true;
+  });
+  radice.querySelectorAll('ul,ol').forEach(l => {
+    const prima = l.previousSibling;
+    if (prima && prima.nodeName === l.nodeName && l.parentNode){
+      while (l.firstChild) prima.appendChild(l.firstChild);
+      l.remove(); mosso = true;
+    }
+  });
+  return mosso;
+}
+
 function htmlVersoMd(html){
-  return volgi.turndown(html).replace(/\n{3,}/g,'\n\n').replace(/[ \t]+$/gm,'').trim();
+  const d = document.createElement('div');
+  d.innerHTML = html;
+  normalizzaElenchi(d);
+  return volgi.turndown(d).replace(/\n{3,}/g,'\n\n').replace(/[ \t]+$/gm,'').trim();
 }
 
 /* ============ accesso al modello ============ */
@@ -2122,10 +2578,15 @@ const ICONE = {
   punti:   () => '<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none"/></svg>',
   piu:     () => '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
   linguetta: () => '<svg class="linguetta" viewBox="0 0 24 24"><path d="M4 7a2 2 0 0 1 2-2h3l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg>',
-  stella:  () => '<svg viewBox="0 0 24 24"><path d="m12 4 2.4 5 5.6.8-4 3.9 1 5.5-5-2.6-5 2.6 1-5.5-4-3.9 5.6-.8z"/></svg>'
+  stella:  () => '<svg viewBox="0 0 24 24"><path d="m12 4 2.4 5 5.6.8-4 3.9 1 5.5-5-2.6-5 2.6 1-5.5-4-3.9 5.6-.8z"/></svg>',
+  lucchetto: () => '<svg class="lucchetto" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>'
 };
 
-function vista(v){ document.body.dataset.vista = v; impostaModo(modo); }
+function vista(v){
+  document.body.dataset.vista = v;
+  if (v === 'foglio' && stretto() && !(history.state && history.state.folio)){ try { history.pushState({ folio:1 }, ''); } catch(e){} }
+  impostaModo(modo);
+}
 
 function impostaModo(m){
   modo = m;
@@ -2170,7 +2631,7 @@ function disegnaLato(){
 
   const albero = $('#albero');
   albero.innerHTML = '';
-  if (modo === 'ricerca' && filtro){ disegnaRicerca(albero); return; }
+  if (modo === 'ricerca'){ filtro ? disegnaRicerca(albero) : disegnaRecenti(albero); return; }
 
   fasciaPreferiti(albero);
 
@@ -2267,6 +2728,7 @@ function voce(p, frammento, conOrigine){
   t.appendChild(document.createTextNode(''));
   t.firstChild.nodeValue = '';
   const nome = el('span'); nome.textContent = p.titolo;
+  if (p.protetto) t.insertAdjacentHTML('beforeend', ICONE.lucchetto());
   t.appendChild(nome);
   if (frammento) t.appendChild(frammento.nodeType ? frammento : el('span','frammento', frammento));
   if (conOrigine){
@@ -2308,6 +2770,19 @@ function segnaTesto(testo, q){
   return frammento;
 }
 
+/* la ricerca, prima di scrivere: gli ultimi Fogli aperti, con data e ora */
+function disegnaRecenti(albero){
+  albero.appendChild(el('p','riassunto-ricerca','Ultimi aperti'));
+  const lista = el('div','fogli recenti');
+  A.impostazioni.recenti.forEach(x => {
+    const p = foglio(x.id);
+    if (!p || chiuso(p) || lista.children.length >= 20) return;
+    lista.appendChild(voce(p, el('span','frammento','aperto ' + dataBreve(x.quando)), true));
+  });
+  if (!lista.children.length) lista.appendChild(el('p','vuoto','Nessun Foglio aperto di recente.'));
+  albero.appendChild(lista);
+}
+
 function disegnaRicerca(albero){
   const q = filtro.trim();
   const qn = senzaAccenti(q);
@@ -2315,7 +2790,8 @@ function disegnaRicerca(albero){
   const esiti = [];
   A.quaderni.forEach(vol => {
     sezioniDi(vol.id).forEach(cap => {
-      const fg = fogliDi(cap.id).filter(p => contiene(p.titolo) || contiene(p.md));
+      /* un Foglio protetto chiuso non si trova: né il titolo né il testo */
+      const fg = fogliDi(cap.id).filter(p => !chiuso(p) && (contiene(p.titolo) || contiene(p.md)));
       const capCorrisponde = contiene(cap.nome), volCorrisponde = contiene(vol.nome);
       if (!fg.length && !capCorrisponde && !volCorrisponde) return;
       esiti.push({ vol, cap, fogli: fg, capCorrisponde, volCorrisponde });
@@ -2414,6 +2890,8 @@ function collassaTutto(){
 }
 /* ============ apertura e scrittura del foglio ============ */
 function apri(fid){
+  const voluto = foglio(fid);
+  if (chiuso(voluto)){ seAperto(voluto, () => apri(fid)); return; }
   chiudiGrezzo();
   finalizzaTitolo();
   scriviCorrente();
@@ -2421,6 +2899,8 @@ function apri(fid){
   if (!p){ mostraVuoto(); return; }
   corrente = p;
   A.impostazioni.foglio = p.id;
+  /* ultimi aperti: in cima il più recente, con data e ora */
+  A.impostazioni.recenti = [{ id:p.id, quando:oggi() }].concat(A.impostazioni.recenti.filter(x => x.id !== p.id)).slice(0, 30);
   const s = sezione(p.sezioneId);
   if (s && s.quadernoId !== A.impostazioni.quaderno) A.impostazioni.quaderno = s.quadernoId;
   $('#foglio').classList.remove('nascosto');
@@ -2430,8 +2910,10 @@ function apri(fid){
   titoloPrima = p.titolo;
   $('#titolo').value = p.titolo;
   $('#corpo').innerHTML = mdVersoHtml(p.md) || '<p><br></p>';
-  htmlAperto = $('#corpo').innerHTML;
+  azzeraPassi();
+  togliManiglie();
   disegnaSommario();
+  htmlAperto = $('#corpo').innerHTML;
   aggiornaVuoto();
   $('#metaFoglio').textContent = 'Modificato ' + dataBreve(p.modificata);
   const qd = quadernoDiFoglio(p);
@@ -2448,11 +2930,13 @@ function apri(fid){
 
 function mostraVuoto(){
   corrente = null;
+  azzeraPassi();
   A.impostazioni.foglio = null;
   htmlAperto = '';
   chiudiGrezzo();
   $('#titolo').value = '';
   $('#corpo').innerHTML = '';
+  togliManiglie();
   $('#corpo').setAttribute('contenteditable','false');
   $('#percorso').textContent = '';
   $('#metaFoglio').textContent = '';
@@ -2464,32 +2948,128 @@ function mostraVuoto(){
   if (modo === 'normale') impostaModo('normale');
 }
 
-/* sommario costruito al volo dai titoli: non viene mai scritto dentro al file */
+/* ============ sommario e paragrafi pieghevoli ============ */
+/* Il sommario nasce dai titoli (H1, H2, H3) appena ce n'è uno, sta fermo sotto la barra in alto
+   e non viene mai scritto dentro al file. Ogni titolo ha a destra una freccia che chiude o apre
+   il suo paragrafo, cioè tutto quello che c'è fino al titolo successivo dello stesso livello o più alto.
+   Quali paragrafi sono chiusi si ricorda finché l'app resta aperta. */
 let titoliSommario = [];
+const piegati = new Map();                         /* id del Foglio -> titoli chiusi */
+const livello = n => /^H[1-3]$/.test(n.nodeName) ? +n.nodeName[1] : 0;
+function insiemePiegati(){
+  if (!corrente) return new Set();
+  if (!piegati.has(corrente.id)) piegati.set(corrente.id, new Set());
+  return piegati.get(corrente.id);
+}
+/* la chiave di un titolo: livello, testo e quante volte lo stesso titolo è già comparso */
+function chiaviTitoli(){
+  const conta = {};
+  return titoliSommario.map(h => { const b = h.nodeName + '|' + h.textContent.trim(); conta[b] = (conta[b] || 0) + 1; return b + '|' + conta[b]; });
+}
+function applicaPieghe(){
+  const insieme = insiemePiegati(), chiavi = chiaviTitoli();
+  const chiusi = new Set(titoliSommario.filter((h, i) => insieme.has(chiavi[i])));
+  let fino = null;
+  [...corpo().children].forEach(n => {
+    const liv = livello(n);
+    if (liv && (fino === null || liv <= fino)){
+      fino = chiusi.has(n) ? liv : null;
+      n.classList.toggle('piegato', false);       /* toggle e non remove: non lascia attributi vuoti */
+      n.classList.toggle('capo-piegato', chiusi.has(n));
+      return;
+    }
+    n.classList.toggle('piegato', fino !== null);
+    if (liv) n.classList.toggle('capo-piegato', chiusi.has(n));
+  });
+  /* il cursore non resta mai dentro a un paragrafo chiuso */
+  const s = getSelection();
+  const dove = s.rangeCount && s.anchorNode && corpo().contains(s.anchorNode) ? (s.anchorNode.nodeType === 3 ? s.anchorNode.parentNode : s.anchorNode).closest('.piegato') : null;
+  if (dove){
+    let h = dove.previousElementSibling;
+    while (h && (h.classList.contains('piegato') || !livello(h))) h = h.previousElementSibling;
+    if (h){ const r = document.createRange(); r.selectNodeContents(h); r.collapse(false); s.removeAllRanges(); s.addRange(r); }
+  }
+}
+function commutaPiega(h){
+  const i = titoliSommario.indexOf(h);
+  if (i < 0) return;
+  const k = chiaviTitoli()[i], insieme = insiemePiegati();
+  insieme.has(k) ? insieme.delete(k) : insieme.add(k);
+  applicaPieghe(); disegnaSommario();
+}
+function commutaTutte(){
+  const insieme = insiemePiegati(), chiavi = chiaviTitoli();
+  const tutte = chiavi.length && chiavi.every(k => insieme.has(k));
+  insieme.clear();
+  if (!tutte) chiavi.forEach(k => insieme.add(k));
+  applicaPieghe(); disegnaSommario();
+}
+/* per andare a un titolo nascosto si aprono i paragrafi che lo contengono */
+function mostraTitolo(h){
+  if (h.classList.contains('piegato')){
+    const insieme = insiemePiegati(), chiavi = chiaviTitoli();
+    let min = livello(h);
+    for (let n = h.previousElementSibling; n; n = n.previousElementSibling){
+      const l = livello(n);
+      if (l && l < min){ insieme.delete(chiavi[titoliSommario.indexOf(n)]); min = l; }
+    }
+    applicaPieghe(); disegnaSommario();
+  }
+  h.scrollIntoView({ block:'start', behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth' });
+}
+/* la freccia di un titolo sta all'estremo destro della sua riga */
+function zonaPiega(bersaglio, x){
+  const h = bersaglio && bersaglio.closest ? bersaglio.closest('h1,h2,h3') : null;
+  if (!h || h.parentNode !== corpo()) return null;
+  return x > h.getBoundingClientRect().right - 40 ? h : null;
+}
 function disegnaSommario(){
   const box = $('#sommario');
-  titoliSommario = [...$('#corpo').querySelectorAll('h1,h2,h3')];
-  if (!A.impostazioni.sommario || vistaGrezza || titoliSommario.length < 3){ box.classList.add('nascosto'); return; }
-  const chiuso = box.classList.contains('chiuso');
+  titoliSommario = corrente ? [...corpo().children].filter(livello) : [];
+  applicaPieghe();
+  if (!corrente || !A.impostazioni.sommario || vistaGrezza || !titoliSommario.length){ box.classList.add('nascosto'); return; }
+  const aperto = A.impostazioni.sommarioAperto;
+  const insieme = insiemePiegati(), chiavi = chiaviTitoli();
+  const tutteChiuse = chiavi.every(k => insieme.has(k));
   box.innerHTML = '';
-  const capo = el('button','capo');
-  capo.appendChild(el('span', null, 'In questo Foglio'));
-  capo.insertAdjacentHTML('beforeend', ICONE.freccia(chiuso ? 'giu' : 'su'));
-  capo.onclick = () => { box.classList.toggle('chiuso'); disegnaSommario(); };
+  const capo = el('div','capo');
+  const apri2 = el('button','apri-som');
+  apri2.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 7h14M8 12h11M11 17h8"/></svg>';
+  apri2.appendChild(el('span', null, 'In questo Foglio'));
+  apri2.appendChild(el('span','conta', String(titoliSommario.length)));
+  apri2.onclick = () => { A.impostazioni.sommarioAperto = !aperto; salvaPresto(); disegnaSommario(); };
+  const tutte = el('button','mini');
+  tutte.title = tutteChiuse ? 'Apri tutti i paragrafi' : 'Chiudi tutti i paragrafi';
+  tutte.setAttribute('aria-label', tutte.title);
+  tutte.innerHTML = ICONE.doppia(tutteChiuse ? 'giu' : 'su');
+  tutte.onclick = commutaTutte;
+  const frec = el('button','mini');
+  frec.title = aperto ? 'Riduci il sommario' : 'Mostra il sommario';
+  frec.setAttribute('aria-label', frec.title);
+  frec.innerHTML = ICONE.freccia(aperto ? 'su' : 'giu');
+  frec.onclick = apri2.onclick;
+  [apri2, tutte, frec].forEach(b => b.addEventListener('mousedown', e => e.preventDefault()));
+  capo.append(apri2, tutte, frec);
   box.appendChild(capo);
-  const ol = document.createElement('ol');
-  titoliSommario.forEach((h,i) => {
-    const li = document.createElement('li');
-    const b = el('button','voce-som ' + (h.nodeName === 'H1' ? 'liv1' : h.nodeName === 'H2' ? 'liv2' : 'liv3'), h.textContent.trim() || 'senza titolo');
-    b.onclick = () => {
-      const t = titoliSommario[i];
-      if (t) t.scrollIntoView({ block:'start', behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth' });
-    };
-    li.appendChild(b); ol.appendChild(li);
-  });
-  box.appendChild(ol);
-  box.classList.toggle('chiuso', chiuso);
+  if (aperto){
+    const ol = document.createElement('ol');
+    const minimo = Math.min(...titoliSommario.map(livello));     /* il rientro parte dal titolo più alto presente */
+    titoliSommario.forEach((h, i) => {
+      const li = document.createElement('li');
+      const b = el('button','voce-som liv' + (livello(h) - minimo + 1) + (insieme.has(chiavi[i]) ? ' chiusa' : ''), h.textContent.trim() || 'senza titolo');
+      b.onclick = () => mostraTitolo(h);
+      li.appendChild(b); ol.appendChild(li);
+    });
+    box.appendChild(ol);
+  }
   box.classList.remove('nascosto');
+}
+/* titoli e sommario si aggiornano mentre si scrive, una volta per fotogramma */
+let titoliInArrivo = false;
+function pianificaTitoli(){
+  if (titoliInArrivo) return;
+  titoliInArrivo = true;
+  requestAnimationFrame(() => { titoliInArrivo = false; if (corrente && !vistaGrezza) disegnaSommario(); });
 }
 
 /* dopo una ricerca il termine viene selezionato nel foglio, come con il mouse */
@@ -2574,6 +3154,19 @@ function rinominaRimandi(vecchio, nuovo){
     if (md !== p.md){ p.md = md; toccati++; }
   });
   if (toccati) avviso('Collegamenti aggiornati in ' + toccati + (toccati === 1 ? ' Foglio.' : ' Fogli.'));
+  /* i Fogli protetti chiusi non si possono aggiornare: se si sa che lo richiamano, lo si dice */
+  if (rimandiProtetti && rimandiProtetti.has(c) && tuttiIFogli().some(p => p.protetto && chiuso(p))){
+    avvisoRimandiChiusi(vecchio, nuovo);
+  }
+}
+function avvisoRimandiChiusi(vecchio, nuovo){
+  dialogo('Collegamenti nei Fogli protetti', (box, chiudi, pie) => {
+    box.appendChild(el('p', null, 'Un Foglio protetto, ora chiuso, richiama "' + vecchio + '". Finché resta chiuso, il suo collegamento punta al vecchio nome.'));
+    const a = el('button','bott','Lascia così'); a.onclick = chiudi;
+    const b = el('button','bott pieno','Aprili e aggiorna');
+    b.onclick = () => { chiudi(); chiediSblocco(() => { rinominaRimandi(vecchio, nuovo); salva(); }); };
+    pie.append(a, b);
+  }, null, null, { pieLibero:true });
 }
 
 function disegnaRimandi(){
@@ -2599,6 +3192,7 @@ function apriGrezzo(){
   $('#grezzo').value = corrente.md;
   $('#grezzo').classList.remove('nascosto');
   $('#corpo').classList.add('nascosto');
+  togliManiglie();
   $('#sommario').classList.add('nascosto');
   $('#strumenti').classList.add('nascosto');
   $('#rimandi').classList.add('nascosto');
@@ -2616,6 +3210,7 @@ function chiudiGrezzo(){
   if (corrente){
     $('#corpo').innerHTML = mdVersoHtml(corrente.md) || '<p><br></p>';
     htmlAperto = $('#corpo').innerHTML;
+    azzeraPassi();
     aggiornaVuoto(); disegnaRimandi(); disegnaSommario();
   }
   impostaModo(modo);
@@ -2756,6 +3351,8 @@ function esegui(c,v){ document.execCommand(c, false, v); }
 
 function comando(nome){
   assicuraFuoco();
+  if (nome === 'annulla'){ annulla(); return; }
+  segnaPasso('comando');
   switch(nome){
     case 'grassetto': esegui('bold'); break;
     case 'corsivo': esegui('italic'); break;
@@ -2779,7 +3376,6 @@ function comando(nome){
     case 'riga': esegui('insertHorizontalRule'); break;
     case 'tabella': inserisciTabella(); break;
     case 'collega': dialogoCollega(); break;
-    case 'annulla': esegui('undo'); break;
   }
   dopoModifica();
 }
@@ -2808,7 +3404,22 @@ function rientra(verso){
       b.remove();
     }
   });
+  tieniCursore(() => normalizzaElenchi(corpo()));
   ripuliscElenco();
+}
+
+/* spostare nodi fa perdere il cursore: lo si annota e lo si rimette dove era */
+function tieniCursore(fai){
+  const s = getSelection();
+  const r = s.rangeCount ? s.getRangeAt(0) : null;
+  const punti = r ? [r.startContainer, r.startOffset, r.endContainer, r.endOffset] : null;
+  fai();
+  if (!punti) return;
+  try {
+    const n = document.createRange();
+    n.setStart(punti[0], punti[1]); n.setEnd(punti[2], punti[3]);
+    s.removeAllRanges(); s.addRange(n);
+  } catch(e){}
 }
 
 function ripuliscElenco(){
@@ -2817,23 +3428,238 @@ function ripuliscElenco(){
   });
 }
 
-function spunta(){
+/* ============ annulla: ogni modifica, anche quelle fatte da folio, si può disfare ============ */
+/* Prima di ogni modifica si mette da parte una fotografia del Foglio (testo e cursore).
+   La scrittura continua conta come un passo solo: si spezza dopo una pausa o cambiando gesto. */
+let passi = [], rifatti = [], ultimoPasso = 0, ultimoTipo = '';
+function percorso(n){
+  const p = [];
+  while (n && n !== corpo()){ if (!n.parentNode) return null; p.unshift([...n.parentNode.childNodes].indexOf(n)); n = n.parentNode; }
+  return n ? p : null;
+}
+function nodoDa(p){ let n = corpo(); for (const i of p){ n = n && n.childNodes[i]; } return n; }
+function fotografia(){
   const s = getSelection();
-  const daNodo = n => (n && n.nodeType === 3 ? n.parentNode : n);
-  let voceLi = daNodo(s.anchorNode);
-  voceLi = voceLi && voceLi.closest ? voceLi.closest('li') : null;
-  if (!voceLi){ esegui('insertUnorderedList'); }
-  const dopo = daNodo(getSelection().anchorNode);
-  voceLi = dopo && dopo.closest ? dopo.closest('li') : null;
-  if (!voceLi) return;
-  const esiste = voceLi.querySelector(':scope > input[type=checkbox]');
-  if (esiste) esiste.remove();
-  else {
-    const c = document.createElement('input');
-    c.type = 'checkbox';
-    voceLi.insertBefore(c, voceLi.firstChild);
+  let cur = null;
+  if (s.rangeCount && corpo().contains(s.anchorNode)){
+    const r = s.getRangeAt(0);
+    cur = [percorso(r.startContainer), r.startOffset, percorso(r.endContainer), r.endOffset];
+  }
+  return { html: corpo().innerHTML, cur };
+}
+function segnaPasso(tipo){
+  if (!corrente || vistaGrezza) return;
+  const ora = Date.now();
+  if (tipo === 'scrivi' && ultimoTipo === 'scrivi' && ora - ultimoPasso < 1200){ ultimoPasso = ora; return; }
+  ultimoPasso = ora; ultimoTipo = tipo;
+  const f = fotografia();
+  if (passi.length && passi[passi.length - 1].html === f.html) return;
+  passi.push(f);
+  if (passi.length > 150) passi.shift();
+  rifatti = [];
+}
+function rimetti(f){
+  corpo().innerHTML = f.html;
+  if (f.cur && f.cur[0] && f.cur[2]){
+    try {
+      const r = document.createRange();
+      r.setStart(nodoDa(f.cur[0]), f.cur[1]); r.setEnd(nodoDa(f.cur[2]), f.cur[3]);
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    } catch(e){ assicuraFuoco(); }
+  }
+  ultimoTipo = '';
+  ripuliscElenco();
+  dopoModifica();
+  disegnaSommario();
+}
+function annulla(){
+  if (!passi.length){ avviso('Niente da annullare.'); return; }
+  rifatti.push(fotografia());
+  rimetti(passi.pop());
+}
+function rifai(){
+  if (!rifatti.length) return;
+  passi.push(fotografia());
+  rimetti(rifatti.pop());
+}
+function azzeraPassi(){ passi = []; rifatti = []; ultimoTipo = ''; }
+
+/* ============ caselle ============ */
+const casellaDi = li => li.querySelector(':scope > input[type=checkbox]');
+function nuovaCasella(li){
+  const c = document.createElement('input');
+  c.type = 'checkbox';
+  li.insertBefore(c, li.firstChild);
+  return c;
+}
+/* la parte di una voce che è "la sua riga": tutto tranne i sotto-elenchi */
+function rangeRiga(n){
+  const r = document.createRange();
+  r.selectNodeContents(n);
+  if (n.nodeName === 'LI'){
+    const sotto = [...n.childNodes].findIndex(x => x.nodeName === 'UL' || x.nodeName === 'OL');
+    if (sotto >= 0) r.setEnd(n, sotto);
+  }
+  return r;
+}
+/* la riga tocca la selezione se finisce dopo il suo inizio e comincia prima della sua fine */
+function tocca(sel, n){
+  const r = rangeRiga(n);
+  return r.compareBoundaryPoints(Range.START_TO_END, sel) > 0 && r.compareBoundaryPoints(Range.END_TO_START, sel) < 0;
+}
+/* le righe toccate dalla selezione: voci di elenco o paragrafi e titoli semplici */
+function righeScelte(){
+  const s = getSelection();
+  if (!s.rangeCount || !corpo().contains(s.anchorNode)) return [];
+  const r = s.getRangeAt(0);
+  const semplice = n => /^(P|DIV|H1|H2|H3|H4|H5|H6)$/.test(n.nodeName) && !n.classList.contains('tabella-box');
+  if (r.collapsed){
+    const n = r.startContainer.nodeType === 3 ? r.startContainer.parentNode : r.startContainer;
+    const li = n.closest ? n.closest('li') : null;
+    if (li && corpo().contains(li)) return [li];
+    const b = blocco();
+    return b && semplice(b) ? [b] : [];
+  }
+  const voci = [...corpo().querySelectorAll('li')].filter(li => tocca(r, li));
+  const blocchi = [...corpo().children].filter(b => semplice(b) && tocca(r, b));
+  return blocchi.concat(voci);
+}
+function inVoce(b){
+  const ul = document.createElement('ul'), li = document.createElement('li');
+  while (b.firstChild) li.appendChild(b.firstChild);
+  if (!li.firstChild) li.appendChild(document.createElement('br'));
+  ul.appendChild(li);
+  b.parentNode.replaceChild(ul, b);
+  return li;
+}
+/* una voce di primo livello torna una riga di testo, dividendo l'elenco se serve */
+function fuoriElenco(li){
+  const lista = li.parentNode, genitore = lista.parentNode;
+  const p = document.createElement('p'), sotto = [];
+  [...li.childNodes].forEach(n => (n.nodeName === 'UL' || n.nodeName === 'OL') ? sotto.push(n) : p.appendChild(n));
+  if (!p.firstChild) p.appendChild(document.createElement('br'));
+  const dopo = [];
+  for (let n = li.nextSibling; n; n = n.nextSibling) dopo.push(n);
+  li.remove();
+  const ancora = lista.nextSibling;
+  genitore.insertBefore(p, ancora);
+  sotto.forEach(x => genitore.insertBefore(x, ancora));
+  if (dopo.length){
+    const resto = document.createElement(lista.nodeName);
+    dopo.forEach(x => resto.appendChild(x));
+    genitore.insertBefore(resto, ancora);
+  }
+  if (!lista.children.length) lista.remove();
+  return p;
+}
+function seleziona(primo, ultimo){
+  const r = document.createRange();
+  r.setStart(primo, 0); r.setEnd(ultimo, ultimo.childNodes.length);
+  const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+}
+
+/* un tocco: caselle vuote per tutte le righe; due: tutte spuntate; tre: niente caselle */
+function spunta(){
+  let righe = righeScelte();
+  if (!righe.length) return;
+  const eraSelezione = !getSelection().isCollapsed;
+  if (righe.some(n => n.nodeName !== 'LI')){
+    righe = righe.map(n => n.nodeName === 'LI' ? n : inVoce(n));
+    tieniCursore(() => normalizzaElenchi(corpo()));
+    if (eraSelezione) seleziona(righe[0], righe[righe.length - 1]);
+  }
+  const caselle = righe.map(casellaDi);
+  if (caselle.some(c => !c)){
+    righe.forEach(li => { if (!casellaDi(li)) nuovaCasella(li); });
+    if (!eraSelezione) cursoreInFondo(righe[0]);
+  } else if (caselle.some(c => !c.checked)){
+    caselle.forEach(c => { c.checked = true; c.setAttribute('checked',''); });
+  } else {
+    caselle.forEach(c => c.remove());
+    righe.forEach(li => li.classList.remove('spunta-voce'));
+    const fuori = righe.filter(li => li.parentNode && li.parentNode.parentNode === corpo()).map(fuoriElenco);
+    if (fuori.length) eraSelezione ? seleziona(fuori[0], fuori[fuori.length - 1]) : cursoreInFondo(fuori[0]);
   }
   ripuliscElenco();
+}
+function cursoreInFondo(n){
+  const r = rangeRiga(n); r.collapse(false);
+  const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+}
+
+/* il cursore non sta mai prima della casella: lì il testo finirebbe davanti al quadratino */
+function cursoreDopoCasella(){
+  const s = getSelection();
+  if (!s.rangeCount || !s.isCollapsed) return;
+  const n = s.anchorNode;
+  if (!n || !corpo().contains(n)) return;
+  const li = n.nodeType === 1 && n.nodeName === 'LI' ? n : null;
+  if (!li || s.anchorOffset !== 0) return;
+  const c = casellaDi(li);
+  if (!c || li.firstChild !== c) return;
+  const r = document.createRange();
+  r.setStartAfter(c); r.collapse(true);
+  s.removeAllRanges(); s.addRange(r);
+}
+const testoRiga = li => [...li.childNodes].filter(x => x.nodeName !== 'UL' && x.nodeName !== 'OL').map(x => x.textContent).join('').replace(/\u00A0/g,' ').trim();
+function voceCorrente(){
+  const s = getSelection();
+  if (!s.rangeCount) return null;
+  const n = s.anchorNode.nodeType === 3 ? s.anchorNode.parentNode : s.anchorNode;
+  const li = n && n.closest ? n.closest('li') : null;
+  return li && corpo().contains(li) ? li : null;
+}
+/* Backspace all'inizio di una riga con casella: toglie la casella, la riga resta */
+function cancellaCasella(){
+  const s = getSelection();
+  if (!s.rangeCount || !s.isCollapsed) return false;
+  const li = voceCorrente(), c = li && casellaDi(li);
+  if (!c) return false;
+  const r = s.getRangeAt(0), prima = document.createRange();
+  prima.setStart(li, 0);
+  try { prima.setEnd(r.startContainer, r.startOffset); } catch(e){ return false; }
+  if (prima.toString().replace(/\u00A0/g,' ').trim() !== '') return false;
+  c.remove();
+  li.classList.remove('spunta-voce');
+  const dopo = document.createRange(); dopo.setStart(li, 0); dopo.collapse(true);
+  s.removeAllRanges(); s.addRange(dopo);
+  return true;
+}
+/* tocco sotto all'ultima riga: si scrive in una riga nuova, come dopo un a capo */
+function rigaInFondo(){
+  const c = corpo();
+  let u = c.lastElementChild;
+  const vuota = u && u.nodeName === 'P' && !u.textContent.trim() && !u.querySelector('img,input');
+  if (!vuota){
+    segnaPasso('comando');
+    u = document.createElement('p'); u.appendChild(document.createElement('br'));
+    c.appendChild(u);
+  }
+  c.focus();
+  const r = document.createRange(); r.setStart(u, 0); r.collapse(true);
+  const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+  aggiornaVuoto(); aggiornaAccese(); aggiornaTabella();
+  u.scrollIntoView({ block:'nearest' });
+}
+/* Invio su una casella vuota: esce dall'elenco, o risale di un livello */
+function invioSuCasella(){
+  const li = voceCorrente();
+  if (!li || !casellaDi(li) || testoRiga(li) !== '') return false;
+  if (li.parentNode.parentNode && li.parentNode.parentNode.nodeName === 'LI'){ rientra(-1); return true; }
+  casellaDi(li).remove();
+  cursoreInFondo(fuoriElenco(li));
+  return true;
+}
+/* dopo Invio dentro una casella, la riga nuova nasce con la sua casella vuota */
+function dopoInvio(){
+  const li = voceCorrente();
+  if (!li) return;
+  const prima = li.previousElementSibling;
+  if (prima && casellaDi(prima) && !casellaDi(li)){
+    nuovaCasella(li);
+    const r = document.createRange(); r.setStartAfter(casellaDi(li)); r.collapse(true);
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+  }
 }
 
 function inserisciTabella(){
@@ -2860,10 +3686,120 @@ function aggiornaTabella(){
   const c = !!tabellaCorrente();
   $('#tabellaAttrezzi').classList.toggle('nascosto', !c);
   $('#sepTabella').classList.toggle('nascosto', !c);
+  disegnaManiglie();
+}
+
+/* ============ tabelle: righe e colonne si spostano trascinando ============ */
+/* Sulla riga e sulla colonna dove sta il cursore compare una maniglia: si trascina e si
+   lascia nel posto nuovo. La riga di intestazione resta sempre in cima. */
+const PUNTINI_V = '<svg viewBox="0 0 12 12"><circle cx="4" cy="3" r="1.1"/><circle cx="8" cy="3" r="1.1"/><circle cx="4" cy="6" r="1.1"/><circle cx="8" cy="6" r="1.1"/><circle cx="4" cy="9" r="1.1"/><circle cx="8" cy="9" r="1.1"/></svg>';
+const PUNTINI_O = '<svg viewBox="0 0 12 12"><circle cx="3" cy="4" r="1.1"/><circle cx="6" cy="4" r="1.1"/><circle cx="9" cy="4" r="1.1"/><circle cx="3" cy="8" r="1.1"/><circle cx="6" cy="8" r="1.1"/><circle cx="9" cy="8" r="1.1"/></svg>';
+let trascinoTabella = false;
+function togliManiglie(){ if (!trascinoTabella) $('#maniglie').innerHTML = ''; }
+function disegnaManiglie(){
+  if (trascinoTabella) return;
+  const box = $('#maniglie');
+  box.innerHTML = '';
+  const t = tabellaCorrente(), c = cellaCorrente();
+  if (!t || !c || vistaGrezza || !corrente) return;
+  const base = $('#foglio').getBoundingClientRect();
+  const vis = (t.closest('.tabella-box') || t).getBoundingClientRect();
+  const riga = c.parentNode, i = [...riga.children].indexOf(c);
+  if (!eTesta(t, riga) && corpoTabella(t).length > 1){
+    const r = riga.getBoundingClientRect();
+    const m = el('button','maniglia riga'); m.innerHTML = PUNTINI_V; m.title = 'Trascina per spostare la riga';
+    m.style.left = (vis.left - base.left - 8) + 'px';
+    m.style.top = (r.top - base.top + r.height / 2 - 13) + 'px';
+    box.appendChild(m);
+    trascina(m, 'riga', t, riga, i);
+  }
+  const testa = intestazione(t);
+  const h = testa && testa.children[i];
+  if (h && testa.children.length > 1){
+    const r = h.getBoundingClientRect();
+    const centro = r.left + r.width / 2;
+    if (centro > vis.left + 10 && centro < vis.right - 10){
+      const m = el('button','maniglia colonna'); m.innerHTML = PUNTINI_O; m.title = 'Trascina per spostare la colonna';
+      m.style.left = (centro - base.left - 13) + 'px';
+      m.style.top = (r.top - base.top - 8) + 'px';
+      box.appendChild(m);
+      trascina(m, 'colonna', t, riga, i);
+    }
+  }
+}
+const eTesta = (t, r) => t.tHead ? r.parentNode === t.tHead : r === t.rows[0];
+const corpoTabella = t => [...t.rows].filter(r => !eTesta(t, r));
+const intestazione = t => (t.tHead && t.tHead.rows[0]) || t.rows[0];
+
+/* spostamenti veri e propri: usati dal trascinamento e dai controlli automatici */
+function spostaRiga(t, riga, verso){          /* verso: la riga davanti a cui va, o null in fondo */
+  if (verso === riga || verso === riga.nextElementSibling) return false;
+  const dove = verso ? verso.parentNode : riga.parentNode;
+  tieniCursore(() => dove.insertBefore(riga, verso));
+  return true;
+}
+function spostaColonna(t, da, a){             /* a: indice della colonna davanti a cui va (o il numero di colonne) */
+  if (a === da || a === da + 1) return false;
+  tieniCursore(() => [...t.rows].forEach(r => {
+    const cella = r.children[da];
+    if (cella) r.insertBefore(cella, r.children[a] || null);
+  }));
+  return true;
+}
+
+function trascina(m, tipo, t, riga, i){
+  m.addEventListener('mousedown', e => e.preventDefault());
+  m.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    m.setPointerCapture(e.pointerId);
+    trascinoTabella = true;
+    const base = $('#foglio').getBoundingClientRect();
+    const vis = (t.closest('.tabella-box') || t).getBoundingClientRect();
+    const linea = el('div','linea-posto');
+    $('#maniglie').appendChild(linea);
+    const righe = corpoTabella(t), celle = [...intestazione(t).children];
+    const segnate = tipo === 'riga' ? [riga] : [...t.rows].map(r => r.children[i]).filter(Boolean);
+    segnate.forEach(x => x.classList.add('in-spostamento'));
+    let dove = null;
+    const muovi = ev => {
+      if (tipo === 'riga'){
+        let k = righe.findIndex(r => { const b = r.getBoundingClientRect(); return ev.clientY < b.top + b.height / 2; });
+        if (k < 0) k = righe.length;
+        dove = k;
+        const y = k < righe.length ? righe[k].getBoundingClientRect().top : righe[righe.length - 1].getBoundingClientRect().bottom;
+        Object.assign(linea.style, { left:(vis.left - base.left) + 'px', top:(y - base.top - 1.5) + 'px', width:vis.width + 'px', height:'3px' });
+      } else {
+        let k = celle.findIndex(x => { const b = x.getBoundingClientRect(); return ev.clientX < b.left + b.width / 2; });
+        if (k < 0) k = celle.length;
+        dove = k;
+        const x = k < celle.length ? celle[k].getBoundingClientRect().left : celle[celle.length - 1].getBoundingClientRect().right;
+        const tb = t.getBoundingClientRect();
+        Object.assign(linea.style, { left:(Math.max(vis.left, Math.min(vis.right, x)) - base.left - 1.5) + 'px', top:(tb.top - base.top) + 'px', width:'3px', height:tb.height + 'px' });
+      }
+    };
+    const fine = () => {
+      m.removeEventListener('pointermove', muovi);
+      m.removeEventListener('pointerup', fine);
+      m.removeEventListener('pointercancel', fine);
+      segnate.forEach(x => x.classList.remove('in-spostamento'));
+      linea.remove();
+      trascinoTabella = false;
+      if (dove != null) segnaPasso('comando');
+      const fatto = dove == null ? false
+        : tipo === 'riga' ? spostaRiga(t, riga, righe[dove] || null)
+        : spostaColonna(t, i, dove);
+      if (fatto) dopoModifica(); else disegnaManiglie();
+    };
+    muovi(e);
+    m.addEventListener('pointermove', muovi);
+    m.addEventListener('pointerup', fine);
+    m.addEventListener('pointercancel', fine);
+  });
 }
 function tabellaAzione(a){
   const t = tabellaCorrente(), c = cellaCorrente();
   if (!t || !c) return;
+  segnaPasso('comando');
   const riga = c.parentNode, i = [...riga.children].indexOf(c);
   const corpoT = t.tBodies[0] || t;
   if (a === 'riga+'){
@@ -2912,6 +3848,7 @@ function ripristinaRange(){
 
 function inserisciInterno(nome){
   ripristinaRange();
+  segnaPasso('comando');
   const a = nodoInterno(nome);
   const s = getSelection();
   if (!s.rangeCount){ corpo().appendChild(a); rangeSalvato = null; return; }
@@ -2928,6 +3865,7 @@ function inserisciInterno(nome){
 
 function inserisciEsterno(url, etichetta){
   ripristinaRange();
+  segnaPasso('comando');
   const a = el('a', null, etichetta || url);
   a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
   const s = getSelection();
@@ -2984,6 +3922,7 @@ function forseRichiamo(){
 }
 
 function dopoModifica(){
+  pianificaTitoli();
   aggiornaVuoto();
   aggiornaAccese();
   aggiornaTabella();
@@ -3090,7 +4029,7 @@ function sceltaFoglio(iniziale, alFatto){
         b.onclick = () => { chiudi(); alFatto({ tipo:'url', url:cerca.value.trim() }); };
         elenco.appendChild(b); return;
       }
-      const visibili = A.fogli.filter(p => (!corrente || p.id !== corrente.id) && (!q || senzaAccenti(p.titolo).includes(q))).slice(0,40);
+      const visibili = A.fogli.filter(p => (!corrente || p.id !== corrente.id) && !chiuso(p) && (!q || senzaAccenti(p.titolo).includes(q))).slice(0,40);
       ordina(visibili).forEach((p,i) => {
         const s = sezione(p.sezioneId), q2 = s ? quaderno(s.quadernoId) : null;
         const b = el('button','elenco-voce' + (i === 0 ? ' evidenza' : ''), p.titolo);
@@ -3222,13 +4161,21 @@ function menuFoglio(p, x, y){
         salva(); disegnaLato(); if (corrente && corrente.id === p.id) apri(p.id);
         avviso('Foglio spostato.');
       }) },
-    { testo:'Duplica', fai: () => {
-        const n = { id:id(), sezioneId:p.sezioneId, titolo:titoloLibero(p.titolo + ' (copia)'), md:p.md, creata:oggi(), modificata:oggi() };
+    { testo:'Duplica', fai: () => seAperto(p, () => {
+        if (corrente && corrente.id === p.id) scriviCorrente();
+        const n = { id:id(), sezioneId:p.sezioneId, titolo:titoloLibero(p.titolo + ' (copia)'), md:p.md, creata:oggi(), modificata:oggi(), protetto:!!p.protetto };
         A.fogli.push(n); salva(); disegnaLato(); apri(n.id);
-      } },
-    { testo:'Condividi il file .md', fai: () => condividiFogli([p]) },
-    { testo:'Copia il file .md', fai: () => copia(testoMd(p), 'Markdown copiato.') },
-    { testo:'Copia il testo', fai: () => copia(testoSemplice(p.md), 'Testo copiato.') },
+      }) },
+    ...(p.protetto ? [] : [
+      { testo:'Condividi il file .md', fai: () => condividiFogli([p]) },
+      { testo:'Copia il file .md', fai: () => copia(testoMd(p), 'Markdown copiato.') },
+      { testo:'Copia il testo', fai: () => copia(testoSemplice(p.md), 'Testo copiato.') }
+    ]),
+    '-',
+    p.protetto
+      ? { testo:'Togli la protezione', fai: () => sproteggi(p) }
+      : { testo:'Proteggi con password', fai: () => proteggi(p) },
+    ...(p.protetto && chiave ? [{ testo:'Chiudi i Fogli protetti', fai: () => blocca() }] : []),
     '-',
     { testo:'Seleziona Fogli', fai: () => entraSelezione('fogli') },
     '-',
@@ -3420,7 +4367,7 @@ function disegnaCestino(){
     chiave: 'F' + p.id,
     nome: p.titolo,
     dove: (p.quadernoNome ? p.quadernoNome + ' / ' : '') + (p.sezioneNome || ''),
-    antep: primeRighe(p.md),
+    antep: chiuso(p) ? 'Foglio protetto' : primeRighe(p.md),
     quando: p.eliminato,
     icona: '<path d="M7 4h7l4 4v12H7z"/><path d="M14 4v4h4"/>',
     ripristina: () => ripristinaFoglio(p),
@@ -3490,13 +4437,91 @@ function applicaAspetto(){
   r.setProperty('--corpo','var(--' + i.font + ')');
   r.setProperty('--corpo-px', i.dimensione + 'px');
   r.setProperty('--colonna', i.colonna + 'px');
-  $('#strumenti').classList.toggle('arrotolata', !i.barraAperta);
+  dispostaBarra();
   const meta = document.querySelector('meta[name=theme-color]');
   if (meta) meta.content = getComputedStyle(document.body).backgroundColor;
 }
 
 /* preferenze che il pannello mostra e che "impostazioni iniziali" riporta al valore di partenza */
-const PREFERENZE = ['tema','font','dimensione','colonna','splash','ordinamento','sommario'];
+const PREFERENZE = ['tema','font','dimensione','colonna','splash','ordinamento','sommario','barraPosizione'];
+
+/* ============ barra di formattazione: in alto, sopra la tastiera, oppure libera ============ */
+/* Libera: la freccia si trascina; lasciata, la barra va al bordo più vicino, come una
+   calamita, e si srotola verso il lato opposto. Posizione e lato restano salvati. */
+function dispostaBarra(animata){
+  const i = A.impostazioni, b = $('#strumenti');
+  const pos = i.barraPosizione, lato = pos === 'libera' ? i.barraLibera.lato : 'destra';
+  b.dataset.pos = pos;
+  b.dataset.lato = lato;
+  b.classList.toggle('arrotolata', !i.barraAperta);
+  /* la freccia indica sempre dove andrà la barra al prossimo tocco */
+  const verso = i.barraAperta ? (lato === 'destra' ? 'destra' : 'sinistra') : (lato === 'destra' ? 'sinistra' : 'destra');
+  $('#bAvvolgi').dataset.verso = verso;
+  $('#bAvvolgi').title = i.barraAperta ? 'Arrotola la barra' + (pos === 'libera' ? ' (trascina per spostarla)' : '') : 'Apri la barra' + (pos === 'libera' ? ' (trascina per spostarla)' : '');
+  if (pos === 'libera') posizionaLibera(animata); else { b.style.left = ''; b.style.top = ''; }
+}
+/* lo spazio in cui la barra libera può stare: la parte visibile del Foglio, senza la
+   barra di scorrimento, con un margine su ogni lato */
+const MARGINE_BARRA = 10;
+function campoLibero(b){
+  const area = $('#principale'), z = $('#zona');
+  const largo = z.clientWidth || area.clientWidth;
+  return {
+    largo, min: MARGINE_BARRA,
+    maxX: Math.max(MARGINE_BARRA, largo - b.offsetWidth - MARGINE_BARRA),
+    maxY: Math.max(MARGINE_BARRA, area.clientHeight - b.offsetHeight - MARGINE_BARRA)
+  };
+}
+function posizionaLibera(animata){
+  const b = $('#strumenti'), area = $('#principale');
+  if (b.dataset.pos !== 'libera' || !area.clientHeight) return;
+  const i = A.impostazioni.barraLibera;
+  b.classList.toggle('calamita', !!animata);
+  const c = campoLibero(b);
+  b.style.left = (i.lato === 'sinistra' ? c.min : c.maxX) + 'px';
+  b.style.top = (c.min + i.y * (c.maxY - c.min)) + 'px';
+}
+function trascinaBarra(){
+  const b = $('#strumenti'), h = $('#bAvvolgi'), area = $('#principale');
+  let inizio = null, mossa = false, dx = 0, dy = 0;
+  h.addEventListener('pointerdown', e => {
+    if (b.dataset.pos !== 'libera') return;
+    e.preventDefault();
+    const r = b.getBoundingClientRect();
+    inizio = { x:e.clientX, y:e.clientY }; mossa = false;
+    dx = e.clientX - r.left; dy = e.clientY - r.top;
+    h.setPointerCapture(e.pointerId);
+  });
+  h.addEventListener('pointermove', e => {
+    if (!inizio) return;
+    if (!mossa && Math.hypot(e.clientX - inizio.x, e.clientY - inizio.y) < 6) return;
+    mossa = true;
+    b.classList.remove('calamita');
+    b.classList.add('in-volo');
+    const a = area.getBoundingClientRect(), c = campoLibero(b);
+    b.style.left = Math.max(c.min, Math.min(c.maxX, e.clientX - a.left - dx)) + 'px';
+    b.style.top = Math.max(c.min, Math.min(c.maxY, e.clientY - a.top - dy)) + 'px';
+  });
+  const lascia = e => {
+    if (!inizio) return;
+    inizio = null;
+    b.classList.remove('in-volo');
+    if (!mossa) return;
+    const a = area.getBoundingClientRect(), r = b.getBoundingClientRect(), c = campoLibero(b);
+    const i = A.impostazioni.barraLibera;
+    /* oltre la metà del foglio, la calamita è quella del lato opposto */
+    i.lato = (r.left + r.width / 2 - a.left) < c.largo / 2 ? 'sinistra' : 'destra';
+    i.y = Math.min(1, Math.max(0, (r.top - a.top - c.min) / Math.max(1, c.maxY - c.min)));
+    salvaPresto();
+    dispostaBarra(true);
+    h.dataset.trascinata = '1';
+    setTimeout(() => { delete h.dataset.trascinata; }, 50);
+  };
+  h.addEventListener('pointerup', lascia);
+  h.addEventListener('pointercancel', lascia);
+  /* la barra si riposiziona quando cambia l'area (tastiera, rotazione) o la barra stessa (aperta, chiusa, mostrata) */
+  if (window.ResizeObserver){ const o = new ResizeObserver(() => posizionaLibera()); o.observe(area); o.observe(b); }
+}
 
 function pannelloImpostazioni(){
   const i = A.impostazioni;
@@ -3539,6 +4564,9 @@ function pannelloImpostazioni(){
   const disegna = () => {
     const c = corpoP;
     c.innerHTML = '';
+    /* ogni sezione sta nel suo riquadro, con un fondo tenue che la stacca dalle altre */
+    let dove = c;
+    const blocco = titolo => { dove = el('section','blocco-imp'); dove.appendChild(el('h3', null, titolo)); c.appendChild(dove); };
     const gruppo = (etichetta, valori, chiave) => {
       const l = el('div','campo');
       l.appendChild(el('span', null, etichetta));
@@ -3552,7 +4580,7 @@ function pannelloImpostazioni(){
         };
         g.appendChild(b);
       });
-      l.appendChild(g); c.appendChild(l);
+      l.appendChild(g); dove.appendChild(l);
     };
     const riga = (titolo, nota, etichettaBottone, fai, rischio) => {
       const r = el('div','riga-imp');
@@ -3563,45 +4591,60 @@ function pannelloImpostazioni(){
       const b = el('button','piccolo' + (rischio ? ' rischio' : ''), etichettaBottone);
       b.onclick = fai;
       r.appendChild(b);
-      c.appendChild(r);
+      dove.appendChild(r);
     };
 
-    c.appendChild(el('h3', null, 'Aspetto'));
+    blocco('Aspetto');
     gruppo('Tema', [['auto','Automatico'],['chiaro','Chiaro'],['scuro','Scuro']], 'tema');
     gruppo('Carattere del testo', [['sans','Lineare'],['serif','Libro'],['mono','Macchina']], 'font');
     gruppo('Dimensione', [[15,'Piccola'],[17,'Media'],[19,'Grande'],[21,'Molto grande']], 'dimensione');
     gruppo('Larghezza della colonna', [[560,'Stretta'],[640,'Media'],[760,'Larga'],[1000,'Piena']], 'colonna');
     gruppo('Schermata iniziale', [[true,'Mostrala'],[false,'Saltala']], 'splash');
 
-    c.appendChild(el('h3', null, 'Fogli'));
+    blocco('Fogli');
     gruppo('Ordine nell\'elenco', [['modificata','Ultimi modificati'],['titolo','Titolo']], 'ordinamento');
     gruppo('Sommario dei titoli', [[true,'Mostralo'],[false,'Nascondilo']], 'sommario');
+    gruppo('Barra di formattazione', [['alto','In alto'],['tastiera','Sopra la tastiera'],['libera','Libera']], 'barraPosizione');
 
-    c.appendChild(el('h3', null, 'Backup'));
-    riga('Esporta tutto', 'Un file .json che rimette l\'archivio esattamente com\'era.', 'Esporta', esportaJson);
+    blocco('Fogli protetti');
+    const nProt = tuttiIFogli().filter(p => p.protetto).length;
+    if (!A.cassaforte){
+      riga('Password', 'Una password sola apre tutti i Fogli protetti. Si protegge un Foglio dal suo menu a tre punti.', 'Imposta',
+        () => dialogoPassword(() => { disegna(); avviso('Password impostata.'); }));
+    } else {
+      riga(nProt ? nProt + (nProt === 1 ? ' Foglio protetto' : ' Fogli protetti') : 'Nessun Foglio protetto',
+        chiave ? 'Aperti: si richiudono uscendo dall\'app o dopo 10 minuti senza usarla.' : 'Chiusi: la password li apre tutti.',
+        chiave ? 'Chiudi' : 'Apri',
+        () => chiave ? blocca().then(disegna) : chiediSblocco(disegna));
+      riga('Cambia password', 'Serve quella attuale. I backup già scaricati restano con la vecchia.', 'Cambia',
+        () => dialogoPassword(() => { disegna(); avviso('Password cambiata.'); }, true));
+    }
+
+    blocco('Backup');
+    riga('Esporta tutto', 'Un file .json che rimette l\'archivio esattamente com\'era. I Fogli protetti restano cifrati.', 'Esporta', esportaJson);
     riga('Esporta i Fogli', 'Uno .zip con le cartelle dei Volumi e dei Capitoli.', 'Esporta', esportaMd);
     riga('Importa un backup', 'Da un file .json di folio.', 'Importa', () => esci(importaJson));
     riga('Importa file di testo', 'Da file .md o .txt, scegliendo dove metterli.', 'Importa', () => esci(() => importaFile({})));
     const q = el('p','avvertenza');
     q.textContent = 'I Fogli vivono solo in questo browser. Se svuoti i dati del sito o cambi dispositivo, senza backup si perdono. '
       + (i.ultimoBackup ? 'Ultimo backup: ' + dataBreve(i.ultimoBackup) + '.' : 'Non hai ancora fatto un backup.');
-    c.appendChild(q);
+    dove.appendChild(q);
 
-    c.appendChild(el('h3', null, 'Cestino'));
+    blocco('Cestino');
     const n = A.cestino.fogli.length + A.cestino.sezioni.length;
     riga(n ? n + (n === 1 ? ' elemento' : ' elementi') : 'Vuoto',
       'Quello che elimini resta qui 30 giorni, poi sparisce.', 'Apri', () => esci(apriCestino));
 
-    c.appendChild(el('h3', null, 'Archivio'));
+    blocco('Archivio');
     const kb = (new Blob([JSON.stringify(A)]).size / 1024).toFixed(1).replace('.',',');
     const misura = el('p','avvertenza');
     misura.textContent = A.quaderni.length + (A.quaderni.length === 1 ? ' Volume, ' : ' Volumi, ')
       + A.sezioni.length + (A.sezioni.length === 1 ? ' Capitolo, ' : ' Capitoli, ')
       + A.fogli.length + (A.fogli.length === 1 ? ' Foglio. ' : ' Fogli. ')
       + 'Occupa ' + kb + ' kB' + (idb ? ' nella memoria estesa del browser.' : ' nella memoria semplice, che si ferma attorno a 5 MB.');
-    c.appendChild(misura);
+    dove.appendChild(misura);
 
-    c.appendChild(el('h3', null, 'Ripristino'));
+    blocco('Ripristino');
     riga('Impostazioni iniziali', 'Riporta aspetto e preferenze come al primo avvio. I Fogli restano dove sono.', 'Ripristina', () => {
       PREFERENZE.forEach(k => i[k] = predefinite[k]);
       mostra(); disegna(); aggiornaPiede();
@@ -3644,7 +4687,7 @@ function cancellaTutto(){
     quaderno: nuovo.quaderni[0].id, foglio: null, sezioniChiuse: [], preferitiChiusi: false, modificheDaSalvare: false
   });
   A = nuovo;
-  corrente = null;
+  corrente = null; chiave = null; cifrati.clear(); illeggibili.clear();
   titoloPrima = ''; htmlAperto = '';
   salva();
   applicaAspetto();
@@ -3668,10 +4711,14 @@ function timbro(){
 }
 function segnaBackup(){ A.impostazioni.ultimoBackup = oggi(); A.impostazioni.modificheDaSalvare = false; salvaOra(); }
 
+/* nel backup i Fogli protetti restano cifrati: si riaprono con la stessa password */
 function esportaJson(){
   scriviCorrente();
-  scarica('folio-' + timbro() + '.json', JSON.stringify(A, null, 1), 'application/json');
-  segnaBackup(); avviso('Backup completo scaricato.');
+  const fatto = () => {
+    scarica('folio-' + timbro() + '.json', JSON.stringify(perSalvare(A), null, 1), 'application/json');
+    segnaBackup(); avviso('Backup completo scaricato.');
+  };
+  if (chiave) salvaOra().then(fatto); else fatto();
 }
 
 /* l'archivio esce con la stessa alberatura dell'app: quaderno, sezione, foglio */
@@ -3684,7 +4731,7 @@ function fileEsportazione(){
       const cs = nomeCartella(s.nome, usati, cq);
       const fg = fogliDi(s.id);
       if (!fg.length) file.push({ nome: cq + '/' + cs + '/.cartella', testo: '' });
-      fg.forEach(p => file.push({ nome: cq + '/' + cs + '/' + nomeCartella(p.titolo, usati, cq + '/' + cs) + '.md', testo: p.md + '\n' }));
+      fg.forEach(p => file.push({ nome: cq + '/' + cs + '/' + nomeCartella(p.titolo, usati, cq + '/' + cs) + '.md', testo: mdDi(p) + '\n' }));
     });
   });
   return file;
@@ -3742,7 +4789,7 @@ function creaZip(file){
 }
 
 /* ============ condivisione e copia ============ */
-const testoMd = p => '# ' + p.titolo + '\n\n' + p.md + '\n';
+const testoMd = p => '# ' + p.titolo + '\n\n' + mdDi(p) + '\n';
 function testoSemplice(md){
   return String(md)
     .replace(/```[\s\S]*?```/g, x => x.replace(/```\w*\n?/g,''))
@@ -3834,7 +4881,8 @@ function importaJson(){
       const b2 = el('button','opz');
       b2.innerHTML = '<b>Sostituisci tutto</b><small>L\'archivio attuale viene rimpiazzato.</small>';
       b2.onclick = () => { chiudi(); conferma('Sicuro? L\'archivio attuale sparisce.', () => {
-        A = dati; corrente = null; salva(); applicaAspetto(); mostraVuoto(); disegnaLato(); vista('elenco');
+        A = dati; corrente = null; chiave = null; cifrati.clear(); illeggibili.clear();
+        salva(); applicaAspetto(); mostraVuoto(); disegnaLato(); vista('elenco');
         avviso('Archivio sostituito.');
       }, 'Sostituisci'); };
       g.append(b1,b2); c.appendChild(g);
@@ -3877,16 +4925,51 @@ function unisci(dati){
     if (esiste) mappaS[s.id] = esiste.id;
     else { const n = { id:id(), quadernoId:qid, nome:s.nome, creata:oggi() }; A.sezioni.push(n); mappaS[s.id] = n.id; }
   });
-  let n = 0;
+  let n = 0, saltati = 0;
+  /* i Fogli protetti entrano solo se usano la stessa password di questo archivio */
+  const stessaPassword = !!(A.cassaforte && dati.cassaforte && A.cassaforte.sale === dati.cassaforte.sale);
   dati.fogli.forEach(p => {
-    A.fogli.push({ id:id(), sezioneId: mappaS[p.sezioneId] || A.sezioni[0].id,
-      titolo: titoloLibero(p.titolo), md:p.md, creata:p.creata, modificata:p.modificata });
+    if (p.protetto && !stessaPassword){ saltati++; return; }
+    const nuovo = { id:id(), sezioneId: mappaS[p.sezioneId] || A.sezioni[0].id,
+      titolo: titoloLibero(p.titolo), md:p.md, creata:p.creata, modificata:p.modificata };
+    if (p.protetto){ nuovo.protetto = true; nuovo.cifra = p.cifra; }
+    A.fogli.push(nuovo);
     n++;
   });
-  salva(); disegnaLato();
-  avviso(n + (n === 1 ? ' Foglio aggiunto.' : ' Fogli aggiunti.'));
+  const fine = () => {
+    salva(); disegnaLato();
+    avviso(n + (n === 1 ? ' Foglio aggiunto.' : ' Fogli aggiunti.')
+      + (saltati ? ' ' + saltati + (saltati === 1 ? ' Foglio protetto saltato' : ' Fogli protetti saltati') + ': hanno un\'altra password, usa "Sostituisci tutto".' : ''), null, null, saltati ? 9000 : 0);
+  };
+  if (chiave) apriCifre(chiave).then(fine); else fine();
 }
 /* ============ eventi ============ */
+/* un gesto di scorrimento col dito: chiama fai(dx, dy) se è stato breve e deciso */
+function gesto(zona, fai){
+  let x0 = 0, y0 = 0, t0 = 0, attivo = false, partenza = null;
+  zona.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1){ attivo = false; return; }
+    attivo = true; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now(); partenza = e.target;
+  }, { passive:true });
+  zona.addEventListener('touchend', e => {
+    if (!attivo) return;
+    attivo = false;
+    const t = e.changedTouches[0];
+    if (Date.now() - t0 > 700) return;
+    fai(t.clientX - x0, t.clientY - y0, { target: partenza });
+  }, { passive:true });
+}
+function cambiaVolume(verso){
+  const n = A.quaderni.length;
+  if (n < 2){ avviso('C\'è un solo Volume.'); return; }
+  const i = A.quaderni.findIndex(q => q.id === A.impostazioni.quaderno);
+  const q = A.quaderni[(i + verso + n) % n];
+  A.impostazioni.quaderno = q.id;
+  mostraVuoto(); salva(); disegnaLato(); vista('elenco');
+  const a = $('#albero');
+  a.classList.remove('da-destra','da-sinistra'); void a.offsetWidth;
+  a.classList.add(verso > 0 ? 'da-destra' : 'da-sinistra');
+}
 function collegaEventi(){
   $('#bPrimoFoglio').onclick = () => nuovoFoglio();
   const splash = $('#splash');
@@ -3905,11 +4988,31 @@ function collegaEventi(){
   $('#bChiudiCestino').onclick = chiudiCestino;
   $('#bSvuota').onclick = svuotaCestino;
 
-  $('#bIndietro').onclick = () => {
+  /* indietro: freccia, gesto o tasto indietro del telefono portano tutti all'elenco */
+  const tornaElenco = () => {
     chiudiGrezzo(); scriviCorrente(); finalizzaTitolo(); salva();
     vista('elenco'); impostaModo('normale'); disegnaLato();
   };
+  $('#bIndietro').onclick = () => { if (history.state && history.state.folio) history.back(); else tornaElenco(); };
+  addEventListener('popstate', () => { if (stretto() && document.body.dataset.vista === 'foglio' && modo === 'normale') tornaElenco(); });
+
+  /* gesti: sul Foglio aperto, da sinistra a destra si torna all'elenco */
+  gesto($('#principale'), (dx, dy, e) => {
+    if (!stretto() || document.body.dataset.vista !== 'foglio' || modo !== 'normale') return;
+    if (e.target.closest && e.target.closest('.tabella-box,#strumenti,#maniglie,pre')) return;
+    const s = getSelection();
+    if (s && s.rangeCount && !s.isCollapsed) return;
+    if (dx > 70 && Math.abs(dy) < dx * 0.5) $('#bIndietro').click();
+  });
+  /* sul nome del Volume: verso sinistra il successivo, verso destra il precedente, in giro */
+  let volumeScorso = false;
+  gesto($('#capQuaderno'), (dx, dy) => {
+    if (modo !== 'normale' || Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx) * 0.6) return;
+    volumeScorso = true; setTimeout(() => { volumeScorso = false; }, 400);
+    cambiaVolume(dx < 0 ? 1 : -1);
+  });
   $('#nomeQuaderno').onclick = e => {
+    if (volumeScorso) return;
     const r = e.currentTarget.getBoundingClientRect();
     menuQuaderni(r.left, r.bottom + 6);
   };
@@ -3923,14 +5026,15 @@ function collegaEventi(){
     menuFoglio(corrente, r.right - 210, r.bottom + 6);
   };
 
-  /* ricerca dalla barra in alto: si resta sulla schermata attuale finché non si scrive,
-     e chiudendo si torna esattamente da dove si era partiti */
+  /* ricerca dalla barra in alto: prima mostra gli ultimi aperti, scrivendo i risultati;
+     chiudendo si torna esattamente da dove si era partiti */
   let origineRicerca = null;
   $('#bCerca').onclick = () => {
     if (modo === 'ricerca'){ $('#cerca').focus(); return; }
     origineRicerca = { vista: document.body.dataset.vista || 'elenco' };
     filtro = '';
     impostaModo('ricerca');
+    if (stretto()) vista('elenco');
     const c = $('#cerca'); c.value = ''; c.focus();
     disegnaLato();
   };
@@ -3945,7 +5049,6 @@ function collegaEventi(){
   };
   $('#cerca').oninput = rimbalzo(e => {
     filtro = e.target.value.trim();
-    if (stretto()) vista(filtro ? 'elenco' : (origineRicerca ? origineRicerca.vista : 'elenco'));
     disegnaLato();
   }, 140);
   $('#cerca').onkeydown = e => {
@@ -3976,15 +5079,44 @@ function collegaEventi(){
   $('#grezzo').oninput = registra;
 
   const c = corpo();
+  c.addEventListener('beforeinput', e => {
+    const tipo = e.inputType || '';
+    if (tipo === 'historyUndo'){ e.preventDefault(); annulla(); return; }
+    if (tipo === 'historyRedo'){ e.preventDefault(); rifai(); return; }
+    segnaPasso(tipo === 'insertParagraph' || tipo === 'insertLineBreak' ? 'invio'
+      : tipo.startsWith('delete') ? 'cancella'
+      : tipo.startsWith('insert') ? 'scrivi' : 'comando');
+    if (tipo === 'insertParagraph' && invioSuCasella()){ e.preventDefault(); dopoModifica(); return; }
+    if (tipo === 'deleteContentBackward' && cancellaCasella()){ e.preventDefault(); ripuliscElenco(); dopoModifica(); return; }
+    if (tipo.startsWith('insert')) cursoreDopoCasella();
+  });
   c.addEventListener('input', e => {
     /* su telefono l'evento dei tasti non riporta il carattere: si guarda quello scritto */
     if (e && e.data === '[' && forseRichiamo()) return;
+    if (e && e.inputType === 'insertParagraph') dopoInvio();
+    ripuliscElenco();
     dopoModifica();
   });
   c.addEventListener('keyup', e => { aggiornaAccese(); aggiornaTabella(); });
   c.addEventListener('mouseup', () => { aggiornaAccese(); aggiornaTabella(); });
   c.addEventListener('focus', () => { aggiornaAccese(); aggiornaTabella(); });
   c.addEventListener('blur', () => { scriviCorrente(); salva(); });
+  /* freccia dei titoli: chiude e apre il paragrafo senza spostare il cursore né aprire la tastiera */
+  c.addEventListener('pointerdown', e => { if (e.pointerType !== 'touch' && zonaPiega(e.target, e.clientX)) e.preventDefault(); });
+  c.addEventListener('click', e => { const h = zonaPiega(e.target, e.clientX); if (h){ e.preventDefault(); commutaPiega(h); } });
+  c.addEventListener('touchend', e => {
+    const t = e.changedTouches[0], h = zonaPiega(e.target, t.clientX);
+    if (h){ e.preventDefault(); commutaPiega(h); }
+  }, { passive:false });
+  /* ogni a capo crea un paragrafo vero, non un blocco anonimo */
+  try { document.execCommand('defaultParagraphSeparator', false, 'p'); } catch(e){}
+  $('#zona').addEventListener('click', e => {
+    if (!corrente || vistaGrezza || modo !== 'normale') return;
+    if (!(e.target === c || e.target === $('#foglio') || e.target === $('#zona'))) return;
+    const u = c.lastElementChild;
+    if (u && e.clientY <= u.getBoundingClientRect().bottom) return;
+    rigaInFondo();
+  });
 
   c.addEventListener('click', e => {
     const a = e.target.closest('a');
@@ -4001,6 +5133,7 @@ function collegaEventi(){
       return;
     }
     if (e.target.matches('input[type=checkbox]')){
+      segnaPasso('comando');
       e.target.toggleAttribute('checked', e.target.checked);
       dopoModifica();
     }
@@ -4012,6 +5145,7 @@ function collegaEventi(){
     const testo = d.getData('text/plain');
     if (!testo) return;
     e.preventDefault();
+    segnaPasso('comando');
     const pareMd = /(^|\n)\s{0,3}(#{1,3}\s|[-*]\s|\d+\.\s|>\s|\||```)/.test(testo);
     if (pareMd && testo.length > 12) esegui('insertHTML', mdVersoHtml(testo));
     else esegui('insertText', testo);
@@ -4027,12 +5161,18 @@ function collegaEventi(){
     b.onclick = () => tabellaAzione(b.dataset.tab);
   });
 
+  $('#bAvvolgi').addEventListener('mousedown', e => e.preventDefault());
   $('#bAvvolgi').onclick = () => {
+    if ($('#bAvvolgi').dataset.trascinata) return;
     A.impostazioni.barraAperta = !A.impostazioni.barraAperta;
-    applicaAspetto(); salva();
+    dispostaBarra(); salva();
   };
+  trascinaBarra();
 
-  document.addEventListener('selectionchange', () => { if (dentro()){ aggiornaAccese(); aggiornaTabella(); } });
+  document.addEventListener('selectionchange', () => { if (dentro()){ cursoreDopoCasella(); aggiornaAccese(); aggiornaTabella(); } else togliManiglie(); });
+  /* le maniglie seguono la tabella quando scorre di lato o cambia lo schermo */
+  c.addEventListener('scroll', () => { if (dentro()) disegnaManiglie(); }, true);
+  addEventListener('resize', () => { if (dentro()) disegnaManiglie(); });
 
   document.addEventListener('keydown', e => {
     const k = e.key.toLowerCase();
@@ -4040,6 +5180,8 @@ function collegaEventi(){
     if (e.key === 'Escape' && modo === 'selezione'){ esciSelezione(); return; }
     if (e.altKey && !cmd && k === 'n'){ e.preventDefault(); nuovoFoglio(); return; }
     if (!cmd) return;
+    if (k === 'z' && dentro()){ e.preventDefault(); e.shiftKey ? rifai() : annulla(); return; }
+    if (k === 'y' && dentro()){ e.preventDefault(); rifai(); return; }
     if (k === 'k' && dentro()){ e.preventDefault(); comando('collega'); }
     if (k === 's'){ e.preventDefault(); scriviCorrente(); finalizzaTitolo(); salva(); avviso('Salvato.'); }
     if (k === 'f'){ e.preventDefault(); $('#bCerca').click(); }
@@ -4049,45 +5191,113 @@ function collegaEventi(){
   const chiudiTutto = () => { chiudiGrezzo(); scriviCorrente(); finalizzaTitolo(); salvaOra(); };
   addEventListener('beforeunload', chiudiTutto);
   addEventListener('pagehide', chiudiTutto);
-  document.addEventListener('visibilitychange', () => { if (document.hidden) chiudiTutto(); });
+  /* i Fogli protetti si richiudono da soli dopo qualche minuto fuori dall'app */
+  /* i Fogli protetti si richiudono uscendo dall'app, o dopo 10 minuti senza toccare niente */
+  let chiusiUscendo = false, ultimoGesto = Date.now();
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden){
+      chiudiTutto();
+      if (chiave){ chiusiUscendo = true; blocca(true); }
+      return;
+    }
+    if (chiusiUscendo){ chiusiUscendo = false; avviso('Fogli protetti richiusi: sei uscito dall\'app.'); }
+  });
+  ['pointerdown','keydown','input','wheel'].forEach(t => document.addEventListener(t, () => { ultimoGesto = Date.now(); }, { capture:true, passive:true }));
+  setInterval(() => {
+    if (chiave && Date.now() - ultimoGesto > INATTIVITA) blocca(true).then(() => avviso('Fogli protetti richiusi dopo 10 minuti senza attività.'));
+  }, 30000);
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applicaAspetto);
 
+  /* l'app occupa sempre e solo la parte visibile dello schermo: con la tastiera aperta
+     si accorcia, così la barra in alto resta in alto e quella in basso sta sopra i tasti */
   if (window.visualViewport){
     const vv = window.visualViewport;
     const adatta = () => {
-      const sotto = Math.max(0, innerHeight - vv.height - vv.offsetTop);
-      document.documentElement.style.setProperty('--kb', (sotto > 90 ? sotto : 0) + 'px');
+      if (vv.scale > 1.01) return;          /* durante lo zoom con due dita non si tocca niente */
+      const s = document.documentElement.style;
+      s.setProperty('--alto', Math.round(vv.height) + 'px');
+      s.setProperty('--su', Math.round(vv.offsetTop) + 'px');
+      if (window.scrollY) window.scrollTo(0, 0);
     };
     vv.addEventListener('resize', adatta);
     vv.addEventListener('scroll', adatta);
+    adatta();
   }
+  addEventListener('resize', () => posizionaLibera());
 }
 
 /* ============ avvio ============ */
+/* folio aperta in due finestre (app installata e scheda del browser) scriverebbe a turno
+   sullo stesso archivio: l'ultima aperta prende il posto, le altre salvano e si mettono in pausa */
+let inPausa = false;
+const canale = ('BroadcastChannel' in window) ? new BroadcastChannel('folio') : null;
+function aspettaAltreFinestre(){
+  if (!canale) return Promise.resolve();
+  return new Promise(res => {
+    let altre = false, fatto = false;
+    const fine = () => { if (!fatto){ fatto = true; canale.removeEventListener('message', ascolta); res(); } };
+    const ascolta = e => {
+      if (e.data === 'ci-sono' && !altre){ altre = true; canale.postMessage('prendo'); setTimeout(fine, 2500); }
+      if (e.data === 'salvato') fine();
+    };
+    canale.addEventListener('message', ascolta);
+    canale.postMessage('chi-c-e');
+    setTimeout(() => { if (!altre) fine(); }, 200);
+  });
+}
+function ascoltaAltreFinestre(){
+  if (!canale) return;
+  canale.addEventListener('message', async e => {
+    if (inPausa) return;
+    if (e.data === 'chi-c-e') canale.postMessage('ci-sono');
+    if (e.data === 'prendo'){
+      chiudiGrezzo(); scriviCorrente(); finalizzaTitolo();
+      await salvaOra();
+      inPausa = true;
+      canale.postMessage('salvato');
+      mettiInPausa();
+    }
+  });
+}
+function mettiInPausa(){
+  dialogo('folio è aperta altrove', (c, chiudi, pie) => {
+    c.appendChild(el('p', null, 'L\'hai aperta in un\'altra finestra o nell\'app installata. Per non mescolare le modifiche, qui folio è in pausa.'));
+    const b = el('button','bott pieno','Usa questa finestra');
+    b.onclick = () => location.reload();
+    pie.appendChild(b);
+  }, null, null, { pieLibero:true, uscita: () => {} });
+}
+
 async function avvia(){
+  await aspettaAltreFinestre();
   const esito = await carica();
   A = esito.a;
   const scaduti = scadenzeCestino();
   applicaAspetto();
   collegaEventi();
+  ascoltaAltreFinestre();
   impostaModo('normale');
   disegnaLato();
   await salvaOra();
 
   const grande = matchMedia('(min-width:900px)').matches;
   const ultimo = A.impostazioni.foglio && foglio(A.impostazioni.foglio);
-  if (ultimo && grande) apri(ultimo.id);
+  if (ultimo && grande && !ultimo.protetto) apri(ultimo.id);
   else {
     mostraVuoto();
     vista(grande ? 'foglio' : 'elenco');
     if (grande){
-      const primo = sezioniDi(A.impostazioni.quaderno).flatMap(s => fogliDi(s.id))[0];
+      const primo = sezioniDi(A.impostazioni.quaderno).flatMap(s => fogliDi(s.id)).find(p => !p.protetto);
       if (primo) apri(primo.id);
     }
   }
 
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   if (esito.nota) setTimeout(() => avviso(esito.nota), 800);
+  if (letturaFallita) dialogo('Archivio non leggibile', (c, chiudi, pie) => {
+    c.appendChild(el('p', null, 'Il browser non mi lascia leggere i tuoi Fogli in questo momento. Non ho toccato niente e qui non salvo nulla: chiudi folio e riaprila.'));
+    const b = el('button','bott pieno','Riprova'); b.onclick = () => location.reload(); pie.appendChild(b);
+  }, null, null, { pieLibero:true, uscita: () => {} });
   if (scaduti) setTimeout(() => avviso(scaduti + (scaduti === 1 ? ' elemento scaduto dal cestino.' : ' elementi scaduti dal cestino.')), 1400);
 
   const i = A.impostazioni;
@@ -4097,7 +5307,18 @@ async function avvia(){
   }
 
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')){
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    /* una versione nuova pubblicata arriva da sola: quando è pronta lo si dice */
+    const cera = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      reg.addEventListener('updatefound', () => {
+        const nuovo = reg.installing;
+        if (!nuovo) return;
+        nuovo.addEventListener('statechange', () => {
+          if (nuovo.state === 'activated' && cera) avviso('Nuova versione di folio pronta.', 'Ricarica', () => location.reload(), 20000);
+        });
+      });
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(() => {}); });
+    }).catch(() => {});
   }
 }
 
@@ -4106,8 +5327,11 @@ window.__prova = {
   mdVersoHtml, htmlVersoMd, titoloLibero, creaZip, ripulisci, nomeUnico, timbroNome,
   stato: () => A, apri, nuovoFoglio, cestinaFogli, entraSelezione, apriCestino, scadenzeCestino,
   fileEsportazione, collassaTutto, apriGrezzo, chiudiGrezzo, rientra, forseRichiamo, dialogoCollega, comando,
-  commutaPreferito, disegnaSommario, evidenziaRicerca, testoSemplice, testoMd, condividiFogli, ripristinaScelti,
-  disegnaCestino, menuFoglio, preferiti, disegnaLato,
+  commutaPreferito, disegnaSommario, commutaPiega, commutaTutte, mostraTitolo, evidenziaRicerca, testoSemplice, testoMd, condividiFogli, ripristinaScelti,
+  disegnaCestino, menuFoglio, preferiti, disegnaLato, normalizzaElenchi, spostaRiga, spostaColonna, dialogoPassword, annulla, rifai, cancellaCasella, rigaInFondo, cambiaVolume, rinominaRimandi,
+  impostaModo, filtroVuoto: () => { filtro = ''; }, spunta, righeScelte, invioSuCasella, dopoInvio,
+  impostaPassword, sblocca, blocca, proteggi, sproteggi, perSalvare, aggiornaCifre, salvaOra, chiuso, dispostaBarra, posizionaLibera,
+  pannelloImpostazioni, esportaJson, unisci, mdDi, sbloccato,
   scriviCorrente, importaTesti: (testi, sid) => {
     testi.forEach(x => A.fogli.push({ id:id(), sezioneId:sid, titolo:titoloLibero(x.titolo), md:x.md, creata:oggi(), modificata:oggi() }));
     salva(); disegnaLato();
