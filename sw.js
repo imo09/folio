@@ -1,5 +1,5 @@
 /* folio - copia per l'uso senza rete. La versione arriva dall'app: non va cambiata a mano. */
-const VERSIONE = 'folio-v7.3';
+const VERSIONE = 'folio-v7.5';
 const ROBA = ['./', './index.html', './manifest.webmanifest', './icona-192.png', './icona-512.png', './icona-180.png'];
 
 self.addEventListener('install', e => {
