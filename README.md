@@ -23,4 +23,4 @@ e `sw.js`: chi ha l'app installata riceve l'aggiornamento entro un paio di riape
 
 ## Versione
 
-7.5
+7.7

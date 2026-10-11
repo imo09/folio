@@ -2,7 +2,7 @@
 <html lang="it" data-tema="chiaro">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Yx0vceP6m/ZHHJUbs/7mefYfLQKQi6vzZvy8MWk+1Y0=' 'sha256-bD1Vf633p9FL6AnnPGwOQIPGBWWcMyo4Kc4Kj9xeFzo='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'self'; manifest-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Yx0vceP6m/ZHHJUbs/7mefYfLQKQi6vzZvy8MWk+1Y0=' 'sha256-SolAQQ5E6tkDKkQeV4ZAwrpJ6JF31yyJis1s9xvFJgE='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'self'; manifest-src 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>folio</title>
 <meta name="description" content="Blocco note semplice. Le pagine restano sul tuo dispositivo.">
@@ -171,6 +171,9 @@ html[data-tema="chiaro"] .mini.piu,html[data-tema="chiaro"] .ico.piu{background:
 html[data-tema="chiaro"] .mini.piu:hover,html[data-tema="chiaro"] .ico.piu:hover{background:#6E4513;color:#FFF9EE}
 html[data-tema="scuro"] .mini.piu,html[data-tema="scuro"] .ico.piu{background:var(--ottone);color:#1B1815}
 html[data-tema="scuro"] .mini.piu:hover,html[data-tema="scuro"] .ico.piu:hover{background:#F0C686;color:#1B1815}
+/* il più dei Gruppi è il negativo di quello del Quaderno: solo bordo e segno, senza riempimento */
+html[data-tema] .cap-sezione .mini.piu{background:transparent;color:var(--ottone);box-shadow:inset 0 0 0 1.6px var(--ottone)}
+html[data-tema] .cap-sezione .mini.piu:hover{background:var(--ottone-tenue);color:var(--ottone)}
 .cap-sezione .mini svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .sezione.chiusa .fogli{display:none}
 .conta{font-variant-numeric:tabular-nums;opacity:.7;font-weight:600}
@@ -219,6 +222,14 @@ html[data-tema="scuro"] .primaria{color:#1C1917}
 
 /* ---------- foglio ---------- */
 #zona{flex:1;overflow:auto;min-height:0;scroll-padding-bottom:120px;order:1}
+/* sfondo del Foglio: scorre con il testo, colore leggero preso dal bordo del tema */
+#zona{--trama:color-mix(in srgb, var(--bordo) 70%, transparent);background-attachment:local}
+#zona[data-sfondo="puntini"]{background-image:radial-gradient(circle, var(--trama) var(--sp), transparent calc(var(--sp) + .6px));background-size:var(--passo) var(--passo)}
+#zona[data-sfondo="righe"]{background-image:linear-gradient(to bottom, var(--trama) var(--sp), transparent var(--sp));background-size:100% var(--passo)}
+#zona[data-sfondo="quadretti"]{background-image:linear-gradient(to bottom, var(--trama) var(--sp), transparent var(--sp)),linear-gradient(to right, var(--trama) var(--sp), transparent var(--sp));background-size:var(--passo) var(--passo)}
+.campo.cursore span{display:flex;justify-content:space-between}
+.campo.cursore b{font-weight:600;color:var(--inchiostro);font-variant-numeric:tabular-nums}
+.campo.cursore input[type=range]{width:100%;accent-color:var(--ottone);padding:0;border:0;background:none}
 .foglio{max-width:var(--colonna);margin:0 auto;padding:24px 22px 200px;position:relative}
 /* maniglie per spostare righe e colonne: stanno sopra la tabella, mai dentro il testo */
 #maniglie{position:absolute;inset:0;pointer-events:none;z-index:4}
@@ -253,15 +264,40 @@ html[data-tema="scuro"] .maniglia{color:#1C1917}
 #sommario ol{list-style:none;margin:2px 0 8px;padding:0 8px 0 0;display:flex;flex-direction:column;gap:2px;max-height:38vh;overflow:auto}
 #sommario button.voce-som.chiusa::after{content:" \203A";color:var(--ottone)}
 /* paragrafi pieghevoli: la freccia sta all'estremo destro della riga del titolo */
-#corpo>h1,#corpo>h2,#corpo>h3{position:relative;padding-right:34px}
-#corpo>h1::after,#corpo>h2::after,#corpo>h3::after{
+:is(#corpo,#corpo>.tessera)>h1,:is(#corpo,#corpo>.tessera)>h2,:is(#corpo,#corpo>.tessera)>h3{position:relative;padding-right:34px}
+:is(#corpo,#corpo>.tessera)>h1::before,:is(#corpo,#corpo>.tessera)>h2::before,:is(#corpo,#corpo>.tessera)>h3::before{
   content:"";position:absolute;right:2px;top:50%;width:22px;height:22px;margin-top:-11px;cursor:pointer;
   background:var(--tenue);opacity:.55;transition:transform .15s,opacity .15s;
   -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/17px no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/17px no-repeat;
 }
-#corpo>h1:hover::after,#corpo>h2:hover::after,#corpo>h3:hover::after{opacity:1}
-#corpo>.capo-piegato::after{transform:rotate(-90deg);background:var(--ottone);opacity:1}
-#corpo>.piegato{display:none}
+:is(#corpo,#corpo>.tessera)>h1:hover::before,:is(#corpo,#corpo>.tessera)>h2:hover::before,:is(#corpo,#corpo>.tessera)>h3:hover::before{opacity:1}
+:is(#corpo,#corpo>.tessera)>.capo-piegato::before{transform:rotate(-90deg);background:var(--ottone);opacity:1}
+:is(#corpo,#corpo>.tessera)>.piegato{display:none}
+/* caselle del paragrafo: il conteggio sta subito dopo il testo del titolo, piccolo e tenue */
+#corpo [data-conta]::after{
+  content:attr(data-conta);display:inline-block;margin-left:.55em;padding:3px 7px;border-radius:20px;
+  font:600 11.5px/1 var(--sans);letter-spacing:.02em;vertical-align:.18em;font-variant-numeric:tabular-nums;
+  color:var(--tenue);background:var(--superficie-2);user-select:none;pointer-events:none;
+}
+#corpo [data-conta="\2713"]::after{color:var(--carta);background:var(--ottone)}
+/* tessere: schede larghe quanto il Foglio, con la presa in alto al centro e il + sotto */
+#corpo[data-tessere]>.tessera{
+  position:relative;margin:0 0 30px;padding:20px 16px 14px;border:1px solid var(--bordo);border-radius:12px;
+  background:var(--superficie);box-shadow:0 1px 3px rgba(40,30,15,.06);
+}
+#corpo[data-tessere]>.tessera>*:last-child{margin-bottom:0}
+#corpo[data-tessere]>.tessera::before{
+  content:"";position:absolute;top:8px;left:50%;width:30px;height:4px;margin-left:-15px;border-radius:2px;
+  background:var(--bordo);cursor:grab;
+}
+#corpo[data-tessere]>.tessera:hover::before{background:var(--tenue)}
+#corpo[data-tessere]>.tessera::after{
+  content:"+";position:absolute;left:50%;bottom:-25px;width:20px;height:20px;margin-left:-10px;border-radius:50%;
+  border:1px solid var(--bordo);background:var(--carta);color:var(--tenue);
+  font:500 15px/18px var(--sans);text-align:center;cursor:pointer;user-select:none;
+}
+#corpo[data-tessere]>.tessera:hover::after{color:var(--ottone);border-color:var(--ottone)}
+#corpo[data-tessere]>.tessera.in-volo{opacity:.45}
 #sommario li{margin:0}
 #sommario button.voce-som{
   text-align:left;font-size:14px;color:var(--inchiostro);padding:3px 0;line-height:1.4;
@@ -272,7 +308,7 @@ html[data-tema="scuro"] .maniglia{color:#1C1917}
 #sommario button.voce-som.liv3{padding-left:32px;font-size:13px;color:var(--tenue)}
 
 #corpo{font:var(--corpo-px)/1.62 var(--corpo);outline:none;min-height:46vh;position:relative}
-#corpo[data-vuoto="1"]:not(:focus)>*:first-child::before{
+#corpo:not([data-tessere])[data-vuoto="1"]:not(:focus)>*:first-child::before{
   content:var(--scrivi-qui,"Scrivi qui.");position:absolute;color:var(--tenue);opacity:.5;pointer-events:none;
 }
 .senza-foglio{max-width:var(--colonna);margin:0 auto;padding:14vh 22px;text-align:center;color:var(--tenue)}
@@ -312,6 +348,8 @@ html[data-tema="scuro"] .maniglia{color:#1C1917}
 .avvolgi[data-verso="sinistra"] svg{transform:rotate(180deg)}
 #strumenti.arrotolata .attrezzi,#strumenti.arrotolata .fisso{display:none}
 #strumenti.arrotolata{width:42px;margin-left:auto;margin-right:8px}
+#strumenti.arrotolata:not([data-pos="libera"]){position:absolute;right:8px;margin:0;z-index:8;box-shadow:0 4px 14px rgba(40,30,15,.18)}
+#strumenti.arrotolata[data-pos="tastiera"]{top:auto;bottom:calc(8px + env(safe-area-inset-bottom,0px))}
 #strumenti[data-pos="libera"].arrotolata{margin:0}
 .attrezzi{display:flex;align-items:center;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
 .attrezzi::-webkit-scrollbar{display:none}
@@ -321,9 +359,13 @@ html[data-tema="scuro"] .maniglia{color:#1C1917}
 .att svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .att b{font-weight:700}.att i{font-family:var(--serif)}.att s{opacity:.9}
 .sep{width:1px;height:18px;background:var(--bordo);margin:0 4px;flex:none;align-self:center}
+/* barra tenuta premuta: si stacca, si trascina; la linea mostra dove si aggancerà */
+#strumenti.sganciata{transform:scale(1.03);box-shadow:0 12px 30px rgba(40,30,15,.28);transition:transform .15s}
+#strumenti{-webkit-touch-callout:none;user-select:none}
+.guida-barra{position:absolute;left:12px;right:12px;height:3px;margin-top:-1.5px;border-radius:2px;background:var(--ottone);opacity:.7;z-index:7;pointer-events:none}
 
 /* ---------- testo del foglio ---------- */
-#corpo>*:first-child{margin-top:0}
+:is(#corpo,#corpo>.tessera)>*:first-child{margin-top:0}
 #corpo h1,#corpo h2,#corpo h3,#corpo h4{line-height:1.3;margin:1.5em 0 .45em;font-weight:600}
 #corpo h1{font-size:1.5em}#corpo h2{font-size:1.26em}#corpo h3{font-size:1.09em}#corpo h4{font-size:1em}
 /* stessa distanza fra le righe sempre: a capo, elenchi, numeri e caselle */
@@ -362,21 +404,24 @@ html[data-tema="scuro"] .maniglia{color:#1C1917}
   content:"";width:.5em;height:.26em;border-left:2px solid var(--carta);border-bottom:2px solid var(--carta);
   transform:rotate(-45deg) translate(1px,-1px);
 }
-#corpo .tabella-box{overflow-x:auto;margin:0 0 .95em;border:1px solid var(--bordo);border-radius:9px}
+#corpo .tabella-box{overflow-x:auto;margin:0 0 .95em;border:1px solid var(--bordo);border-radius:9px;background:var(--carta)}
+/* tabelle e citazioni hanno un fondo pieno: la trama dello sfondo non passa sotto il testo */
+#corpo blockquote{background:var(--carta)}
+#corpo .tessera .tabella-box,#corpo .tessera blockquote{background:var(--superficie)}
 /* allineamento: per tutto il Foglio, per tipo di blocco (paragrafi, H1, H2, H3); quello scritto
    in un blocco (immagini, Fogli della 7.4) vale per quel blocco */
-#corpo[data-al-p="center"]>p:not([align]):not(:has(img)),#corpo[data-al-h1="center"]>h1:not([align]),
-#corpo[data-al-h2="center"]>h2:not([align]),#corpo[data-al-h3="center"]>h3:not([align]){text-align:center}
-#corpo[data-al-p="right"]>p:not([align]):not(:has(img)),#corpo[data-al-h1="right"]>h1:not([align]),
-#corpo[data-al-h2="right"]>h2:not([align]),#corpo[data-al-h3="right"]>h3:not([align]){text-align:right}
-#corpo[data-al-p="justify"]>p:not([align]):not(:has(img)),#corpo[data-al-h1="justify"]>h1:not([align]),
-#corpo[data-al-h2="justify"]>h2:not([align]),#corpo[data-al-h3="justify"]>h3:not([align]){text-align:justify}
+:is(#corpo[data-al-p="center"],#corpo[data-al-p="center"]>.tessera)>p:not([align]):not(:has(img)),:is(#corpo[data-al-h1="center"],#corpo[data-al-h1="center"]>.tessera)>h1:not([align]),
+:is(#corpo[data-al-h2="center"],#corpo[data-al-h2="center"]>.tessera)>h2:not([align]),:is(#corpo[data-al-h3="center"],#corpo[data-al-h3="center"]>.tessera)>h3:not([align]){text-align:center}
+:is(#corpo[data-al-p="right"],#corpo[data-al-p="right"]>.tessera)>p:not([align]):not(:has(img)),:is(#corpo[data-al-h1="right"],#corpo[data-al-h1="right"]>.tessera)>h1:not([align]),
+:is(#corpo[data-al-h2="right"],#corpo[data-al-h2="right"]>.tessera)>h2:not([align]),:is(#corpo[data-al-h3="right"],#corpo[data-al-h3="right"]>.tessera)>h3:not([align]){text-align:right}
+:is(#corpo[data-al-p="justify"],#corpo[data-al-p="justify"]>.tessera)>p:not([align]):not(:has(img)),:is(#corpo[data-al-h1="justify"],#corpo[data-al-h1="justify"]>.tessera)>h1:not([align]),
+:is(#corpo[data-al-h2="justify"],#corpo[data-al-h2="justify"]>.tessera)>h2:not([align]),:is(#corpo[data-al-h3="justify"],#corpo[data-al-h3="justify"]>.tessera)>h3:not([align]){text-align:justify}
 #corpo [align="center"]{text-align:center}
 #corpo [align="right"]{text-align:right}
 #corpo [align="justify"]{text-align:justify}
 /* un titolo centrato lo è davvero: a sinistra lo stesso spazio lasciato a destra per la freccia */
-#corpo[data-al-h1="center"]>h1:not([align]),#corpo[data-al-h2="center"]>h2:not([align]),
-#corpo[data-al-h3="center"]>h3:not([align]),#corpo>h1[align="center"],#corpo>h2[align="center"],#corpo>h3[align="center"]{padding-left:34px}
+:is(#corpo[data-al-h1="center"],#corpo[data-al-h1="center"]>.tessera)>h1:not([align]),:is(#corpo[data-al-h2="center"],#corpo[data-al-h2="center"]>.tessera)>h2:not([align]),
+:is(#corpo[data-al-h3="center"],#corpo[data-al-h3="center"]>.tessera)>h3:not([align]),:is(#corpo,#corpo>.tessera)>h1[align="center"],:is(#corpo,#corpo>.tessera)>h2[align="center"],:is(#corpo,#corpo>.tessera)>h3[align="center"]{padding-left:34px}
 /* immagini: dentro la colonna, mai più grandi dell'originale; la larghezza scelta è in percentuale */
 #corpo img{max-width:100%;height:auto;vertical-align:bottom;border-radius:6px;cursor:pointer;-webkit-user-drag:none;user-select:none}
 #corpo img.bordo{border:1px solid var(--bordo);padding:5px;background:var(--superficie);border-radius:9px}
@@ -384,7 +429,7 @@ html[data-tema="scuro"] .maniglia{color:#1C1917}
 #corpo img:not([src]){display:inline-block;width:160px;height:100px;background:var(--superficie-2)}
 #corpo img.mancante{border:1px dashed var(--tenue)}
 /* un po' d'aria tra il testo e le immagini, sopra e sotto */
-#corpo>p:has(>img){margin:.9em 0}
+:is(#corpo,#corpo>.tessera)>p:has(>img){margin:.9em 0}
 #corpo table{border-collapse:collapse;width:100%;font-size:.94em;min-width:340px}
 #corpo th,#corpo td{border:1px solid var(--bordo);padding:8px 11px;text-align:left;vertical-align:top}
 #corpo th{background:var(--superficie-2);font-weight:600}
@@ -528,7 +573,7 @@ html[data-tema="scuro"] .avviso button{color:#E8BE7C}
 }
 @media (min-width:900px){ #bIndietro{display:none} }
 @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}#splash{display:none}}
-@media print{body{position:static;height:auto;overflow:visible;display:block}#app{display:block}#barra,#lato,#strumenti,#sommario,.rimandi{display:none}#corpo>.piegato{display:block}#corpo>h1::after,#corpo>h2::after,#corpo>h3::after{display:none}#zona{overflow:visible}.foglio{padding:0;max-width:none}}
+@media print{body{position:static;height:auto;overflow:visible;display:block}#app{display:block}#barra,#lato,#strumenti,#sommario,.rimandi{display:none}:is(#corpo,#corpo>.tessera)>.piegato{display:block}:is(#corpo,#corpo>.tessera)>h1::before,:is(#corpo,#corpo>.tessera)>h2::before,:is(#corpo,#corpo>.tessera)>h3::before{display:none}#zona{overflow:visible}.foglio{padding:0;max-width:none}}
 </style>
 </head>
 <body data-vista="elenco">
@@ -1833,7 +1878,7 @@ return exports;
 (function(){
 'use strict';
 
-const VERSIONE_APP = '7.5';
+const VERSIONE_APP = '7.7';
 
 /* ============ utilità ============ */
 const $ = s => document.querySelector(s);
@@ -2404,6 +2449,41 @@ const EN = {
   "Bordo": "Border",
   "Togli l'immagine": "Remove the image",
   "Riduci la barra dell'immagine": "Collapse the image bar",
+  "Sfondo": "Background",
+  "Sfondo dei Fogli": "Page background",
+  "Fogli con uno sfondo proprio": "Pages with their own background",
+  "Questo sfondo vale per i Fogli senza uno scelto a mano. Puoi imporlo anche a loro.": "This background applies to Pages without one chosen by hand. You can impose it on them too.",
+  "Applica a tutti": "Apply to all",
+  "Tipo": "Type",
+  "Come nelle Impostazioni": "As in Settings",
+  "Nessuno": "None",
+  "Puntini": "Dots",
+  "Righe": "Lines",
+  "Quadretti": "Grid",
+  "Spessore": "Thickness",
+  "Distanza fra le righe": "Line spacing",
+  "Grandezza": "Size",
+  "Sfondo del Foglio": "Page background",
+  "Unisci le tessere": "Merge the cards",
+  "Scrivi a tessere": "Write in cards",
+  "Condividi ed esporta": "Share and export",
+  "Tessere unite in un testo unico.": "Cards merged into one text.",
+  "Ora il Foglio è a tessere: il + sotto una tessera ne aggiunge un'altra.": "This Page is now in cards: the + under a card adds another one.",
+  "Tessera eliminata.": "Card deleted.",
+  "Nuova tessera sopra": "New card above",
+  "Nuova tessera sotto": "New card below",
+  "Sposta su": "Move up",
+  "Sposta giù": "Move down",
+  "Elimina tessera": "Delete card",
+  "Puoi anche tenerla premuta e trascinarla: in cima o in fondo si aggancia.": "You can also press and hold it, then drag it: it snaps at the top or bottom.",
+  "Applica a": "Apply to",
+  "Questo Foglio": "This Page",
+  "Tutto il Gruppo": "The whole Group",
+  "Tutto il Quaderno": "The whole Notebook",
+  "Sfondo applicato: {n}.": "Background applied: {n}.",
+  "Tutti i Fogli usano già lo sfondo delle Impostazioni.": "All Pages already use the background from Settings.",
+  "{n} hanno uno sfondo scelto a mano: lo tolgo, così seguono le Impostazioni?": "{n} have a background chosen by hand: remove it, so they follow Settings?",
+  "Sfondo delle Impostazioni per tutti i Fogli.": "Settings background for all Pages.",
   "Mostra la barra dell'immagine": "Show the image bar",
   "Icona del Gruppo": "Group icon",
   "Il riordino a mano si accende nelle Impostazioni.": "Manual reordering is turned on in Settings.",
@@ -2670,7 +2750,8 @@ function archivioNuovo(){
       sezioniChiuse:[], ultimoBackup:null, modificheDaSalvare:false,
       splash:true, preferitiChiusi:false, sommario:true, sommarioAperto:false,
       barraPosizione:'alto', barraLibera:{ lato:'destra', y:0.4 },
-      recenti:[], lingua:'auto', ordineGruppi:'creazione', riordinoManuale:true
+      recenti:[], lingua:'auto', ordineGruppi:'creazione', riordinoManuale:true,
+      sfondoTipo:'nessuno', sfondoSpessore:1, sfondoPasso:24
     },
     immagini: {},
     cassaforte: null
@@ -2697,6 +2778,8 @@ function normalizza(a){
   if (!['auto','it','en'].includes(a.impostazioni.lingua)) a.impostazioni.lingua = 'auto';
   if (!['creazione','modifica','nome'].includes(a.impostazioni.ordineGruppi)) a.impostazioni.ordineGruppi = 'creazione';
   a.impostazioni.riordinoManuale = a.impostazioni.riordinoManuale !== false;
+  const sg = sfondoValido({ tipo:a.impostazioni.sfondoTipo, spessore:a.impostazioni.sfondoSpessore, passo:a.impostazioni.sfondoPasso }) || { tipo:'nessuno', spessore:1, passo:24 };
+  Object.assign(a.impostazioni, { sfondoTipo:sg.tipo, sfondoSpessore:sg.spessore, sfondoPasso:sg.passo });
   /* delle immagini incorporate nella struttura restano solo misure e peso: i dati stanno a parte */
   a.immagini = (a.immagini && typeof a.immagini === 'object' && !Array.isArray(a.immagini)) ? a.immagini : {};
   delete a.immaginiDati;
@@ -2721,6 +2804,8 @@ function normalizza(a){
       ['p','h1','h2','h3'].forEach(k => { if (['center','right','justify'].includes(p.allinea[k])) al[k] = p.allinea[k]; });
       if (Object.keys(al).length) p.allinea = al; else delete p.allinea;
     } else delete p.allinea;
+    const sf = sfondoValido(p.sfondo);
+    if (sf) p.sfondo = sf; else delete p.sfondo;
     p.protetto = !!(p.protetto && p.cifra);
   });
   a.cestino.fogli.forEach(p => { p.eliminato = p.eliminato || oggi(); p.protetto = !!(p.protetto && p.cifra); });
@@ -3143,6 +3228,22 @@ volgi.addRule('allineato', {
     return '\n\n<' + tag + ' align="' + n.getAttribute('align') + '">' + dentro + '</' + tag + '>\n\n';
   }
 });
+/* tessere: ogni tessera nel file è preceduta da un commento <!-- tessera -->, che nessun lettore
+   di markdown mostra. Così il testo si legge tutto di seguito e folio ritrova le tessere. */
+const SEGNO_TESSERA = '<!-- tessera -->';
+const RIGA_TESSERA = /^[ \t]*<!--\s*tessera\s*-->[ \t]*$/m;
+const senzaTessere = md => String(md || '').replace(/^[ \t]*<!--\s*tessera\s*-->[ \t]*\n*/gm, '');
+volgi.addRule('tessera', {
+  filter: n => n.nodeName === 'SECTION' && n.classList.contains('tessera'),
+  replacement: c => '\n\n' + SEGNO_TESSERA + '\n\n' + c.trim() + '\n\n'
+});
+/* il contenuto di un Foglio a schermo: a tessere se il file ne contiene il segno */
+function htmlFoglio(md){
+  if (!RIGA_TESSERA.test(md || '')) return mdVersoHtml(md) || '<p><br></p>';
+  return md.split(new RegExp(RIGA_TESSERA.source, 'm'))
+    .filter((x, i) => i > 0 || x.trim())
+    .map(x => '<section class="tessera">' + (mdVersoHtml(x) || '<p><br></p>') + '</section>').join('');
+}
 /* il barrato si scrive con due tilde, come lo scrivono GitHub e gli assistenti */
 volgi.addRule('barrato', { filter:['del','s','strike'], replacement: c => c ? '~~' + c + '~~' : '' });
 volgi.addRule('voceElenco', {
@@ -3585,7 +3686,7 @@ function disegnaRicerca(albero){
   A.quaderni.forEach(vol => {
     sezioniDi(vol.id).forEach(cap => {
       /* un Foglio protetto chiuso non si trova: né il titolo né il testo */
-      const fg = fogliDi(cap.id).filter(p => !chiuso(p) && (contiene(p.titolo) || contiene(p.md)));
+      const fg = fogliDi(cap.id).filter(p => !chiuso(p) && (contiene(p.titolo) || contiene(senzaTessere(p.md))));
       const capCorrisponde = contiene(cap.nome), volCorrisponde = contiene(vol.nome);
       if (!fg.length && !capCorrisponde && !volCorrisponde) return;
       esiti.push({ vol, cap, fogli: fg, capCorrisponde, volCorrisponde });
@@ -3615,9 +3716,9 @@ function disegnaRicerca(albero){
       const dove = contiene(p.titolo) ? 'nel titolo' : 'nel testo';
       const fr = el('span','frammento');
       if (dove === 'nel testo'){
-        const testo = senzaAccenti(p.md), i = testo.indexOf(qn);
+        const md = senzaTessere(p.md), testo = senzaAccenti(md), i = testo.indexOf(qn);
         const inizio = Math.max(0, i - 24);
-        const pezzo = p.md.slice(inizio, i + q.length + 46).replace(/\s+/g,' ').trim();
+        const pezzo = md.slice(inizio, i + q.length + 46).replace(/\s+/g,' ').trim();
         fr.appendChild(document.createTextNode(inizio > 0 ? '…' : ''));
         fr.appendChild(segnaTesto(pezzo, q));
         fr.appendChild(document.createTextNode('…'));
@@ -3703,8 +3804,10 @@ function apri(fid){
   $('#corpo').setAttribute('contenteditable','true');
   titoloPrima = p.titolo;
   $('#titolo').value = p.titolo;
-  $('#corpo').innerHTML = mdVersoHtml(p.md) || '<p><br></p>';
+  $('#corpo').innerHTML = htmlFoglio(p.md);
+  segnaTessere();
   applicaAllineamento();
+  applicaSfondo();
   azzeraPassi();
   togliManiglie();
   disegnaSommario();
@@ -3733,7 +3836,9 @@ function mostraVuoto(){
   chiudiGrezzo();
   $('#titolo').value = '';
   $('#corpo').innerHTML = '';
+  segnaTessere();
   applicaAllineamento();
+  applicaSfondo();
   togliManiglie();
   aggiornaBarraImmagine();
   $('#corpo').setAttribute('contenteditable','false');
@@ -3768,18 +3873,22 @@ function chiaviTitoli(){
 function applicaPieghe(){
   const insieme = insiemePiegati(), chiavi = chiaviTitoli();
   const chiusi = new Set(titoliSommario.filter((h, i) => insieme.has(chiavi[i])));
-  let fino = null;
-  [...corpo().children].forEach(n => {
-    const liv = livello(n);
-    if (liv && (fino === null || liv <= fino)){
-      fino = chiusi.has(n) ? liv : null;
-      n.classList.toggle('piegato', false);       /* toggle e non remove: non lascia attributi vuoti */
-      n.classList.toggle('capo-piegato', chiusi.has(n));
-      return;
-    }
-    n.classList.toggle('piegato', fino !== null);
-    if (liv) n.classList.toggle('capo-piegato', chiusi.has(n));
+  /* con le tessere, un paragrafo chiuso finisce al più alla fine della sua tessera */
+  scatole().forEach(sc => {
+    let fino = null;
+    [...sc.children].forEach(n => {
+      const liv = livello(n);
+      if (liv && (fino === null || liv <= fino)){
+        fino = chiusi.has(n) ? liv : null;
+        n.classList.toggle('piegato', false);       /* toggle e non remove: non lascia attributi vuoti */
+        n.classList.toggle('capo-piegato', chiusi.has(n));
+        return;
+      }
+      n.classList.toggle('piegato', fino !== null);
+      if (liv) n.classList.toggle('capo-piegato', chiusi.has(n));
+    });
   });
+  contaSpunte();
   /* il cursore non resta mai dentro a un paragrafo chiuso */
   const s = getSelection();
   const dove = s.rangeCount && s.anchorNode && corpo().contains(s.anchorNode) ? (s.anchorNode.nodeType === 3 ? s.anchorNode.parentNode : s.anchorNode).closest('.piegato') : null;
@@ -3788,6 +3897,27 @@ function applicaPieghe(){
     while (h && (h.classList.contains('piegato') || !livello(h))) h = h.previousElementSibling;
     if (h){ const r = document.createRange(); r.selectNodeContents(h); r.collapse(false); s.removeAllRanges(); s.addRange(r); }
   }
+}
+/* caselle di un paragrafo: accanto al titolo, quante sono spuntate sul totale (3/5), oppure ✓
+   quando sono tutte fatte. Conta fino al titolo successivo dello stesso livello o più alto, quindi
+   un titolo grande somma anche i suoi sottotitoli. È solo a schermo: nel file non entra. */
+function contaSpunte(){
+  scatole().forEach(sc => {
+    const figli = [...sc.children];
+    figli.forEach((h, i) => {
+      const l = livello(h);
+      if (!l) return;
+      let fatte = 0, tutte = 0;
+      for (let j = i + 1; j < figli.length; j++){
+        const lj = livello(figli[j]);
+        if (lj && lj <= l) break;
+        figli[j].querySelectorAll('input[type=checkbox]').forEach(c => { tutte++; if (c.checked) fatte++; });
+      }
+      const v = !tutte ? '' : fatte === tutte ? '\u2713' : fatte + '/' + tutte;
+      if (v){ if (h.getAttribute('data-conta') !== v) h.setAttribute('data-conta', v); }
+      else if (h.hasAttribute('data-conta')) h.removeAttribute('data-conta');
+    });
+  });
 }
 function commutaPiega(h){
   const i = titoliSommario.indexOf(h);
@@ -3819,12 +3949,12 @@ function mostraTitolo(h){
 /* la freccia di un titolo sta all'estremo destro della sua riga */
 function zonaPiega(bersaglio, x){
   const h = bersaglio && bersaglio.closest ? bersaglio.closest('h1,h2,h3') : null;
-  if (!h || h.parentNode !== corpo()) return null;
+  if (!h || !eScatola(h.parentNode)) return null;
   return x > h.getBoundingClientRect().right - 40 ? h : null;
 }
 function disegnaSommario(){
   const box = $('#sommario');
-  titoliSommario = corrente ? [...corpo().children].filter(livello) : [];
+  titoliSommario = corrente ? blocchi().filter(livello) : [];
   applicaPieghe();
   if (!corrente || !A.impostazioni.sommario || vistaGrezza || !titoliSommario.length){ box.classList.add('nascosto'); return; }
   const aperto = A.impostazioni.sommarioAperto;
@@ -4008,7 +4138,8 @@ function chiudiGrezzo(){
   $('#corpo').classList.remove('nascosto');
   $('#strumenti').classList.remove('nascosto');
   if (corrente){
-    $('#corpo').innerHTML = mdVersoHtml(corrente.md) || '<p><br></p>';
+    $('#corpo').innerHTML = htmlFoglio(corrente.md);
+    segnaTessere();
     htmlAperto = $('#corpo').innerHTML;
     riempiImmagini();
     azzeraPassi();
@@ -4141,12 +4272,17 @@ function assicuraFuoco(){
     if (!s.rangeCount){ const r = document.createRange(); r.selectNodeContents(corpo()); r.collapse(false); s.addRange(r); }
   }
 }
+/* i blocchi (paragrafi, titoli, elenchi...) stanno nel corpo, oppure dentro le sue tessere */
+const conTessere = () => corpo().hasAttribute('data-tessere');
+const eScatola = n => !!n && (n === corpo() || (n.nodeName === 'SECTION' && n.classList.contains('tessera') && n.parentNode === corpo()));
+const scatole = () => conTessere() ? [...corpo().children].filter(eScatola) : [corpo()];
+const blocchi = () => scatole().flatMap(s => [...s.children]);
 function blocco(){
   let n = getSelection().anchorNode;
   if (!n) return null;
   if (n.nodeType === 3) n = n.parentNode;
-  while (n && n !== corpo() && n.parentNode !== corpo()) n = n.parentNode;
-  return n === corpo() ? null : n;
+  while (n && n !== corpo() && !eScatola(n.parentNode)) n = n.parentNode;
+  return !n || eScatola(n) ? null : n;
 }
 function esegui(c,v){ document.execCommand(c, false, v); }
 
@@ -4192,7 +4328,7 @@ const TIPI_ALLINEA = { P:'p', H1:'h1', H2:'h2', H3:'h3' };
 const allineamentoDi = b => GIRO_ALLINEA.includes(b && b.getAttribute && b.getAttribute('align')) ? b.getAttribute('align') : 'left';
 const soloImmagine = n => n.nodeName === 'P' && !!n.querySelector('img') && !n.textContent.trim();
 function tipoAllineabile(b){
-  if (!b || b.parentNode !== corpo()) return null;
+  if (!b || !eScatola(b.parentNode)) return null;
   const k = TIPI_ALLINEA[b.nodeName];
   return k && !(k === 'p' && soloImmagine(b)) ? k : null;
 }
@@ -4215,7 +4351,7 @@ function allinea(){
   if (dopo === 'left') delete al[k]; else al[k] = dopo;
   if (Object.keys(al).length) corrente.allinea = al; else delete corrente.allinea;
   /* gli allineamenti scritti blocco per blocco (7.4) lasciano il posto a quello del Foglio */
-  [...corpo().children].forEach(n => { if (n.hasAttribute('align') && tipoAllineabile(n) === k) n.removeAttribute('align'); });
+  blocchi().forEach(n => { if (n.hasAttribute('align') && tipoAllineabile(n) === k) n.removeAttribute('align'); });
   corrente.modificata = oggi();
   applicaAllineamento();
 }
@@ -4301,6 +4437,7 @@ function segnaPasso(tipo){
 function rimetti(f){
   corpo().innerHTML = f.html;
   if (corrente){ if (f.al) corrente.allinea = JSON.parse(f.al); else delete corrente.allinea; applicaAllineamento(); }
+  segnaTessere();
   immagineScelta = null;
   riempiImmagini();
   aggiornaBarraImmagine();
@@ -4365,8 +4502,7 @@ function righeScelte(){
     return b && semplice(b) ? [b] : [];
   }
   const voci = [...corpo().querySelectorAll('li')].filter(li => tocca(r, li));
-  const blocchi = [...corpo().children].filter(b => semplice(b) && tocca(r, b));
-  return blocchi.concat(voci);
+  return blocchi().filter(b => semplice(b) && tocca(r, b)).concat(voci);
 }
 function inVoce(b){
   const ul = document.createElement('ul'), li = document.createElement('li');
@@ -4421,7 +4557,7 @@ function spunta(){
   } else {
     caselle.forEach(c => c.remove());
     righe.forEach(li => li.classList.remove('spunta-voce'));
-    const fuori = righe.filter(li => li.parentNode && li.parentNode.parentNode === corpo()).map(fuoriElenco);
+    const fuori = righe.filter(li => li.parentNode && eScatola(li.parentNode.parentNode)).map(fuoriElenco);
     if (fuori.length) eraSelezione ? seleziona(fuori[0], fuori[fuori.length - 1]) : cursoreInFondo(fuori[0]);
   }
   ripuliscElenco();
@@ -4471,7 +4607,7 @@ function cancellaCasella(){
 }
 /* tocco sotto all'ultima riga: si scrive in una riga nuova, come dopo un a capo */
 function rigaInFondo(){
-  const c = corpo();
+  const c = scatole().pop();
   let u = c.lastElementChild;
   const vuota = u && u.nodeName === 'P' && !u.textContent.trim() && !u.querySelector('img,input');
   if (!vuota){
@@ -4479,7 +4615,7 @@ function rigaInFondo(){
     u = document.createElement('p'); u.appendChild(document.createElement('br'));
     c.appendChild(u);
   }
-  c.focus();
+  corpo().focus();
   const r = document.createRange(); r.setStart(u, 0); r.collapse(true);
   const s = getSelection(); s.removeAllRanges(); s.addRange(r);
   aggiornaVuoto(); aggiornaAccese(); aggiornaTabella();
@@ -4766,6 +4902,7 @@ function forseRichiamo(){
 }
 
 function dopoModifica(){
+  sistemaTessere();
   pianificaTitoli();
   aggiornaVuoto();
   aggiornaAccese();
@@ -4992,13 +5129,18 @@ function menu(x, y, voci){
   }, 0);
 }
 
+/* menu a tre punti di un Foglio, a gruppi: contenuto e aspetto, organizzazione,
+   condivisione e protezione, infine impostazioni ed eliminazione (sempre ultima) */
 function menuFoglio(p, x, y){
   const dentroFoglio = corrente && corrente.id === p.id && document.body.dataset.vista === 'foglio';
+  const scrivibile = dentroFoglio && !vistaGrezza;
   const voci = [
     /* dal Foglio aperto: l'immagine va dove era il cursore */
-    ...(dentroFoglio && !vistaGrezza ? [{ testo:T('Inserisci immagine'), fai: dialogoImmagine }, '-'] : []),
-    { testo: p.preferito ? T('Togli dai preferiti') : T('Segna come preferito'), fai: () => commutaPreferito(p) },
+    ...(scrivibile ? [{ testo:T('Inserisci immagine'), fai: dialogoImmagine }] : []),
+    { testo:T('Sfondo'), fai: () => dialogoSfondo(p) },
+    ...(scrivibile ? [{ testo: conTessere() ? T('Unisci le tessere') : T('Scrivi a tessere'), fai: commutaTessere }] : []),
     '-',
+    { testo: p.preferito ? T('Togli dai preferiti') : T('Segna come preferito'), fai: () => commutaPreferito(p) },
     { testo:T('Rinomina'), fai: () => chiediTesto(T('Rinomina Foglio'),T('Titolo'), p.titolo, n => {
         const t = titoloLibero(n, p.id);
         if (t === p.titolo) return;
@@ -5017,24 +5159,25 @@ function menuFoglio(p, x, y){
         if (corrente && corrente.id === p.id) scriviCorrente();
         const n = { id:id(), sezioneId:p.sezioneId, titolo:titoloLibero(p.titolo + ' ' + T('(copia)')), md:p.md, creata:oggi(), modificata:oggi(), protetto:!!p.protetto };
         if (p.allinea) n.allinea = Object.assign({}, p.allinea);
+        if (p.sfondo) n.sfondo = Object.assign({}, p.sfondo);
         A.fogli.push(n); salva(); disegnaLato(); apri(n.id);
       }) },
-    ...(p.protetto ? [] : [
+    { testo:T('Seleziona Fogli'), fai: () => entraSelezione('fogli') },
+    '-',
+    /* le tre forme di condivisione stanno in un secondo menu, per non allungare questo */
+    ...(p.protetto ? [] : [{ testo:T('Condividi ed esporta') + ' \u203A', fai: () => menu(x, y, [
       { testo:T('Condividi il file .md'), fai: () => condividiFogli([p]) },
       { testo:T('Copia il file .md'), fai: () => copia(testoMd(p), T('Markdown copiato.')) },
       { testo:T('Copia il testo'), fai: () => copia(testoSemplice(p.md), T('Testo copiato.')) }
-    ]),
-    '-',
+    ]) }]),
     p.protetto
       ? { testo:T('Togli la protezione'), fai: () => sproteggi(p) }
       : { testo:T('Proteggi con password'), fai: () => proteggi(p) },
     ...(p.protetto && chiave ? [{ testo:T('Chiudi i Fogli protetti'), fai: () => blocca() }] : []),
     '-',
-    { testo:T('Seleziona Fogli'), fai: () => entraSelezione('fogli') },
-    '-',
+    ...(dentroFoglio && stretto() ? [{ testo:T('Impostazioni'), fai: pannelloImpostazioni }] : []),
     { testo:T('Elimina'), rischio:true, fai: () => cestinaFogli([p]) }
   ];
-  if (dentroFoglio && stretto()) voci.splice(voci.length - 2, 0, { testo:T('Impostazioni'), fai: pannelloImpostazioni }, '-');
   menu(x, y, voci);
 }
 
@@ -5237,7 +5380,7 @@ function disegnaCestino(){
 }
 
 function primeRighe(md){
-  const t = String(md).replace(/```[\s\S]*?```/g,' ').replace(/!\[[^\]]*\]\([^)]*\)/g,' ').replace(/<[^>]+>/g,' ')
+  const t = senzaTessere(md).replace(/```[\s\S]*?```/g,' ').replace(/!\[[^\]]*\]\([^)]*\)/g,' ').replace(/<[^>]+>/g,' ')
     .replace(/[#>*_`|\[\]()!-]/g,' ').replace(/\s+/g,' ').trim();
   return t ? t.slice(0,90) + (t.length > 90 ? '…' : '') : T('Foglio senza testo');
 }
@@ -5298,12 +5441,13 @@ function applicaAspetto(){
   r.setProperty('--corpo-px', i.dimensione + 'px');
   r.setProperty('--colonna', i.colonna + 'px');
   dispostaBarra();
+  applicaSfondo();
   const meta = document.querySelector('meta[name=theme-color]');
   if (meta) meta.content = getComputedStyle(document.body).backgroundColor;
 }
 
 /* preferenze che il pannello mostra e che "impostazioni iniziali" riporta al valore di partenza */
-const PREFERENZE = ['lingua','tema','font','dimensione','colonna','splash','ordinamento','sommario','barraPosizione','ordineGruppi','riordinoManuale'];
+const PREFERENZE = ['lingua','tema','font','dimensione','colonna','splash','ordinamento','sommario','barraPosizione','ordineGruppi','riordinoManuale','sfondoTipo','sfondoSpessore','sfondoPasso'];
 
 /* ============ barra di formattazione: in alto, sopra la tastiera, oppure libera ============ */
 /* Libera: la freccia si trascina; lasciata, la barra va al bordo più vicino, come una
@@ -5318,7 +5462,17 @@ function dispostaBarra(animata){
   const verso = i.barraAperta ? (lato === 'destra' ? 'destra' : 'sinistra') : (lato === 'destra' ? 'sinistra' : 'destra');
   $('#bAvvolgi').dataset.verso = verso;
   $('#bAvvolgi').title = (i.barraAperta ? T('Arrotola la barra') : T('Apri la barra')) + (pos === 'libera' ? ' ' + T('(trascina per spostarla)') : '');
-  if (pos === 'libera') posizionaLibera(animata); else { b.style.left = ''; b.style.top = ''; }
+  if (pos === 'libera') posizionaLibera(animata); else { b.style.left = ''; b.style.top = ''; posizionaArrotolata(); }
+}
+/* arrotolata (in alto o sopra la tastiera) la barra diventa una piccola freccia sospesa a destra:
+   non occupa più una riga intera e il testo si legge anche accanto a lei. In alto sta sotto al sommario. */
+function posizionaArrotolata(){
+  const b = $('#strumenti');
+  if (b.dataset.pos === 'libera') return;
+  if (!b.classList.contains('arrotolata') || b.dataset.pos !== 'alto'){ b.style.top = ''; return; }
+  const som = $('#sommario');
+  const sotto = som && !som.classList.contains('nascosto') && som.offsetHeight ? som.offsetTop + som.offsetHeight : 0;
+  b.style.top = (sotto + 8) + 'px';
 }
 /* lo spazio in cui la barra libera può stare: la parte visibile del Foglio, senza la
    barra di scorrimento e sotto al sommario fermo in alto, con un margine su ogni lato */
@@ -5382,7 +5536,74 @@ function trascinaBarra(){
   h.addEventListener('pointerup', lascia);
   h.addEventListener('pointercancel', lascia);
   /* la barra si riposiziona quando cambia l'area (tastiera, rotazione) o la barra stessa (aperta, chiusa, mostrata) */
-  if (window.ResizeObserver){ const o = new ResizeObserver(() => posizionaLibera()); o.observe(area); o.observe(b); o.observe($('#sommario')); }
+  if (window.ResizeObserver){ const o = new ResizeObserver(() => { posizionaLibera(); posizionaArrotolata(); }); o.observe(area); o.observe(b); o.observe($('#sommario')); }
+  sganciaBarra();
+}
+/* Tenuta premuta (0,60 secondi senza muovere il dito) la barra si sgancia e si trascina, da qualunque
+   posizione. Lasciata vicino al bordo alto si aggancia sotto il sommario; vicino al bordo basso
+   si aggancia in fondo, cioè sopra la tastiera quando c'è; altrove resta libera. */
+const PRESSIONE_BARRA = 600, CALAMITA_BORDO = 40;
+function sganciaBarra(){
+  const b = $('#strumenti'), area = $('#principale');
+  let g = null, tocco = 0;
+  const guida = el('div','guida-barra nascosto');
+  area.appendChild(guida);
+  const zona = () => {
+    const a = area.getBoundingClientRect(), r = b.getBoundingClientRect(), c = campoLibero(b);
+    if (r.top - a.top <= c.minY + CALAMITA_BORDO) return { pos:'alto', y:c.minY - 4 };
+    if (r.bottom - a.top >= area.clientHeight - CALAMITA_BORDO) return { pos:'tastiera', y:area.clientHeight - b.offsetHeight - 14 };
+    return null;
+  };
+  const lascia = () => { if (g && g.timer) clearTimeout(g.timer); g = null; };
+  b.addEventListener('pointerdown', e => {
+    if (e.button > 0 || (b.dataset.pos === 'libera' && e.target.closest('#bAvvolgi'))) return;
+    g = { x:e.clientX, y:e.clientY, id:e.pointerId, attiva:false };
+    g.timer = setTimeout(() => {
+      if (!g) return;
+      const r = b.getBoundingClientRect(), a = area.getBoundingClientRect();
+      g.attiva = true; g.dx = g.x - r.left; g.dy = g.y - r.top;
+      b.dataset.pos = 'libera';
+      b.classList.remove('calamita');
+      b.classList.add('sganciata', 'in-volo');
+      b.style.left = (r.left - a.left) + 'px'; b.style.top = (r.top - a.top) + 'px';
+      try { if (navigator.vibrate) navigator.vibrate(12); } catch(err){}
+    }, PRESSIONE_BARRA);
+  });
+  addEventListener('pointermove', e => {
+    if (!g || e.pointerId !== g.id) return;
+    if (!g.attiva){ if (Math.hypot(e.clientX - g.x, e.clientY - g.y) > 10) lascia(); return; }
+    const a = area.getBoundingClientRect(), c = campoLibero(b);
+    b.style.left = Math.max(c.min, Math.min(c.maxX, e.clientX - a.left - g.dx)) + 'px';
+    b.style.top = Math.max(0, Math.min(area.clientHeight - b.offsetHeight, e.clientY - a.top - g.dy)) + 'px';
+    const z = zona();
+    guida.classList.toggle('nascosto', !z);
+    if (z) guida.style.top = z.y + 'px';
+  });
+  const fine = e => {
+    if (!g || e.pointerId !== g.id) return;
+    const era = g.attiva;
+    lascia();
+    if (!era) return;
+    tocco = Date.now();                      /* il tocco che ha spostato la barra non preme anche un pulsante */
+    guida.classList.add('nascosto');
+    b.classList.remove('sganciata', 'in-volo');
+    const i = A.impostazioni, z = zona();
+    if (z) i.barraPosizione = z.pos;
+    else {
+      const a = area.getBoundingClientRect(), r = b.getBoundingClientRect(), c = campoLibero(b);
+      i.barraPosizione = 'libera';
+      i.barraLibera.lato = (r.left + r.width / 2 - a.left) < c.largo / 2 ? 'sinistra' : 'destra';
+      i.barraLibera.y = Math.min(1, Math.max(0, (r.top - a.top - c.minY) / Math.max(1, c.maxY - c.minY)));
+    }
+    salvaPresto();
+    dispostaBarra(true);
+  };
+  addEventListener('pointerup', fine);
+  addEventListener('pointercancel', fine);
+  b.addEventListener('click', e => { if (Date.now() - tocco < 400){ e.stopPropagation(); e.preventDefault(); } }, true);
+  /* la pressione lunga non apre il menu del browser, e mentre si trascina la pagina non scorre */
+  b.addEventListener('contextmenu', e => e.preventDefault());
+  b.addEventListener('touchmove', e => { if (g && g.attiva) e.preventDefault(); }, { passive:false });
 }
 
 function pannelloImpostazioni(){
@@ -5479,6 +5700,16 @@ function pannelloImpostazioni(){
     gruppo(T('Larghezza della colonna'), [[560,T('Stretta')],[640,T('Media')],[760,T('Larga')],[1000,T('Piena')]], 'colonna');
     gruppo(T('Schermata iniziale'), [[true,T('Mostrala')],[false,T('Saltala')]], 'splash');
 
+    blocco(T('Sfondo dei Fogli'));
+    const boxSf = el('div'); dove.appendChild(boxSf);
+    controlliSfondo(boxSf, sfondoGenerale(), s => {
+      const cambioTipo = s.tipo !== i.sfondoTipo;
+      Object.assign(i, { sfondoTipo:s.tipo, sfondoSpessore:s.spessore, sfondoPasso:s.passo });
+      mostra(); aggiornaPiede();
+      if (cambioTipo) disegna();
+    });
+    riga(T('Fogli con uno sfondo proprio'), T('Questo sfondo vale per i Fogli senza uno scelto a mano. Puoi imporlo anche a loro.'), T('Applica a tutti'), () => imponiSfondo(disegna));
+
     blocco(T('Gruppi'));
     gruppo(T('Ordine dei Gruppi'), [['creazione',T('Creazione')],['modifica',T('Ultima modifica')],['nome',T('Nome')]], 'ordineGruppi');
     gruppo(T('Riordino'), [[true,T('Manuale')],[false,T('Automatico')]], 'riordinoManuale',
@@ -5488,7 +5719,8 @@ function pannelloImpostazioni(){
     blocco(T('Fogli'));
     gruppo(T('Ordine nell\'elenco'), [['modificata',T('Ultimi modificati')],['titolo',T('Titolo')]], 'ordinamento');
     gruppo(T('Sommario dei titoli'), [[true,T('Mostralo')],[false,T('Nascondilo')]], 'sommario');
-    gruppo(T('Barra di formattazione'), [['alto',T('In alto')],['tastiera',T('Sopra la tastiera')],['libera',T('Libera')]], 'barraPosizione');
+    gruppo(T('Barra di formattazione'), [['alto',T('In alto')],['tastiera',T('Sopra la tastiera')],['libera',T('Libera')]], 'barraPosizione',
+      T('Puoi anche tenerla premuta e trascinarla: in cima o in fondo si aggancia.'));
 
     blocco(T('Fogli protetti'));
     const nProt = tuttiIFogli().filter(p => p.protetto).length;
@@ -5705,7 +5937,7 @@ function creaZip(file){
    resta un segnaposto con misure e peso. Dentro a uno .zip invece viaggiano con lui. */
 const testoMd = (p, conFile) => '# ' + p.titolo + '\n\n' + (conFile ? mdDi(p) : segnapostoImmagini(mdDi(p))) + '\n';
 function testoSemplice(md){
-  return segnapostoImmagini(String(md))
+  return segnapostoImmagini(senzaTessere(md))
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<\/?(p|h[1-6]|img|strong|em|b|i|s|del|code|a)\b[^>]*>/gi, '')
     .replace(/```[\s\S]*?```/g, x => x.replace(/```\w*\n?/g,''))
@@ -5855,6 +6087,7 @@ function unisci(dati){
       titolo: titoloLibero(p.titolo), md:p.md, creata:p.creata, modificata:p.modificata };
     if (p.protetto){ nuovo.protetto = true; nuovo.cifra = p.cifra; }
     if (p.allinea) nuovo.allinea = Object.assign({}, p.allinea);
+    if (p.sfondo) nuovo.sfondo = Object.assign({}, p.sfondo);
     A.fogli.push(nuovo);
     /* le misure delle immagini che il Foglio usa arrivano con lui (i dati sono già stati scritti) */
     idsImmagini(p.md).forEach(k => { if (dati.immagini[k]) A.immagini[k] = dati.immagini[k]; });
@@ -5947,8 +6180,8 @@ function htmlCorpo(){
 }
 function bloccoDiImmagine(img){
   let n = img;
-  while (n && n.parentNode && n.parentNode !== corpo()) n = n.parentNode;
-  return n && n.parentNode === corpo() && /^(P|H1|H2|H3)$/.test(n.nodeName) ? n : null;
+  while (n && n.parentNode && !eScatola(n.parentNode)) n = n.parentNode;
+  return n && eScatola(n.parentNode) && /^(P|H1|H2|H3)$/.test(n.nodeName) ? n : null;
 }
 function selezionaImmagine(img, nuova){
   if (immagineScelta && immagineScelta !== img) togliClasse(immagineScelta, 'scelta');
@@ -5991,7 +6224,7 @@ function comandoImmagine(c){
     const b = img.parentNode;
     togliClasse(img, 'scelta'); immagineScelta = null;
     img.remove();
-    if (b && b.parentNode === corpo() && b.nodeName === 'P' && !b.textContent.trim() && !b.querySelector('img,input')){
+    if (b && eScatola(b.parentNode) && b.nodeName === 'P' && !b.textContent.trim() && !b.querySelector('img,input')){
       b.innerHTML = '<br>'; b.removeAttribute('align');
       const r = document.createRange(); r.setStart(b, 0); r.collapse(true);
       const s = getSelection(); s.removeAllRanges(); s.addRange(r);
@@ -6300,6 +6533,309 @@ function spostaGruppo(s, davanti){
   return true;
 }
 
+/* ============ sfondo dei Fogli: puntini, righe o quadretti ============ */
+/* Ogni Foglio può avere il suo sfondo (p.sfondo); senza, vale quello delle Impostazioni.
+   Il disegno è un gradiente CSS sull'area di scrittura, che scorre con il testo; il colore
+   viene dal bordo del tema, quindi resta leggero sia nel chiaro sia nello scuro. */
+const TIPI_SFONDO = ['nessuno','puntini','righe','quadretti'];
+const SPESSORI = [0.5, 3], PASSI = [12, 60];
+const limita = (x, [a, b], d) => { const n = +x; return isFinite(n) ? Math.min(b, Math.max(a, n)) : d; };
+function sfondoValido(s){
+  if (!s || typeof s !== 'object' || !TIPI_SFONDO.includes(s.tipo)) return null;
+  return { tipo:s.tipo, spessore:limita(s.spessore, SPESSORI, 1), passo:limita(s.passo, PASSI, 24) };
+}
+const sfondoGenerale = () => {
+  const i = A.impostazioni;
+  return { tipo:i.sfondoTipo, spessore:i.sfondoSpessore, passo:i.sfondoPasso };
+};
+const sfondoDi = p => (p && p.sfondo) || sfondoGenerale();
+
+function mostraSfondo(s){
+  const z = $('#zona');
+  if (!s || s.tipo === 'nessuno'){ delete z.dataset.sfondo; return; }
+  z.dataset.sfondo = s.tipo;
+  z.style.setProperty('--sp', s.spessore + 'px');
+  z.style.setProperty('--passo', s.passo + 'px');
+}
+const applicaSfondo = () => mostraSfondo(corrente ? sfondoDi(corrente) : null);
+
+/* i controlli dello sfondo (tipo, spessore, distanza), usati dal Foglio e dalle Impostazioni */
+function controlliSfondo(dove, valore, cambia, conGenerale){
+  const v = Object.assign({}, valore);
+  const disegna = () => {
+    dove.innerHTML = '';
+    const c1 = el('div','campo'); c1.appendChild(el('span', null, T('Tipo')));
+    const g = el('div','gruppo');
+    const tipi = (conGenerale ? [['generale', T('Come nelle Impostazioni')]] : [])
+      .concat([['nessuno',T('Nessuno')],['puntini',T('Puntini')],['righe',T('Righe')],['quadretti',T('Quadretti')]]);
+    tipi.forEach(([k, n]) => {
+      const b = el('button','opz' + (v.tipo === k ? ' scelta' : ''), n);
+      b.onclick = () => { v.tipo = k; disegna(); cambia(Object.assign({}, v)); };
+      g.appendChild(b);
+    });
+    c1.appendChild(g); dove.appendChild(c1);
+    if (v.tipo === 'nessuno' || v.tipo === 'generale') return;
+    const cursore = (etichetta, chiave, [min, max], passo) => {
+      const l = el('label','campo cursore');
+      const testa = el('span'); testa.textContent = etichetta;
+      const val = el('b', null, numero(v[chiave]).replace(/[.,]00$/, '') + ' px');
+      testa.appendChild(val);
+      const r = el('input'); r.type = 'range'; r.min = min; r.max = max; r.step = passo; r.value = v[chiave];
+      r.oninput = () => { v[chiave] = +r.value; val.textContent = numero(v[chiave]).replace(/[.,]00$/, '') + ' px'; cambia(Object.assign({}, v)); };
+      l.append(testa, r); dove.appendChild(l);
+    };
+    cursore(T('Spessore'), 'spessore', SPESSORI, 0.5);
+    cursore(v.tipo === 'righe' ? T('Distanza fra le righe') : T('Grandezza'), 'passo', PASSI, 2);
+  };
+  disegna();
+}
+
+/* dal menu a tre punti di un Foglio: per lui, per il suo Gruppo o per il suo Quaderno */
+function dialogoSfondo(p){
+  const proprio = sfondoValido(p.sfondo);
+  let scelta = proprio || Object.assign(sfondoGenerale(), { tipo:'generale' });
+  let ambito = 'foglio';
+  const anteprima = () => { if (corrente && corrente.id === p.id) mostraSfondo(scelta.tipo === 'generale' ? sfondoGenerale() : scelta); };
+  dialogo(T('Sfondo del Foglio'), (c, chiudi, pie) => {
+    const box = el('div'); c.appendChild(box);
+    controlliSfondo(box, scelta, s => { scelta = s; anteprima(); }, true);
+    const l = el('div','campo'); l.appendChild(el('span', null, T('Applica a')));
+    const g = el('div','gruppo');
+    [['foglio',T('Questo Foglio')],['gruppo',T('Tutto il Gruppo')],['quaderno',T('Tutto il Quaderno')]].forEach(([k, n]) => {
+      const b = el('button','opz' + (k === ambito ? ' scelta' : ''), n);
+      b.onclick = () => { ambito = k; [...g.children].forEach(x => x.classList.toggle('scelta', x === b)); };
+      g.appendChild(b);
+    });
+    l.appendChild(g); c.appendChild(l);
+    const a = el('button','bott', T('Annulla'));
+    a.onclick = () => { chiudi(); applicaSfondo(); };
+    const o = el('button','bott pieno', T('Applica'));
+    o.onclick = () => {
+      chiudi();
+      const s = scelta.tipo === 'generale' ? null : sfondoValido(scelta);
+      const sez = sezione(p.sezioneId);
+      const quali = ambito === 'foglio' ? [p]
+        : ambito === 'gruppo' ? A.fogli.filter(x => x.sezioneId === p.sezioneId)
+        : A.fogli.filter(x => { const s2 = sezione(x.sezioneId); return s2 && sez && s2.quadernoId === sez.quadernoId; });
+      quali.forEach(x => { if (s) x.sfondo = Object.assign({}, s); else delete x.sfondo; });
+      salva(); applicaSfondo();
+      avviso(T('Sfondo applicato: {n}.', { n:tn(quali.length, 'Foglio', 'Fogli') }));
+    };
+    pie.append(a, o);
+  }, null, null, { pieLibero:true, uscita: chiudi => { chiudi(); applicaSfondo(); } });
+}
+
+/* dalle Impostazioni: lo sfondo vale per i Fogli senza uno proprio; a richiesta, per tutti */
+function imponiSfondo(dopo){
+  const propri = A.fogli.filter(p => p.sfondo).length;
+  if (!propri){ avviso(T('Tutti i Fogli usano già lo sfondo delle Impostazioni.')); return; }
+  conferma(T('{n} hanno uno sfondo scelto a mano: lo tolgo, così seguono le Impostazioni?', { n:tn(propri, 'Foglio', 'Fogli') }), () => {
+    A.fogli.forEach(p => { delete p.sfondo; });
+    salva(); applicaSfondo(); if (dopo) dopo();
+    avviso(T('Sfondo delle Impostazioni per tutti i Fogli.'));
+  }, T('Applica a tutti'));
+}
+
+/* ============ tessere: il Foglio diviso in schede riordinabili ============ */
+/* Con le tessere il corpo contiene solo <section class="tessera">, larghe quanto il Foglio.
+   Ogni tessera ha in alto una presa (si trascina per spostarla, si tocca per il suo menu) e
+   sotto un + che aggiunge una tessera dopo di lei. Nel file il testo resta tutto di seguito,
+   con un commento invisibile davanti a ogni tessera. */
+function segnaTessere(){
+  corpo().toggleAttribute('data-tessere', !!corpo().querySelector(':scope > section.tessera'));
+}
+const nuovaSezioneTessera = () => {
+  const s = document.createElement('section');
+  s.className = 'tessera';
+  s.innerHTML = '<p><br></p>';
+  return s;
+};
+const tesseraVuota = t => !t.textContent.trim() && !t.querySelector('img,table,hr,input');
+const BLOCCHI_VERI = /^(P|H[1-6]|UL|OL|BLOCKQUOTE|PRE|DIV|TABLE|HR|SECTION)$/;
+
+/* dopo ogni modifica: niente resta fuori dalle tessere, e dentro ogni tessera solo blocchi veri */
+function sistemaTessere(){
+  if (!conTessere()) return;
+  const c = corpo();
+  tieniCursore(() => {
+    let ultima = null;
+    [...c.childNodes].forEach(n => {
+      if (eScatola(n)){ ultima = n; return; }
+      if (n.nodeType !== 1 && !(n.nodeType === 3 && n.nodeValue.trim())){ n.remove(); return; }
+      if (!ultima){
+        const dopo = [...c.children].find(eScatola);
+        if (dopo){ dopo.insertBefore(n, dopo.firstChild); return; }
+        ultima = nuovaSezioneTessera(); ultima.innerHTML = ''; c.insertBefore(ultima, n);
+      }
+      ultima.appendChild(n);
+    });
+    if (!c.firstChild) c.appendChild(nuovaSezioneTessera());
+    scatole().forEach(s => {
+      let p = null;
+      [...s.childNodes].forEach(n => {
+        if (n.nodeType === 1 && BLOCCHI_VERI.test(n.nodeName)){ p = null; return; }
+        if (n.nodeType === 3 && !n.nodeValue.trim() && !p){ n.remove(); return; }
+        if (!p){ p = document.createElement('p'); s.insertBefore(p, n); }
+        p.appendChild(n);
+      });
+      if (!s.firstElementChild) s.appendChild(document.createElement('p')).appendChild(document.createElement('br'));
+    });
+  });
+}
+
+/* acceso dal menu del Foglio: tutto il testo diventa una tessera; spento, le tessere si uniscono */
+function commutaTessere(){
+  if (!corrente || vistaGrezza) return;
+  segnaPasso('comando');
+  const c = corpo();
+  if (conTessere()){
+    [...c.children].forEach(s => { if (eScatola(s)) s.replaceWith(...s.childNodes); });
+    if (!c.firstChild) c.innerHTML = '<p><br></p>';
+    avviso(T('Tessere unite in un testo unico.'));
+  } else {
+    const s = nuovaSezioneTessera(); s.innerHTML = '';
+    while (c.firstChild) s.appendChild(c.firstChild);
+    c.appendChild(s);
+    avviso(T('Ora il Foglio è a tessere: il + sotto una tessera ne aggiunge un\'altra.'));
+  }
+  segnaTessere(); sistemaTessere();
+  dopoModifica();
+}
+function cursoreIn(t, inFondo){
+  corpo().focus();
+  const n = inFondo ? t.lastElementChild : t.firstElementChild;
+  const r = document.createRange();
+  r.selectNodeContents(n || t); r.collapse(!inFondo);
+  const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+}
+function nuovaTessera(rif, sopra){
+  segnaPasso('comando');
+  const s = nuovaSezioneTessera();
+  corpo().insertBefore(s, sopra ? rif : rif.nextSibling);
+  cursoreIn(s);
+  dopoModifica();
+  s.scrollIntoView({ block:'nearest' });
+}
+function spostaTessera(t, prima){               /* prima: la tessera davanti a cui va, o null in fondo */
+  if (prima === t || prima === t.nextElementSibling) return false;
+  segnaPasso('comando');
+  tieniCursore(() => corpo().insertBefore(t, prima));
+  dopoModifica();
+  return true;
+}
+function eliminaTessera(t){
+  segnaPasso('comando');
+  if (scatole().length > 1){
+    const vicina = t.previousElementSibling || t.nextElementSibling;
+    t.remove();
+    cursoreIn(vicina, true);
+  } else { t.innerHTML = '<p><br></p>'; cursoreIn(t); }
+  dopoModifica();
+  avviso(T('Tessera eliminata.'), T('Annulla'), annulla);
+}
+function menuTessera(t, x, y){
+  const prima = t.previousElementSibling, dopo = t.nextElementSibling;
+  menu(x, y, [
+    { testo:T('Nuova tessera sopra'), fai: () => nuovaTessera(t, true) },
+    { testo:T('Nuova tessera sotto'), fai: () => nuovaTessera(t, false) },
+    ...(prima || dopo ? ['-'] : []),
+    ...(prima ? [{ testo:T('Sposta su'), fai: () => spostaTessera(t, prima) }] : []),
+    ...(dopo ? [{ testo:T('Sposta giù'), fai: () => spostaTessera(t, dopo.nextElementSibling) }] : []),
+    '-',
+    { testo:T('Elimina tessera'), rischio:true, fai: () => eliminaTessera(t) }
+  ]);
+}
+
+/* Backspace all'inizio di una tessera non la fonde con quella sopra: se è vuota la toglie,
+   altrimenti non fa niente. Lo stesso per Canc alla fine. */
+function confineTessera(indietro){
+  if (!conTessere()) return false;
+  const s = getSelection();
+  if (!s.rangeCount || !s.isCollapsed) return false;
+  const n = s.anchorNode.nodeType === 3 ? s.anchorNode.parentNode : s.anchorNode;
+  const t = n && n.closest ? n.closest('section.tessera') : null;
+  if (!t || !eScatola(t)) return false;
+  const r = document.createRange();
+  if (indietro){ r.setStart(t, 0); r.setEnd(s.anchorNode, s.anchorOffset); }
+  else { r.setStart(s.anchorNode, s.anchorOffset); r.setEnd(t, t.childNodes.length); }
+  if (blocco() !== (indietro ? t.firstElementChild : t.lastElementChild)) return false;
+  const pezzo = r.cloneContents();
+  if (pezzo.textContent.replace(/ /g,' ').trim() || pezzo.querySelector && pezzo.querySelector('img,table,hr,input')) return false;
+  /* all'inizio di un elenco Backspace lo scioglie dentro la tessera: lo si lascia fare */
+  const capo = indietro ? t.firstElementChild : t.lastElementChild;
+  if (indietro && capo && /^(UL|OL)$/.test(capo.nodeName) && !tesseraVuota(t)) return false;
+  if (tesseraVuota(t) && scatole().length > 1){
+    const su = t.previousElementSibling, giu = t.nextElementSibling;
+    t.remove();
+    /* il cursore va dove si stava andando: alla fine di quella sopra, o all'inizio di quella sotto */
+    if (indietro ? su : !giu) cursoreIn(su, true); else cursoreIn(giu);
+    dopoModifica();
+  }
+  return true;
+}
+
+/* la presa in alto al centro della tessera e il + sotto: sono disegnati dal foglio di stile,
+   qui si riconosce dove è caduto il tocco */
+function zonaTessera(bersaglio, x, y){
+  if (!conTessere() || !bersaglio || !bersaglio.closest) return null;
+  const t = bersaglio.closest('section.tessera');
+  if (!t || !eScatola(t)) return null;
+  const r = t.getBoundingClientRect(), centro = r.left + r.width / 2;
+  if (y > r.bottom - 1 && Math.abs(x - centro) < 22) return { tipo:'piu', t };
+  if (y >= r.top && y < r.top + 20 && Math.abs(x - centro) < 40) return { tipo:'presa', t };
+  return null;
+}
+let gestoTessera = null, fineTessera = 0;
+function avviaTessere(){
+  const c = corpo();
+  c.addEventListener('pointerdown', e => {
+    const z = zonaTessera(e.target, e.clientX, e.clientY);
+    if (!z) return;
+    if (e.pointerType !== 'touch') e.preventDefault();
+    gestoTessera = { z, x:e.clientX, y:e.clientY, id:e.pointerId, volo:false, dove:null, linea:null };
+  });
+  /* mentre si trascina una tessera la pagina non scorre */
+  c.addEventListener('touchmove', e => { if (gestoTessera) e.preventDefault(); }, { passive:false });
+  /* il tocco su presa o + non mette il cursore e non apre la tastiera */
+  c.addEventListener('touchend', e => {
+    const p = e.changedTouches[0];
+    if (gestoTessera || Date.now() - fineTessera < 500 || zonaTessera(e.target, p.clientX, p.clientY)) e.preventDefault();
+  }, { passive:false });
+  addEventListener('pointermove', e => {
+    const g = gestoTessera;
+    if (!g || e.pointerId !== g.id || g.z.tipo !== 'presa') return;
+    if (!g.volo){
+      if (Math.hypot(e.clientX - g.x, e.clientY - g.y) < 6) return;
+      g.volo = true;
+      g.z.t.classList.add('in-volo');
+      g.linea = el('div','linea-posto');
+      $('#maniglie').appendChild(g.linea);
+    }
+    const tutte = scatole(), base = $('#foglio').getBoundingClientRect(), cr = c.getBoundingClientRect();
+    let k = tutte.findIndex(t => { const b = t.getBoundingClientRect(); return e.clientY < b.top + b.height / 2; });
+    if (k < 0) k = tutte.length;
+    g.dove = k;
+    const y = k < tutte.length ? tutte[k].getBoundingClientRect().top - 12 : tutte[tutte.length - 1].getBoundingClientRect().bottom + 12;
+    Object.assign(g.linea.style, { left:(cr.left - base.left) + 'px', top:(y - base.top - 1.5) + 'px', width:cr.width + 'px', height:'3px' });
+  });
+  const fine = e => {
+    const g = gestoTessera;
+    if (!g || e.pointerId !== g.id) return;
+    gestoTessera = null;
+    fineTessera = Date.now();
+    if (g.volo){
+      g.z.t.classList.remove('in-volo');
+      if (g.linea) g.linea.remove();
+      if (e.type === 'pointerup' && g.dove != null) spostaTessera(g.z.t, scatole()[g.dove] || null);
+      return;
+    }
+    if (e.type !== 'pointerup') return;
+    if (g.z.tipo === 'piu') nuovaTessera(g.z.t, false);
+    else menuTessera(g.z.t, e.clientX - 20, e.clientY + 14);
+  };
+  addEventListener('pointerup', fine);
+  addEventListener('pointercancel', fine);
+}
 /* ============ eventi ============ */
 /* un gesto di scorrimento col dito: chiama fai(dx, dy) se è stato breve e deciso */
 function gesto(zona, fai){
@@ -6463,6 +6999,8 @@ function collegaEventi(){
       : tipo.startsWith('insert') ? 'scrivi' : 'comando');
     if (tipo === 'insertParagraph' && invioSuCasella()){ e.preventDefault(); dopoModifica(); return; }
     if (tipo === 'deleteContentBackward' && cancellaCasella()){ e.preventDefault(); ripuliscElenco(); dopoModifica(); return; }
+    if (tipo === 'deleteContentBackward' && confineTessera(true)){ e.preventDefault(); return; }
+    if (tipo === 'deleteContentForward' && confineTessera(false)){ e.preventDefault(); return; }
     if (tipo.startsWith('insert')) cursoreDopoCasella();
   });
   c.addEventListener('input', e => {
@@ -6483,6 +7021,7 @@ function collegaEventi(){
     const t = e.changedTouches[0], h = zonaPiega(e.target, t.clientX);
     if (h){ e.preventDefault(); commutaPiega(h); }
   }, { passive:false });
+  avviaTessere();
   /* ogni a capo crea un paragrafo vero, non un blocco anonimo */
   try { document.execCommand('defaultParagraphSeparator', false, 'p'); } catch(e){}
   $('#zona').addEventListener('click', e => {
@@ -6533,7 +7072,7 @@ function collegaEventi(){
     e.preventDefault();
     segnaPasso('comando');
     const pareMd = /(^|\n)\s{0,3}(#{1,3}\s|[-*]\s|\d+\.\s|>\s|\||```)/.test(testo);
-    if (pareMd && testo.length > 12){ esegui('insertHTML', mdVersoHtml(testo)); riempiImmagini(); }
+    if (pareMd && testo.length > 12){ esegui('insertHTML', mdVersoHtml(senzaTessere(testo))); riempiImmagini(); }
     else esegui('insertText', testo);
     dopoModifica();
   });
@@ -6726,6 +7265,7 @@ window.__prova = {
   fileEsportazione, collassaTutto, apriGrezzo, chiudiGrezzo, rientra, forseRichiamo, dialogoCollega, comando,
   commutaPreferito, disegnaSommario, commutaPiega, commutaTutte, mostraTitolo, evidenziaRicerca, testoSemplice, testoMd, condividiFogli, ripristinaScelti,
   disegnaCestino, menuFoglio, preferiti, disegnaLato, normalizzaElenchi, spostaRiga, spostaColonna, dialogoPassword, annulla, rifai, cancellaCasella, rigaInFondo, cambiaVolume, rinominaRimandi,
+  segnaTessere, commutaTessere, nuovaTessera, spostaTessera, eliminaTessera, sistemaTessere, confineTessera, zonaTessera, htmlFoglio, contaSpunte, conTessere, blocchi,
   impostaModo, filtroVuoto: () => { filtro = ''; }, spunta, righeScelte, invioSuCasella, dopoInvio,
   impostaPassword, sblocca, blocca, proteggi, sproteggi, perSalvare, aggiornaCifre, salvaOra, chiuso, dispostaBarra, posizionaLibera,
   pannelloImpostazioni, esportaJson, unisci, mdDi, sbloccato,
