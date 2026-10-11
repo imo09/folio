@@ -2,6 +2,7 @@
 
 Blocco note calmo, a pagine, di Nautargo. Il Quaderno contiene i Gruppi, il Gruppo contiene i Fogli.
 I Fogli, e le immagini incorporate, restano sul dispositivo di chi usa l'app: nessun account, nessun server.
+Dalla 8.0, se si vuole, si allineano fra i propri dispositivi in una cartella del proprio Dropbox: il browser parla solo con Dropbox.
 L'app parla italiano e inglese (Notebook, Group, Page).
 
 Online su [folio.nautargo.com](https://folio.nautargo.com).
@@ -23,4 +24,4 @@ e `sw.js`: chi ha l'app installata riceve l'aggiornamento entro un paio di riape
 
 ## Versione
 
-7.7
+8.0 (prova della sincronizzazione con Dropbox)

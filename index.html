@@ -2,7 +2,7 @@
 <html lang="it" data-tema="chiaro">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Yx0vceP6m/ZHHJUbs/7mefYfLQKQi6vzZvy8MWk+1Y0=' 'sha256-SolAQQ5E6tkDKkQeV4ZAwrpJ6JF31yyJis1s9xvFJgE='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'self'; manifest-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Yx0vceP6m/ZHHJUbs/7mefYfLQKQi6vzZvy8MWk+1Y0=' 'sha256-fpARYFRdpw/uDz05nDdzsl1vp5N7G0msJzTPOScV11k='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://api.dropboxapi.com https://content.dropboxapi.com; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'self'; manifest-src 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>folio</title>
 <meta name="description" content="Blocco note semplice. Le pagine restano sul tuo dispositivo.">
@@ -549,6 +549,12 @@ html[data-tema="scuro"] .bott.pieno{color:#1C1917}
 .menu button{display:block;width:100%;text-align:left;padding:8px 11px;border-radius:7px;font-size:14.5px}
 .menu button:hover{background:var(--superficie-2)}
 .menu button.rischio{color:var(--allarme)}
+.menu button.con-icona{display:flex;align-items:center;gap:11px}
+.tratto{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.menu .tratto{color:var(--tenue)}
+.menu button.rischio .tratto{color:inherit}
+.blocco-imp h3{display:flex;align-items:center;gap:7px}
+.blocco-imp h3 .tratto{width:14px;height:14px;stroke-width:1.9}
 .menu button.scelto{font-weight:600;background:var(--ottone-tenue)}
 .menu hr{border:0;border-top:1px solid var(--bordo);margin:5px 2px}
 #avvisi{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;width:max-content;max-width:calc(100vw - 24px)}
@@ -1874,11 +1880,11 @@ return exports;
 }({}));
 </script>
 <script>
-/* folio - blocco note locale. Un file, nessun server, nessuna rete. */
+/* folio - blocco note locale. Un file, nessun server; la rete serve solo alla sincronizzazione facoltativa con Dropbox. */
 (function(){
 'use strict';
 
-const VERSIONE_APP = '7.7';
+const VERSIONE_APP = '8.0';
 
 /* ============ utilità ============ */
 const $ = s => document.querySelector(s);
@@ -2568,7 +2574,40 @@ const EN = {
   "Togli colonna": "Remove column",
   "Annulla (Ctrl+Z)": "Undo (Ctrl+Z)",
   "Riduci o apri la barra": "Collapse or open the bar",
-  "Titolo del Foglio": "Page title"
+  "Titolo del Foglio": "Page title",
+  "Sincronizzazione": "Sync",
+  "La sincronizzazione funziona solo con una connessione sicura (https) e con la memoria estesa del browser.": "Sync only works over a secure connection (https) and with the browser's extended storage.",
+  "Il browser non lascia completare il collegamento: prova fuori dalla navigazione privata.": "The browser won't let the connection finish: try outside private browsing.",
+  "Collegamento a Dropbox annullato.": "Dropbox connection cancelled.",
+  "Collegamento a Dropbox non riuscito: riprova.": "Couldn't connect to Dropbox: try again.",
+  "Dropbox collegato: allineo i Fogli.": "Dropbox connected: syncing your Pages.",
+  "Scollego Dropbox? I Fogli restano qui e in Dropbox, ma questo dispositivo smette di allinearsi.": "Disconnect Dropbox? Your Pages stay here and in Dropbox, but this device stops syncing.",
+  "Dropbox scollegato.": "Dropbox disconnected.",
+  "Scollega": "Disconnect",
+  "Dropbox non risponde più a folio: collegalo di nuovo.": "Dropbox no longer answers folio: connect it again.",
+  "Collega": "Connect",
+  "Su questo dispositivo i Fogli protetti hanno un'altra password: la sincronizzazione è ferma. Vedi le Impostazioni.": "On this device protected Pages use another password: sync is paused. See Settings.",
+  "Foglio cambiato in due posti: ho tenuto anche l'altra versione, con \"(conflitto)\" nel titolo.": "Page changed in two places: I kept the other version too, with \"(conflict)\" in the title.",
+  "Fogli cambiati in due posti: ho tenuto anche le altre versioni, con \"(conflitto)\" nel titolo.": "Pages changed in two places: I kept the other versions too, with \"(conflict)\" in the title.",
+  "Foglio eliminato su un altro dispositivo: è nel Cestino.": "Page deleted on another device: it's in the Trash.",
+  "Fogli eliminati su un altro dispositivo: sono nel Cestino.": "Pages deleted on another device: they're in the Trash.",
+  "(conflitto)": "(conflict)",
+  "Senza rete: riprovo appena torna.": "Offline: I'll try again when the connection is back.",
+  "Dropbox non risponde più a folio: scollega e collega di nuovo.": "Dropbox no longer answers folio: disconnect and connect again.",
+  "Dropbox è pieno: libera spazio per continuare.": "Dropbox is full: free up space to continue.",
+  "I Fogli protetti di questo dispositivo hanno un'altra password: togli loro la protezione qui, poi tocca Sincronizza ora.": "Protected Pages on this device use another password: remove their protection here, then tap Sync now.",
+  "L'indice in Dropbox non si legge: non tocco niente.": "The index in Dropbox can't be read: I'm not touching anything.",
+  "Alcuni file sono cambiati mentre allineavo: riprovo al prossimo giro.": "Some files changed while I was syncing: I'll try again on the next round.",
+  "Dropbox è occupato: riprovo fra poco.": "Dropbox is busy: I'll try again shortly.",
+  "Dropbox ha risposto con un errore: riprovo fra poco.": "Dropbox answered with an error: I'll try again shortly.",
+  "Allineamento in corso…": "Syncing…",
+  "Ultimo allineamento: {quando}.": "Last sync: {quando}.",
+  "Non ancora allineato.": "Not synced yet.",
+  "Dropbox": "Dropbox",
+  "Tieni i Fogli allineati fra i tuoi dispositivi, in una cartella del tuo Dropbox. Su ogni dispositivo basta collegarsi una volta.": "Keep your Pages in sync across your devices, in a folder of your Dropbox. On each device you connect just once.",
+  "Cartella: nautargo_folio, fra le app del tuo Dropbox.": "Folder: nautargo_folio, among the apps in your Dropbox.",
+  "Sincronizza ora": "Sync now",
+  "I Fogli restano qui e in Dropbox. Questo dispositivo smette di allinearsi.": "Your Pages stay here and in Dropbox. This device stops syncing."
 };
 
 /* subito, prima che la pagina compaia: la schermata iniziale è già nella lingua giusta */
@@ -2913,6 +2952,7 @@ async function salvaDavvero(){
     }
     salvataggioRotto = false;
     segnaStato('salvato');
+    dopoSalvataggio();
   } catch(e){
     if (!salvataggioRotto){
       salvataggioRotto = true;
@@ -3473,6 +3513,32 @@ const ICONE = {
   allinea: v => '<svg viewBox="0 0 24 24"><path d="' + ({ left:'M4 6h16M4 10h10M4 14h16M4 18h10', center:'M4 6h16M7 10h10M4 14h16M7 18h10',
     right:'M4 6h16M10 10h10M4 14h16M10 18h10', justify:'M4 6h16M4 10h16M4 14h16M4 18h16' })[v] + '"/></svg>'
 };
+/* icone a tratto dei menu e dei blocchi delle Impostazioni (8.0): 24 x 24, stesso stile delle altre */
+const TRATTI = {
+  immagine:'<rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m4 17 5-4.5 4 3.5 3-2.5 4 3.5"/>',
+  sfondo:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9.5h16M4 14.5h16M9.5 4v16M14.5 4v16"/>',
+  tessere:'<rect x="4" y="3.5" width="16" height="7.5" rx="1.8"/><rect x="4" y="13" width="16" height="7.5" rx="1.8"/>',
+  unisci:'<rect x="4" y="3.5" width="16" height="17" rx="2"/><path d="M8 9h8M8 12.5h8M8 16h5"/>',
+  stella:'<path d="m12 4 2.4 5 5.6.8-4 3.9 1 5.5-5-2.6-5 2.6 1-5.5-4-3.9 5.6-.8z"/>',
+  rinomina:'<path d="m15.5 4.5 4 4-11 11-4.5.5.5-4.5z"/><path d="m13.5 6.5 4 4"/>',
+  sposta:'<path d="M4 7a2 2 0 0 1 2-2h3l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 13h6M13 11l2 2-2 2"/>',
+  duplica:'<rect x="8.5" y="8.5" width="11.5" height="11.5" rx="2"/><path d="M15.5 8.5V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7.5a2 2 0 0 0 2 2h2.5"/>',
+  seleziona:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8.5 12 2.5 2.5 4.5-5"/>',
+  condividi:'<path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/>',
+  file:'<path d="M7 3.5h7l4 4V20.5H7z"/><path d="M14 3.5v4h4"/>',
+  testo:'<path d="M5 6h14M5 10h14M5 14h14M5 18h9"/>',
+  lucchetto:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  aperto:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.7-1.5"/>',
+  ingranaggio:'<circle cx="12" cy="12" r="3.1"/><path d="M19.4 14.5a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1h.2a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/>',
+  elimina:'<path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13"/>',
+  aspetto:'<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" stroke="none"/>',
+  gruppi:'<path d="M4 7a2 2 0 0 1 2-2h3l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/>',
+  nuvola:'<path d="M7 18.5h10.5a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.6 9.1 4.7 4.7 0 0 0 7 18.5z"/>',
+  backup:'<path d="M12 4v10M8 10l4 4 4-4"/><path d="M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"/>',
+  archivio:'<ellipse cx="12" cy="6" rx="7" ry="2.8"/><path d="M5 6v12c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8V6M5 12c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8"/>',
+  ripristino:'<path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3L4.5 9"/><path d="M4.5 4.5V9H9"/>'
+};
+const svgTratto = nome => '<svg class="tratto" viewBox="0 0 24 24" aria-hidden="true">' + (TRATTI[nome] || '') + '</svg>';
 
 function vista(v){
   document.body.dataset.vista = v;
@@ -5115,7 +5181,8 @@ function menu(x, y, voci){
   const m = el('div','menu');
   voci.forEach(v => {
     if (v === '-'){ m.appendChild(document.createElement('hr')); return; }
-    const b = el('button', (v.rischio ? 'rischio' : '') + (v.scelto ? ' scelto' : ''), v.testo);
+    const b = el('button', (v.rischio ? 'rischio' : '') + (v.scelto ? ' scelto' : '') + (v.icona ? ' con-icona' : ''), v.testo);
+    if (v.icona) b.insertAdjacentHTML('afterbegin', svgTratto(v.icona));
     b.onclick = () => { m.remove(); v.fai(); };
     m.appendChild(b);
   });
@@ -5136,12 +5203,12 @@ function menuFoglio(p, x, y){
   const scrivibile = dentroFoglio && !vistaGrezza;
   const voci = [
     /* dal Foglio aperto: l'immagine va dove era il cursore */
-    ...(scrivibile ? [{ testo:T('Inserisci immagine'), fai: dialogoImmagine }] : []),
-    { testo:T('Sfondo'), fai: () => dialogoSfondo(p) },
-    ...(scrivibile ? [{ testo: conTessere() ? T('Unisci le tessere') : T('Scrivi a tessere'), fai: commutaTessere }] : []),
+    ...(scrivibile ? [{ testo:T('Inserisci immagine'), icona:'immagine', fai: dialogoImmagine }] : []),
+    { testo:T('Sfondo'), icona:'sfondo', fai: () => dialogoSfondo(p) },
+    ...(scrivibile ? [{ testo: conTessere() ? T('Unisci le tessere') : T('Scrivi a tessere'), icona: conTessere() ? 'unisci' : 'tessere', fai: commutaTessere }] : []),
     '-',
-    { testo: p.preferito ? T('Togli dai preferiti') : T('Segna come preferito'), fai: () => commutaPreferito(p) },
-    { testo:T('Rinomina'), fai: () => chiediTesto(T('Rinomina Foglio'),T('Titolo'), p.titolo, n => {
+    { testo: p.preferito ? T('Togli dai preferiti') : T('Segna come preferito'), icona:'stella', fai: () => commutaPreferito(p) },
+    { testo:T('Rinomina'), icona:'rinomina', fai: () => chiediTesto(T('Rinomina Foglio'),T('Titolo'), p.titolo, n => {
         const t = titoloLibero(n, p.id);
         if (t === p.titolo) return;
         const vecchio = p.titolo, prec = corrente;
@@ -5150,33 +5217,33 @@ function menuFoglio(p, x, y){
         if (corrente && corrente.id === p.id){ $('#titolo').value = t; titoloPrima = t; }
         salva(); disegnaLato();
       }) },
-    { testo:T('Sposta'), fai: () => sceltaDestinazione(T('Sposta il Foglio'), { quaderno:(quadernoDiFoglio(p)||{}).id, etichetta:T('Sposta') }, d => {
+    { testo:T('Sposta'), icona:'sposta', fai: () => sceltaDestinazione(T('Sposta il Foglio'), { quaderno:(quadernoDiFoglio(p)||{}).id, etichetta:T('Sposta') }, d => {
         p.sezioneId = d.sezioneId; p.modificata = oggi();
         salva(); disegnaLato(); if (corrente && corrente.id === p.id) apri(p.id);
         avviso(T('Foglio spostato.'));
       }) },
-    { testo:T('Duplica'), fai: () => seAperto(p, () => {
+    { testo:T('Duplica'), icona:'duplica', fai: () => seAperto(p, () => {
         if (corrente && corrente.id === p.id) scriviCorrente();
         const n = { id:id(), sezioneId:p.sezioneId, titolo:titoloLibero(p.titolo + ' ' + T('(copia)')), md:p.md, creata:oggi(), modificata:oggi(), protetto:!!p.protetto };
         if (p.allinea) n.allinea = Object.assign({}, p.allinea);
         if (p.sfondo) n.sfondo = Object.assign({}, p.sfondo);
         A.fogli.push(n); salva(); disegnaLato(); apri(n.id);
       }) },
-    { testo:T('Seleziona Fogli'), fai: () => entraSelezione('fogli') },
+    { testo:T('Seleziona Fogli'), icona:'seleziona', fai: () => entraSelezione('fogli') },
     '-',
     /* le tre forme di condivisione stanno in un secondo menu, per non allungare questo */
-    ...(p.protetto ? [] : [{ testo:T('Condividi ed esporta') + ' \u203A', fai: () => menu(x, y, [
-      { testo:T('Condividi il file .md'), fai: () => condividiFogli([p]) },
-      { testo:T('Copia il file .md'), fai: () => copia(testoMd(p), T('Markdown copiato.')) },
-      { testo:T('Copia il testo'), fai: () => copia(testoSemplice(p.md), T('Testo copiato.')) }
+    ...(p.protetto ? [] : [{ testo:T('Condividi ed esporta') + ' \u203A', icona:'condividi', fai: () => menu(x, y, [
+      { testo:T('Condividi il file .md'), icona:'condividi', fai: () => condividiFogli([p]) },
+      { testo:T('Copia il file .md'), icona:'file', fai: () => copia(testoMd(p), T('Markdown copiato.')) },
+      { testo:T('Copia il testo'), icona:'testo', fai: () => copia(testoSemplice(p.md), T('Testo copiato.')) }
     ]) }]),
     p.protetto
-      ? { testo:T('Togli la protezione'), fai: () => sproteggi(p) }
-      : { testo:T('Proteggi con password'), fai: () => proteggi(p) },
-    ...(p.protetto && chiave ? [{ testo:T('Chiudi i Fogli protetti'), fai: () => blocca() }] : []),
+      ? { testo:T('Togli la protezione'), icona:'aperto', fai: () => sproteggi(p) }
+      : { testo:T('Proteggi con password'), icona:'lucchetto', fai: () => proteggi(p) },
+    ...(p.protetto && chiave ? [{ testo:T('Chiudi i Fogli protetti'), icona:'lucchetto', fai: () => blocca() }] : []),
     '-',
-    ...(dentroFoglio && stretto() ? [{ testo:T('Impostazioni'), fai: pannelloImpostazioni }] : []),
-    { testo:T('Elimina'), rischio:true, fai: () => cestinaFogli([p]) }
+    ...(dentroFoglio && stretto() ? [{ testo:T('Impostazioni'), icona:'ingranaggio', fai: pannelloImpostazioni }] : []),
+    { testo:T('Elimina'), icona:'elimina', rischio:true, fai: () => cestinaFogli([p]) }
   ];
   menu(x, y, voci);
 }
@@ -5657,7 +5724,12 @@ function pannelloImpostazioni(){
     c.innerHTML = '';
     /* ogni sezione sta nel suo riquadro, con un fondo tenue che la stacca dalle altre */
     let dove = c;
-    const blocco = titolo => { dove = el('section','blocco-imp'); dove.appendChild(el('h3', null, titolo)); c.appendChild(dove); };
+    const blocco = (titolo, icona) => {
+      dove = el('section','blocco-imp');
+      const h = el('h3', null, titolo);
+      if (icona) h.insertAdjacentHTML('afterbegin', svgTratto(icona));
+      dove.appendChild(h); c.appendChild(dove);
+    };
     const gruppo = (etichetta, valori, chiave, nota) => {
       const l = el('div','campo');
       l.appendChild(el('span', null, etichetta));
@@ -5692,7 +5764,7 @@ function pannelloImpostazioni(){
     const titoloScheda = corpoP.parentNode && corpoP.parentNode.querySelector('h2');
     if (titoloScheda) titoloScheda.textContent = T('Impostazioni');
 
-    blocco(T('Aspetto'));
+    blocco(T('Aspetto'), 'aspetto');
     gruppo(T('Lingua'), [['auto',T('Automatica')],['it','Italiano'],['en','English']], 'lingua');
     gruppo(T('Tema'), [['auto',T('Automatico')],['chiaro',T('Chiaro')],['scuro',T('Scuro')]], 'tema');
     gruppo(T('Carattere del testo'), [['sans',T('Lineare'),'var(--sans)'],['serif',T('Libro'),'var(--serif)'],['mono',T('Macchina'),'var(--mono)']], 'font');
@@ -5700,7 +5772,7 @@ function pannelloImpostazioni(){
     gruppo(T('Larghezza della colonna'), [[560,T('Stretta')],[640,T('Media')],[760,T('Larga')],[1000,T('Piena')]], 'colonna');
     gruppo(T('Schermata iniziale'), [[true,T('Mostrala')],[false,T('Saltala')]], 'splash');
 
-    blocco(T('Sfondo dei Fogli'));
+    blocco(T('Sfondo dei Fogli'), 'sfondo');
     const boxSf = el('div'); dove.appendChild(boxSf);
     controlliSfondo(boxSf, sfondoGenerale(), s => {
       const cambioTipo = s.tipo !== i.sfondoTipo;
@@ -5710,19 +5782,19 @@ function pannelloImpostazioni(){
     });
     riga(T('Fogli con uno sfondo proprio'), T('Questo sfondo vale per i Fogli senza uno scelto a mano. Puoi imporlo anche a loro.'), T('Applica a tutti'), () => imponiSfondo(disegna));
 
-    blocco(T('Gruppi'));
+    blocco(T('Gruppi'), 'gruppi');
     gruppo(T('Ordine dei Gruppi'), [['creazione',T('Creazione')],['modifica',T('Ultima modifica')],['nome',T('Nome')]], 'ordineGruppi');
     gruppo(T('Riordino'), [[true,T('Manuale')],[false,T('Automatico')]], 'riordinoManuale',
       i.riordinoManuale ? T('L\'ordine scelto mette in fila i Gruppi una volta; poi li sposti trascinandoli, con "Riordina Gruppi" dal menu del Quaderno.')
                         : T('L\'elenco segue sempre l\'ordine scelto.'));
 
-    blocco(T('Fogli'));
+    blocco(T('Fogli'), 'file');
     gruppo(T('Ordine nell\'elenco'), [['modificata',T('Ultimi modificati')],['titolo',T('Titolo')]], 'ordinamento');
     gruppo(T('Sommario dei titoli'), [[true,T('Mostralo')],[false,T('Nascondilo')]], 'sommario');
     gruppo(T('Barra di formattazione'), [['alto',T('In alto')],['tastiera',T('Sopra la tastiera')],['libera',T('Libera')]], 'barraPosizione',
       T('Puoi anche tenerla premuta e trascinarla: in cima o in fondo si aggancia.'));
 
-    blocco(T('Fogli protetti'));
+    blocco(T('Fogli protetti'), 'lucchetto');
     const nProt = tuttiIFogli().filter(p => p.protetto).length;
     if (!A.cassaforte){
       riga(T('Password'), T('Una password sola apre tutti i Fogli protetti. Si protegge un Foglio dal suo menu a tre punti.'), T('Imposta'),
@@ -5736,7 +5808,10 @@ function pannelloImpostazioni(){
         () => dialogoPassword(() => { disegna(); avviso(T('Password cambiata.')); }, true));
     }
 
-    blocco(T('Backup'));
+    blocco(T('Sincronizzazione'), 'nuvola');
+    righeSync(riga, disegna);
+
+    blocco(T('Backup'), 'backup');
     riga(T('Esporta tutto'), T('Un file .json che rimette l\'archivio esattamente com\'era, immagini comprese. I Fogli protetti restano cifrati.'), T('Esporta'), esportaJson);
     riga(T('Esporta i Fogli'), T('Uno .zip con le cartelle dei Quaderni e dei Gruppi, e le immagini.'), T('Esporta'), esportaMd);
     riga(T('Importa un backup'), T('Da un file .json di folio.'), T('Importa'), () => esci(importaJson));
@@ -5746,12 +5821,12 @@ function pannelloImpostazioni(){
       + (i.ultimoBackup ? T('Ultimo backup: {quando}.', { quando:dataBreve(i.ultimoBackup) }) : T('Non hai ancora fatto un backup.'));
     dove.appendChild(q);
 
-    blocco(T('Cestino'));
+    blocco(T('Cestino'), 'elimina');
     const n = A.cestino.fogli.length + A.cestino.sezioni.length;
     riga(n ? tn(n, 'elemento', 'elementi') : T('Vuoto'),
       T('Quello che elimini resta qui 30 giorni, poi sparisce.'), T('Apri'), () => esci(apriCestino));
 
-    blocco(T('Archivio'));
+    blocco(T('Archivio'), 'archivio');
     const kb = (new Blob([JSON.stringify(A)]).size / 1024).toFixed(1);
     const imm = Object.values(A.immagini), pesoImm = imm.reduce((s, x) => s + (+x.peso || 0), 0);
     const misura = el('p','avvertenza');
@@ -5762,7 +5837,7 @@ function pannelloImpostazioni(){
       + (imm.length ? ' ' + T('Immagini incorporate: {n}, {mb} MB.', { n:imm.length, mb:numero(pesoImm / 1048576) }) : '');
     dove.appendChild(misura);
 
-    blocco(T('Ripristino'));
+    blocco(T('Ripristino'), 'ripristino');
     riga(T('Impostazioni iniziali'), T('Riporta aspetto e preferenze come al primo avvio. I Fogli restano dove sono.'), T('Ripristina'), () => {
       PREFERENZE.forEach(k => i[k] = predefinite[k]);
       mostra(); disegna(); aggiornaPiede();
@@ -5778,6 +5853,8 @@ function pannelloImpostazioni(){
 
   dialogo(T('Impostazioni'), (c, chiudi, pie) => {
     chiudiPannello = chiudi; piede = pie; corpoP = c;
+    /* lo stato della sincronizzazione si aggiorna da solo finché il pannello è aperto */
+    ridisegnaSync = () => { if (corpoP && corpoP.isConnected) disegna(); else ridisegnaSync = null; };
     disegna(); aggiornaPiede();
   }, null, null, { pieLibero:true, uscita: () => esci() });
 }
@@ -6836,6 +6913,771 @@ function avviaTessere(){
   addEventListener('pointerup', fine);
   addEventListener('pointercancel', fine);
 }
+/* ============ sincronizzazione con Dropbox (8.0) ============ */
+/* folio salva sempre prima nel browser; Dropbox tiene una copia allineata e leggibile anche fuori:
+   un file .md per Foglio nelle cartelle Quaderno/Gruppo (come nell'esportazione .zip), le immagini
+   in immagini/, i Fogli protetti come file .folio cifrati. In .folio/indice.json sta quello che i
+   file non dicono: id, ordine, icone, preferiti, allineamento, sfondo, sale della password.
+   Nessun server: il browser parla solo con Dropbox. Ogni giro confronta tre stati del Foglio:
+   com'era all'ultimo allineamento (base), com'è qui, com'è in Dropbox. Vince chi è cambiato;
+   se sono cambiati tutti e due, si tengono entrambe le versioni. Niente si cancella: va nel Cestino. */
+const DROPBOX_APP = 'xpgi200coa3x3cs';
+const K_SYNC = 'sync', K_ACCESSO = 'folio.accesso';
+const F_INDICE = '/.folio/indice.json', F_CLAUDE = '/.folio/per-claude.md';
+const URL_TOKEN = 'https://api.dropboxapi.com/oauth2/token';
+const SYNC_OGNI = 60000, SYNC_DOPO = 4000, ESTERNI_DOPO = 20000;
+const META = ['sezioneId','titolo','creata','modificata','preferito','allinea','sfondo'];
+const RE_IMG_FILE = /\/immagini\/([a-z0-9]{8,})\.(jpe?g|png|gif|webp)$/;
+let SY = null;                     /* collegamento e memoria dell'allineamento: record "sync", mai nei backup */
+let giroInCorso = null, ancoraUnGiro = false, timerSync = 0, ridisegnaSync = null;
+const ritornoDropbox = () => location.origin + '/';
+
+/* ---------- piccoli attrezzi ---------- */
+const copiaJ = x => x === undefined ? undefined : JSON.parse(JSON.stringify(x));
+/* JSON con le chiavi in ordine: due indici uguali si scrivono uguali, su ogni dispositivo */
+function canonico(x){
+  if (Array.isArray(x)) return '[' + x.map(canonico).join(',') + ']';
+  if (x && typeof x === 'object') return '{' + Object.keys(x).filter(k => x[k] !== undefined).sort().map(k => JSON.stringify(k) + ':' + canonico(x[k])).join(',') + '}';
+  return JSON.stringify(x);
+}
+const uguali = (a, b) => canonico(a) === canonico(b);
+/* impronta breve di un testo: basta a capire se è cambiato */
+function impronta(s){
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < s.length; i++){ const c = s.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36) + '.' + s.length;
+}
+const b64url = b => inB64(b).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+/* l'intestazione Dropbox-API-Arg accetta solo ASCII: lettere accentate come à */
+const argSicuro = a => JSON.stringify(a).replace(/[\u007f-￿]/g, c => '\\u' + ('000' + c.charCodeAt(0).toString(16)).slice(-4));
+function erroreSync(tipo, sommario){ const e = new Error(tipo); e.tipo = tipo; e.sommario = sommario || ''; return e; }
+const salvaStatoSync = () => SY ? scriviIdb(K_SYNC, SY).catch(() => {}) : Promise.resolve();
+
+/* il testo che va nel file: il markdown, oppure la cifra di un Foglio protetto */
+function contenutoDi(p){
+  if (!p.protetto) return p.md;
+  return p.cifra ? JSON.stringify({ folio:'protetto', iv:p.cifra.iv, dati:p.cifra.dati }) : null;
+}
+const metaDi = p => { const m = {}; META.forEach(k => { if (p[k] !== undefined && p[k] !== false) m[k] = copiaJ(p[k]); }); return m; };
+const senzaFile = r => { const m = {}; META.forEach(k => { if (r && r[k] !== undefined && r[k] !== false) m[k] = copiaJ(r[k]); }); return m; };
+/* campo per campo vince chi è cambiato rispetto alla base; se nessuno o tutti e due, Dropbox */
+function fondi(b, l, r){
+  const o = {};
+  new Set([...Object.keys(b), ...Object.keys(l), ...Object.keys(r)]).forEach(k => {
+    const v = canonico(l[k]) !== canonico(b[k]) ? l[k] : r[k];
+    if (v !== undefined) o[k] = copiaJ(v);
+  });
+  return o;
+}
+function applicaMeta(p, m){
+  META.forEach(k => {
+    const v = m[k];
+    if (k === 'titolo'){ if (v && v !== p.titolo) p.titolo = titoloLibero(v, p.id); return; }
+    if (k === 'sezioneId'){ if (v && sezione(v)) p.sezioneId = v; return; }
+    if (k === 'preferito'){ p.preferito = !!v; return; }
+    if (v === undefined){ if (k !== 'creata' && k !== 'modificata') delete p[k]; }
+    else p[k] = copiaJ(v);
+  });
+}
+function applicaContenuto(p, rem){
+  cifrati.delete(p.id); illeggibili.delete(p.id);
+  if (rem.cifra){ p.protetto = true; p.cifra = rem.cifra; p.md = ''; }
+  else { p.protetto = false; delete p.cifra; p.md = rem.md; }
+}
+
+/* percorso di ogni Foglio in Dropbox: Quaderno/Gruppo/Titolo.md, come nell'esportazione.
+   I doppioni prendono (2), (3)... in ordine di id, così ogni dispositivo calcola gli stessi nomi. */
+function cartelle(){
+  const usati = new Set(), q = new Map(), s = new Map();
+  const nome = (n, ramo) => { const c = nomeCartella(n, usati, ramo); return c.startsWith('.') ? '_' + c : c; };
+  const perId = (a, b) => a.id < b.id ? -1 : 1;
+  A.quaderni.slice().sort(perId).forEach(x => q.set(x.id, '/' + nome(x.nome, '')));
+  A.sezioni.slice().sort(perId).forEach(x => { const cq = q.get(x.quadernoId) || '/Quaderno'; s.set(x.id, cq + '/' + nome(x.nome, cq)); });
+  return { q, s, usati, nome };
+}
+function percorsiFogli(){
+  const c = cartelle(), fuori = new Map();
+  A.fogli.slice().sort((a, b) => a.id < b.id ? -1 : 1).forEach(p => {
+    const cs = c.s.get(p.sezioneId) || '/Quaderno/Gruppo';
+    fuori.set(p.id, cs + '/' + c.nome(p.titolo, cs) + (p.protetto ? '.folio' : '.md'));
+  });
+  return fuori;
+}
+
+/* ---------- Dropbox: accesso ---------- */
+async function tokenValido(){
+  if (SY.token && Date.now() < SY.scade - 60000) return;
+  let r;
+  try {
+    r = await fetch(URL_TOKEN, { method:'POST', headers:{ 'Content-Type':'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ grant_type:'refresh_token', refresh_token:SY.refresh, client_id:DROPBOX_APP }).toString() });
+  } catch(e){ throw erroreSync('rete'); }
+  if (r.status === 400 || r.status === 401) throw erroreSync('scollegato');
+  if (!r.ok) throw erroreSync('occupato');
+  const j = await r.json();
+  SY.token = j.access_token; SY.scade = Date.now() + (j.expires_in || 14400) * 1000;
+}
+/* una chiamata a Dropbox. su: dati da caricare; giu: risposta grezza da scaricare */
+async function dbx(rotta, arg, opz){
+  opz = opz || {};
+  await tokenValido();
+  const h = { Authorization:'Bearer ' + SY.token };
+  let corpoR;
+  if (opz.su || opz.giu){
+    h['Dropbox-API-Arg'] = argSicuro(arg);
+    if (opz.su){ h['Content-Type'] = 'application/octet-stream'; corpoR = opz.su; }
+  } else if (arg != null){ h['Content-Type'] = 'application/json'; corpoR = JSON.stringify(arg); }
+  let r;
+  try { r = await fetch('https://' + (opz.su || opz.giu ? 'content' : 'api') + '.dropboxapi.com/2/' + rotta, { method:'POST', headers:h, body:corpoR }); }
+  catch(e){ throw erroreSync('rete'); }
+  if (r.status === 401 && !opz.rinnovato){ SY.scade = 0; return dbx(rotta, arg, Object.assign({}, opz, { rinnovato:true })); }
+  if (r.status === 401) throw erroreSync('scollegato');
+  if (r.ok) return opz.giu ? r : r.json();
+  let e = {};
+  try { e = await r.json(); } catch(x){}
+  const sommario = String(e.error_summary || r.status);
+  if (r.status === 409) throw erroreSync(/insufficient_space/.test(sommario) ? 'spazio' : 'conflitto', sommario);
+  throw erroreSync(r.status === 429 || r.status >= 500 ? 'occupato' : 'dropbox', sommario);
+}
+async function suDropbox(percorso, dati, rev){
+  const m = await dbx('files/upload', { path:percorso, mode: rev ? { '.tag':'update', update:rev } : 'add', autorename:false, mute:true, strict_conflict:true },
+    { su: typeof dati === 'string' ? new TextEncoder().encode(dati) : dati });
+  SY.file[m.path_lower] = { p:m.path_display, rev:m.rev, quando:m.server_modified };
+  return m;
+}
+async function scaricaTesto(k){
+  const f = SY.file[k];
+  if (!f) return null;
+  let r;
+  try { r = await dbx('files/download', { path:f.p }, { giu:true }); }
+  catch(e){ if (e.tipo === 'conflitto') return null; throw e; }
+  let rev = f.rev;
+  try { rev = JSON.parse(r.headers.get('dropbox-api-result')).rev || rev; } catch(e){}
+  return { testo:(await r.text()).replace(/^﻿/, '').replace(/\r\n?/g, '\n'), rev };
+}
+/* l'elenco completo dei file, aggiornato a ogni giro chiedendo solo cosa è cambiato */
+function applicaVoci(voci){
+  voci.forEach(v => {
+    const k = v.path_lower;
+    if (v['.tag'] === 'file') SY.file[k] = { p:v.path_display, rev:v.rev, quando:v.server_modified };
+    else if (v['.tag'] === 'deleted'){
+      delete SY.file[k];
+      Object.keys(SY.file).forEach(x => { if (x.startsWith(k + '/')) delete SY.file[x]; });
+    }
+  });
+}
+async function elenca(){
+  let r;
+  if (SY.cursore){
+    try { r = await dbx('files/list_folder/continue', { cursor:SY.cursore }); }
+    catch(e){ if (e.tipo === 'conflitto'){ SY.cursore = null; return elenca(); } throw e; }
+  } else {
+    SY.file = {};
+    r = await dbx('files/list_folder', { path:'', recursive:true, include_deleted:false });
+  }
+  applicaVoci(r.entries);
+  while (r.has_more){ r = await dbx('files/list_folder/continue', { cursor:r.cursor }); applicaVoci(r.entries); }
+  SY.cursore = r.cursor;
+}
+async function leggiIndice(){
+  const f = SY.file[F_INDICE];
+  if (!f){ SY.indice = null; SY.indiceRev = null; return null; }
+  if (f.rev === SY.indiceRev && SY.indice) return SY.indice;
+  const t = await scaricaTesto(F_INDICE);
+  if (!t){ SY.indice = null; SY.indiceRev = null; return null; }
+  let j;
+  try { j = JSON.parse(t.testo); } catch(e){ throw erroreSync('indice'); }
+  if (!j || j.app !== 'folio' || !j.fogli || typeof j.fogli !== 'object') throw erroreSync('indice');
+  ['quaderni','sezioni'].forEach(k => { if (!Array.isArray(j[k])) j[k] = []; });
+  j.immagini = j.immagini && typeof j.immagini === 'object' ? j.immagini : {};
+  j.cassaforte = j.cassaforte && j.cassaforte.sale ? j.cassaforte : null;
+  SY.indice = j; SY.indiceRev = t.rev;
+  return j;
+}
+
+/* ---------- collegamento: Dropbox chiede login e "Consenti", poi torna qui con un codice ---------- */
+async function collegaDropbox(){
+  if (!idb || !cassaforteDisponibile()){ avviso(T('La sincronizzazione funziona solo con una connessione sicura (https) e con la memoria estesa del browser.'), null, null, 7000); return; }
+  const verificatore = b64url(crypto.getRandomValues(new Uint8Array(48)));
+  const sfida = b64url(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verificatore)));
+  const stato = b64url(crypto.getRandomValues(new Uint8Array(16)));
+  try { localStorage.setItem(K_ACCESSO, JSON.stringify({ verificatore, stato })); }
+  catch(e){ avviso(T('Il browser non lascia completare il collegamento: prova fuori dalla navigazione privata.'), null, null, 7000); return; }
+  chiudiGrezzo(); scriviCorrente(); finalizzaTitolo();
+  await salvaOra();
+  location.assign('https://www.dropbox.com/oauth2/authorize?' + new URLSearchParams({
+    client_id:DROPBOX_APP, response_type:'code', code_challenge:sfida, code_challenge_method:'S256',
+    token_access_type:'offline', redirect_uri:ritornoDropbox(), state:stato }).toString());
+}
+async function rientroDaDropbox(){
+  const q = new URLSearchParams(location.search);
+  if (!q.has('code') && !q.has('error')) return;
+  try { history.replaceState(history.state, '', location.pathname); } catch(e){}
+  let att = null;
+  try { att = JSON.parse(localStorage.getItem(K_ACCESSO) || 'null'); localStorage.removeItem(K_ACCESSO); } catch(e){}
+  if (!q.has('code') || !att || q.get('state') !== att.stato){
+    avviso(q.get('error') === 'access_denied' ? T('Collegamento a Dropbox annullato.') : T('Collegamento a Dropbox non riuscito: riprova.'), null, null, 6000);
+    return;
+  }
+  try {
+    const r = await fetch(URL_TOKEN, { method:'POST', headers:{ 'Content-Type':'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ code:q.get('code'), grant_type:'authorization_code', code_verifier:att.verificatore,
+        client_id:DROPBOX_APP, redirect_uri:ritornoDropbox() }).toString() });
+    if (!r.ok) throw new Error('token');
+    const j = await r.json();
+    if (!j.access_token || !j.refresh_token) throw new Error('token');
+    SY = { servizio:'dropbox', token:j.access_token, scade:Date.now() + (j.expires_in || 14400) * 1000, refresh:j.refresh_token,
+      conto:'', file:{}, cursore:null, indice:null, indiceRev:null, base:null, ultimo:null, errore:'' };
+    try { const c = await dbx('users/get_current_account'); SY.conto = c.email || (c.name && c.name.display_name) || ''; } catch(e){}
+    await salvaStatoSync();
+    avviso(T('Dropbox collegato: allineo i Fogli.'));
+  } catch(e){
+    SY = null;
+    avviso(T('Collegamento a Dropbox non riuscito: riprova.'), null, null, 6000);
+  }
+}
+function scollegaDropbox(poi){
+  conferma(T('Scollego Dropbox? I Fogli restano qui e in Dropbox, ma questo dispositivo smette di allinearsi.'), async () => {
+    if (giroInCorso) await giroInCorso.catch(() => {});
+    if (!SY) return;
+    try { await dbx('auth/token/revoke'); } catch(e){}
+    SY = null; clearTimeout(timerSync);
+    try { await scriviMolti([], [K_SYNC]); } catch(e){}
+    avviso(T('Dropbox scollegato.'));
+    if (poi) poi();
+  }, T('Scollega'));
+}
+
+/* ---------- quando ---------- */
+function programmaSync(ms){ if (!SY) return; clearTimeout(timerSync); timerSync = setTimeout(sincronizza, ms); }
+/* dopo ogni salvataggio, un giro qualche secondo dopo l'ultima battuta */
+function dopoSalvataggio(){ if (!SY) return; if (giroInCorso) ancoraUnGiro = true; else programmaSync(SYNC_DOPO); }
+function sincronizza(){
+  if (!SY || inPausa || letturaFallita) return Promise.resolve();
+  if (giroInCorso){ ancoraUnGiro = true; return giroInCorso; }
+  clearTimeout(timerSync);
+  giroInCorso = giro().finally(() => {
+    giroInCorso = null;
+    if (ridisegnaSync) ridisegnaSync();
+    if (ancoraUnGiro){ ancoraUnGiro = false; programmaSync(1500); }
+  });
+  return giroInCorso;
+}
+async function giro(){
+  if (navigator.onLine === false){ SY.errore = 'rete'; return; }
+  try {
+    let fatto = false;
+    for (let i = 0; i < 3 && !fatto && SY; i++) fatto = await unGiro();
+    if (!SY) return;
+    SY.errore = fatto ? '' : 'conflitto';
+    if (fatto) SY.ultimo = oggi();
+  } catch(e){
+    if (!SY) return;
+    SY.errore = e.tipo || 'dropbox';
+    if (!e.tipo) console.error(e);
+    if (e.tipo === 'scollegato' && !giro.avvisato){ giro.avvisato = true; avviso(T('Dropbox non risponde più a folio: collegalo di nuovo.'), T('Collega'), collegaDropbox, 12000); }
+    if (e.tipo === 'password' && !giro.password){ giro.password = true; avviso(T('Su questo dispositivo i Fogli protetti hanno un\'altra password: la sincronizzazione è ferma. Vedi le Impostazioni.'), null, null, 12000); }
+  }
+  await salvaStatoSync();
+}
+
+/* ---------- un giro completo ---------- */
+async function unGiro(){
+  scriviCorrente();
+  await inFila(aggiornaCifre);                 /* la cifra dei Fogli protetti aperti è aggiornata */
+  await elenca();
+  const F = SY.file;
+  let R = await leggiIndice();
+  if (!R) SY.base = null;                      /* indice sparito: si riparte, abbinando i file per percorso */
+  if (!SY.base) SY.base = { indice:{ quaderni:[], sezioni:[], fogli:{}, immagini:{}, cassaforte:null }, fogli:{} };
+  const B = SY.base, BF = B.fogli, BI = B.indice;
+  const RF = R ? R.fogli : {};
+  let cambiato = false;
+
+  /* un dispositivo appena installato, collegato a un Dropbox già pieno: prende quello che c'è */
+  if (R && !Object.keys(BF).length && archivioIntatto()){
+    A.quaderni = []; A.sezioni = []; A.fogli = [];
+    if (corrente) mostraVuoto();
+    cambiato = true;
+  }
+  cambiato = fondiCassaforte(R, BI) || cambiato;
+  if (R) cambiato = adottaPerNome(R, BI) || cambiato;
+
+  /* dove sta in Dropbox ogni Foglio, e quali file vanno scaricati */
+  const esiste = k => !!(k && F[k]);
+  const percorsiPrima = percorsiFogli();
+  const rivendicati = new Set([F_INDICE, F_CLAUDE]);
+  Object.values(RF).forEach(r => { if (r && r.file) rivendicati.add(r.file.toLowerCase()); });
+  Object.values(BF).forEach(b => rivendicati.add(b.file));
+  const dove = fid => {
+    const r = RF[fid], b = BF[fid], kr = r && r.file ? r.file.toLowerCase() : null;
+    if (esiste(kr)) return kr;
+    if (r && b && esiste(b.file)) return b.file;          /* spostamento annunciato ma non ancora fatto */
+    return null;
+  };
+  /* un Foglio mai allineato che trova un file al suo posto (un vecchio collegamento, uno .zip copiato) */
+  const abbinati = new Map();
+  A.fogli.forEach(p => {
+    if (BF[p.id] || RF[p.id]) return;
+    const k = percorsiPrima.get(p.id).toLowerCase();
+    if (esiste(k) && !rivendicati.has(k)){ abbinati.set(p.id, k); rivendicati.add(k); }
+  });
+  const ids = new Set([...A.fogli.map(p => p.id), ...Object.keys(RF), ...Object.keys(BF)]);
+  const daScaricare = new Set();
+  ids.forEach(fid => { const k = dove(fid) || abbinati.get(fid); if (k && (!BF[fid] || BF[fid].rev !== F[k].rev)) daScaricare.add(k); });
+  /* file .md nuovi arrivati da fuori (Claude, un altro programma): diventano Fogli nuovi */
+  const ora = Date.now();
+  const esterni = Object.keys(F).filter(k => !rivendicati.has(k) && /\.md$/.test(k) && !k.startsWith('/.folio/')
+    && !(F[k].quando && ora - new Date(F[k].quando).getTime() < ESTERNI_DOPO));
+  esterni.forEach(k => daScaricare.add(k));
+  const scaricati = new Map();
+  for (const k of daScaricare){
+    const t = await scaricaTesto(k);
+    if (!t) continue;
+    let rem;
+    if (/\.folio$/.test(k)){
+      try { const j = JSON.parse(t.testo); if (typeof j.iv !== 'string' || typeof j.dati !== 'string') throw 0; rem = { cifra:{ iv:j.iv, dati:j.dati } }; }
+      catch(e){ continue; }
+    } else rem = { md:t.testo };
+    rem.rev = t.rev;
+    rem.h = impronta(contenutoDi(rem.cifra ? { protetto:true, cifra:rem.cifra } : { md:rem.md }));
+    scaricati.set(k, rem);
+  }
+
+  /* ---- unione: da qui in poi niente rete, tutto in un colpo ---- */
+  scriviCorrente();
+  const occupato = () => !!corrente && (vistaGrezza || ['titolo','grezzo'].includes((document.activeElement || {}).id) || $('#corpo').contains(document.activeElement));
+  const strutture = R ? fondiStrutture(R, BI) : null;
+  const rimandati = new Set(), esito = { nuovi:0, cestinati:0, conflitti:0 };
+  let ridisegna = false;
+  const metaB = (fid, ml) => BI.fogli[fid] ? senzaFile(BI.fogli[fid]) : ml;
+  for (const fid of ids){
+    const l = foglio(fid), b = BF[fid], r = RF[fid] || null;
+    const k = dove(fid) || abbinati.get(fid) || null;
+    if (k && daScaricare.has(k) && !scaricati.has(k)){ rimandati.add(fid); continue; }   /* non scaricato: al prossimo giro */
+    const rem = k ? scaricati.get(k) || null : null;
+    /* com'è il file in Dropbox adesso: diventa la base quando qui si tiene conto di lui */
+    const fermo = { file:k, rev:k ? (rem ? rem.rev : F[k].rev) : null, impronta: rem ? rem.h : b && b.impronta };
+    if (l){
+      const lc = contenutoDi(l);
+      if (lc == null){ rimandati.add(fid); continue; }                 /* protetto proprio ora, cifra in arrivo */
+      const lh = impronta(lc), locCambiato = !b || lh !== b.impronta;
+      const nuovoRem = !!(rem && (!b || rem.h !== b.impronta) && rem.h !== lh);
+      const ml = metaDi(l), mr = r ? senzaFile(r) : null;
+      if (k){
+        if (nuovoRem && locCambiato){
+          /* cambiato qui e in Dropbox: qui resta questa versione, l'altra diventa un Foglio "(conflitto)" */
+          copiaConflitto(l, rem, mr); esito.conflitti++;
+          BF[fid] = fermo; cambiato = true;
+          if (mr && b){ const m = fondi(metaB(fid, ml), ml, mr); if (!uguali(m, ml)){ applicaMeta(l, m); if (l === corrente) ridisegna = true; } }
+          continue;
+        }
+        if (nuovoRem){
+          if (l === corrente && occupato()){ rimandati.add(fid); continue; }   /* ci stai scrivendo: dopo */
+          applicaContenuto(l, rem); cambiato = true;
+          if (l === corrente) ridisegna = true;
+        }
+        BF[fid] = fermo;
+        if (mr){
+          const m = fondi(b ? metaB(fid, ml) : ml, ml, mr);
+          if (!uguali(m, ml)){
+            applicaMeta(l, m); cambiato = true;
+            if (l === corrente) ridisegna = true;
+          }
+        }
+      } else if (b){
+        delete BF[fid];
+        if (!locCambiato){ nelCestino(l); esito.cestinati++; cambiato = true; }   /* eliminato altrove */
+      }
+    } else if (k){
+      const remCambiato = !!(rem && (!b || rem.h !== b.impronta));
+      if (b && !remCambiato){ BF[fid] = fermo; continue; }               /* eliminato qui: lo toglie anche da Dropbox */
+      if (!rem) continue;
+      /* nuovo in Dropbox, o cambiato in Dropbox dopo che qui era stato eliminato: arriva (o torna) */
+      const gemello = !b && r ? A.fogli.find(x => !BF[x.id] && !RF[x.id] && !abbinati.has(x.id)
+        && senzaAccenti(x.titolo).trim() === senzaAccenti(r.titolo || '').trim() && contenutoDi(x) != null && impronta(contenutoDi(x)) === rem.h) : null;
+      if (gemello){
+        adottaId(gemello, fid);
+        BF[fid] = fermo;
+        applicaMeta(gemello, senzaFile(r)); cambiato = true;
+        continue;
+      }
+      togliDalCestino(fid);
+      const p = { id:fid, sezioneId:A.sezioni.length ? A.sezioni[0].id : '', titolo:'', md:'', creata:oggi(), modificata:oggi() };
+      applicaMeta(p, senzaFile(r));
+      if (!p.titolo) p.titolo = titoloLibero(T('Foglio'), fid);
+      applicaContenuto(p, rem);
+      A.fogli.push(p); BF[fid] = fermo;
+      esito.nuovi++; cambiato = true;
+    } else if (r && !b){
+      rimandati.add(fid);                                                  /* annunciato, file non ancora arrivato */
+    } else if (b){
+      delete BF[fid];
+    }
+  }
+  /* file arrivati da fuori */
+  esterni.forEach(k => {
+    const rem = scaricati.get(k);
+    if (!rem || rem.cifra) return;
+    const parti = F[k].p.split('/').filter(Boolean);
+    const titolo = parti.pop().replace(/\.md$/i, '');
+    const p = { id:id(), sezioneId:sezionePerCartelle(parti), titolo:titoloLibero(titolo), md:rem.md, creata:oggi(), modificata:F[k].quando || oggi() };
+    A.fogli.push(p);
+    BF[p.id] = { file:k, rev:rem.rev, impronta:rem.h };
+    esito.nuovi++; cambiato = true;
+  });
+  if (strutture) cambiato = chiudiStrutture(strutture) || cambiato;
+  /* misure delle immagini dei Fogli arrivati */
+  if (R) A.fogli.forEach(p => { if (!p.protetto) idsImmagini(p.md).forEach(x => { if (!A.immagini[x] && R.immagini[x]){ A.immagini[x] = copiaJ(R.immagini[x]); cambiato = true; } }); });
+
+  if (cambiato){
+    ripara();
+    if (chiave) await apriCifre(chiave);
+    if (corrente && !foglio(corrente.id)){ mostraVuoto(); if (stretto()) vista('elenco'); }
+    else if (ridisegna && corrente && !occupato()) ridisegnaCorrente();
+    A.impostazioni.modificheDaSalvare = true;
+    await salvaOra();
+    await salvaStatoSync();
+    disegnaLato();
+    if (modo === 'cestino') disegnaCestino();
+    if (esito.conflitti) avviso(tn(esito.conflitti, 'Foglio cambiato in due posti: ho tenuto anche l\'altra versione, con "(conflitto)" nel titolo.', 'Fogli cambiati in due posti: ho tenuto anche le altre versioni, con "(conflitto)" nel titolo.'), null, null, 9000);
+    if (esito.cestinati) avviso(tn(esito.cestinati, 'Foglio eliminato su un altro dispositivo: è nel Cestino.', 'Fogli eliminati su un altro dispositivo: sono nel Cestino.'), null, null, 7000);
+  }
+  await scaricaImmagini();
+
+  /* ---- prima l'indice, poi i file: chi legge a metà trova i file "annunciati" e aspetta ---- */
+  const percorsi = percorsiFogli();
+  const N = indiceNuovo(percorsi, R, rimandati, F);
+  if (!R || !uguali(N, R)){
+    try { const m = await suDropbox(F_INDICE, JSON.stringify(N, null, 1), R ? SY.indiceRev : null); SY.indiceRev = m.rev; SY.indice = N; }
+    catch(e){ if (e.tipo === 'conflitto'){ await salvaStatoSync(); return false; } throw e; }
+  }
+  if (!F[F_CLAUDE]) await suDropbox(F_CLAUDE, LINGUA === 'en' ? PER_CLAUDE_EN : PER_CLAUDE_IT, null).catch(e => { if (e.tipo !== 'conflitto') throw e; });
+
+  /* immagini che mancano in Dropbox, accanto ai Fogli che le usano */
+  const volute = new Map();
+  A.fogli.forEach(p => {
+    if (p.protetto || rimandati.has(p.id)) return;
+    const cart = percorsi.get(p.id).replace(/\/[^/]+$/, '');
+    String(p.md).replace(RE_PERCORSO, (m, nome) => { const pp = cart + '/immagini/' + nome; volute.set(pp.toLowerCase(), pp); return m; });
+  });
+  for (const [k, pp] of volute){
+    if (F[k]) continue;
+    const r = await leggiIdb('i:' + pp.split('/').pop().split('.')[0]);
+    if (!r || typeof r.b64 !== 'string') continue;
+    await suDropbox(pp, daB64(r.b64), null).catch(e => { if (e.tipo !== 'conflitto') throw e; });
+  }
+  /* i Fogli: spostati, rinominati, cambiati, nuovi */
+  for (const p of A.fogli){
+    if (rimandati.has(p.id)) continue;
+    const c = contenutoDi(p);
+    if (c == null) continue;
+    const dest = percorsi.get(p.id), kd = dest.toLowerCase(), h = impronta(c);
+    let b = BF[p.id];
+    try {
+      if (b && b.file !== kd){
+        if (F[b.file]){
+          const m = (await dbx('files/move_v2', { from_path:F[b.file].p, to_path:dest, autorename:false })).metadata;
+          delete F[b.file];
+          F[m.path_lower] = { p:m.path_display, rev:m.rev, quando:m.server_modified };
+          b.file = m.path_lower; b.rev = m.rev;
+        } else { delete BF[p.id]; b = null; }
+      }
+      if (!b || b.impronta !== h){
+        const m = await suDropbox(dest, c, b ? b.rev : null);
+        BF[p.id] = { file:m.path_lower, rev:m.rev, impronta:h };
+      }
+    } catch(e){ if (e.tipo === 'conflitto'){ await salvaStatoSync(); return false; } throw e; }
+  }
+  /* eliminati qui: via anche da Dropbox (Dropbox li tiene comunque fra i file eliminati) */
+  for (const [fid, b] of Object.entries(BF)){
+    if (foglio(fid) || rimandati.has(fid)) continue;
+    if (F[b.file]){
+      try { await dbx('files/delete_v2', { path:F[b.file].p, parent_rev:b.rev }); delete F[b.file]; }
+      catch(e){ if (e.tipo !== 'conflitto') throw e; }
+    }
+    delete BF[fid];
+  }
+  /* immagini di folio rimaste senza Foglio (spostato o eliminato) */
+  if (!rimandati.size && [...volute.keys()].every(k => F[k])){
+    const note = Object.assign({}, BI.immagini, R ? R.immagini : {}, A.immagini);
+    for (const k of Object.keys(F)){
+      const m = k.match(RE_IMG_FILE);
+      if (!m || volute.has(k) || !note[m[1]]) continue;
+      try { await dbx('files/delete_v2', { path:F[k].p }); delete F[k]; } catch(e){ if (e.tipo !== 'conflitto') throw e; }
+    }
+  }
+  B.indice = N;
+  return true;
+}
+
+/* dopo l'unione: almeno un Quaderno e un Gruppo, e ogni Foglio in un Gruppo che esiste */
+function ripara(){
+  if (!A.quaderni.length) A.quaderni.push({ id:id(), nome:T('Quaderno'), creato:oggi() });
+  const qOk = new Set(A.quaderni.map(q => q.id));
+  A.sezioni.forEach(s => { if (!qOk.has(s.quadernoId)) s.quadernoId = A.quaderni[0].id; });
+  if (!A.sezioni.length) A.sezioni.push({ id:id(), quadernoId:A.quaderni[0].id, nome:T('Gruppo'), creata:oggi() });
+  const sOk = new Set(A.sezioni.map(s => s.id));
+  A.fogli.forEach(p => { if (!sOk.has(p.sezioneId)) p.sezioneId = A.sezioni[0].id; });
+  if (!qOk.has(A.impostazioni.quaderno)) A.impostazioni.quaderno = A.quaderni[0].id;
+}
+/* nessuna modifica: solo il Foglio di benvenuto del primo avvio */
+const archivioIntatto = () => A.fogli.length <= 1 && A.quaderni.length === 1 && A.sezioni.length === 1
+  && !A.cestino.fogli.length && !A.cestino.sezioni.length && A.fogli.every(p => p.md === BENVENUTO_IT || p.md === BENVENUTO_EN);
+
+/* password dei Fogli protetti: viaggia solo il sale con la verifica, mai la password */
+function fondiCassaforte(R, BI){
+  const l = A.cassaforte, r = R ? R.cassaforte : null, b = BI.cassaforte || null;
+  if (!r || uguali(l, r)) return false;
+  if (!l || uguali(l, b)){
+    /* cambiata su un altro dispositivo: i Fogli protetti si chiudono e si riaprono con quella nuova */
+    if (chiave){
+      tuttiIFogli().forEach(p => { if (p.protetto) p.md = ''; });
+      chiave = null; cifrati.clear(); illeggibili.clear();
+      if (corrente && corrente.protetto){ mostraVuoto(); if (stretto()) vista('elenco'); }
+    }
+    A.cassaforte = copiaJ(r);
+    return true;
+  }
+  if (uguali(r, b)) return false;                   /* cambiata qui: Dropbox la riceve con l'indice */
+  if (!tuttiIFogli().some(p => p.protetto)){ A.cassaforte = copiaJ(r); return true; }
+  throw erroreSync('password');
+}
+
+/* Quaderni e Gruppi nati in due posti con lo stesso nome diventano uno solo */
+function adottaPerNome(R, BI){
+  let fatto = false;
+  const bq = new Set(BI.quaderni.map(x => x.id)), bs = new Set(BI.sezioni.map(x => x.id));
+  const pari = (a, b) => senzaAccenti(a).trim() === senzaAccenti(b).trim();
+  R.quaderni.forEach(rq => {
+    if (bq.has(rq.id) || quaderno(rq.id)) return;
+    const l = A.quaderni.find(q => !bq.has(q.id) && !R.quaderni.some(x => x.id === q.id) && pari(q.nome, rq.nome));
+    if (!l) return;
+    A.sezioni.forEach(s => { if (s.quadernoId === l.id) s.quadernoId = rq.id; });
+    if (A.impostazioni.quaderno === l.id) A.impostazioni.quaderno = rq.id;
+    l.id = rq.id; fatto = true;
+  });
+  R.sezioni.forEach(rs => {
+    if (bs.has(rs.id) || sezione(rs.id)) return;
+    const l = A.sezioni.find(s => !bs.has(s.id) && !R.sezioni.some(x => x.id === s.id) && s.quadernoId === rs.quadernoId && pari(s.nome, rs.nome));
+    if (!l) return;
+    A.fogli.forEach(p => { if (p.sezioneId === l.id) p.sezioneId = rs.id; });
+    A.impostazioni.sezioniChiuse = A.impostazioni.sezioniChiuse.map(x => x === l.id ? rs.id : x);
+    l.id = rs.id; fatto = true;
+  });
+  return fatto;
+}
+/* Quaderni e Gruppi: unione per id, campo per campo. Un elemento eliminato da una parte
+   sparisce anche dall'altra solo se resta vuoto: i Fogli non si perdono mai per questo. */
+const CAMPI_Q = ['id','nome','creato'], CAMPI_S = ['id','quadernoId','nome','creata','icona'];
+const pulisci = (x, campi) => { const o = {}; campi.forEach(k => { if (x[k] !== undefined) o[k] = copiaJ(x[k]); }); return o; };
+function fondiElenco(bl, ll, rl, campi){
+  const Bm = new Map(bl.map(x => [x.id, x])), Lm = new Map(ll.map(x => [x.id, x])), Rm = new Map(rl.map(x => [x.id, x]));
+  const comuni = v => v.map(x => x.id).filter(i => Bm.has(i) && Lm.has(i) && Rm.has(i));
+  /* l'ordine: quello di qui se qui è cambiato, altrimenti quello di Dropbox */
+  const prima = uguali(comuni(ll), comuni(bl)) ? [rl, ll] : [ll, rl];
+  const ordine = [...new Set([...prima[0], ...prima[1]].map(x => x.id))];
+  const lista = [], forse = new Set();
+  ordine.forEach(i => {
+    const b = Bm.get(i), l = Lm.get(i), r = Rm.get(i);
+    if (l && r){
+      const m = fondi(b ? pulisci(b, campi) : pulisci(l, campi), pulisci(l, campi), pulisci(r, campi));
+      campi.forEach(k => { if (m[k] === undefined) delete l[k]; else l[k] = m[k]; });
+      lista.push(l);
+    } else if (l){
+      lista.push(l);
+      if (b && uguali(pulisci(l, campi), pulisci(b, campi))) forse.add(i);   /* eliminato in Dropbox */
+    } else if (r){
+      if (b && uguali(pulisci(r, campi), pulisci(b, campi))) forse.add(i);   /* eliminato qui: torna solo se serve */
+      lista.push(pulisci(r, campi));
+    }
+  });
+  return { lista, forse };
+}
+function fondiStrutture(R, BI){
+  const prima = canonico([A.quaderni, A.sezioni]);
+  const q = fondiElenco(BI.quaderni, A.quaderni, R.quaderni, CAMPI_Q);
+  const s = fondiElenco(BI.sezioni, A.sezioni, R.sezioni, CAMPI_S);
+  A.quaderni = q.lista; A.sezioni = s.lista;
+  const qIds = new Set(A.quaderni.map(x => x.id));
+  A.sezioni.forEach(x => { if (!qIds.has(x.quadernoId)) x.quadernoId = A.quaderni[0] ? A.quaderni[0].id : x.quadernoId; });
+  return { q, s, prima };
+}
+function chiudiStrutture(st){
+  const usate = new Set(A.fogli.map(p => p.sezioneId));
+  A.sezioni = A.sezioni.filter(x => !(st.s.forse.has(x.id) && !usate.has(x.id)));
+  const piene = new Set(A.sezioni.map(x => x.quadernoId));
+  A.quaderni = A.quaderni.filter(x => !(st.q.forse.has(x.id) && !piene.has(x.id)));
+  /* un Gruppo tornato da Dropbox che qui era nel Cestino: lì resta solo ciò che conteneva */
+  const vivi = new Set(A.sezioni.map(x => x.id));
+  A.cestino.sezioni = A.cestino.sezioni.filter(c => {
+    if (!vivi.has(c.id)) return true;
+    (c.fogli || []).forEach(p => A.cestino.fogli.push(Object.assign({}, p, { eliminato:c.eliminata, sezioneNome:c.nome, quadernoNome:c.quadernoNome || '' })));
+    return false;
+  });
+  return canonico([A.quaderni, A.sezioni]) !== st.prima;
+}
+/* un file arrivato da fuori va nel Quaderno e nel Gruppo delle sue cartelle (creati se mancano) */
+function sezionePerCartelle(parti){
+  const c = cartelle();
+  const nq = parti[0] || 'Dropbox', ns = parti.slice(1).join(' - ') || 'Dropbox';
+  const pari = (cartella, nome, cercato) => (cartella || '').split('/').pop().toLowerCase() === cercato.toLowerCase() || senzaAccenti(nome).trim() === senzaAccenti(cercato).trim();
+  let q = A.quaderni.find(x => pari(c.q.get(x.id), x.nome, nq));
+  if (!q){ q = { id:id(), nome:nomeQuadernoLibero(nq), creato:oggi() }; A.quaderni.push(q); }
+  let s = A.sezioni.find(x => x.quadernoId === q.id && pari(c.s.get(x.id), x.nome, ns));
+  if (!s){ s = { id:id(), quadernoId:q.id, nome:nomeSezioneLibero(q.id, ns), creata:oggi() }; A.sezioni.push(s); }
+  return s.id;
+}
+function copiaConflitto(l, rem, mr){
+  const c = { id:id(), sezioneId: mr && sezione(mr.sezioneId) ? mr.sezioneId : l.sezioneId, titolo:'', md:'', creata:oggi(), modificata:(mr && mr.modificata) || oggi() };
+  c.titolo = titoloLibero(((mr && mr.titolo) || l.titolo) + ' ' + T('(conflitto)'));
+  if (mr && mr.allinea) c.allinea = copiaJ(mr.allinea);
+  if (mr && mr.sfondo) c.sfondo = copiaJ(mr.sfondo);
+  applicaContenuto(c, rem);
+  A.fogli.push(c);
+}
+function nelCestino(p){
+  const s = sezione(p.sezioneId), q = s ? quaderno(s.quadernoId) : null;
+  A.fogli.splice(A.fogli.indexOf(p), 1);
+  A.cestino.fogli.push(Object.assign({}, p, { eliminato:oggi(), sezioneNome: s ? s.nome : '', quadernoNome: q ? q.nome : '' }));
+  if (corrente && corrente.id === p.id){ mostraVuoto(); if (stretto()) vista('elenco'); }
+}
+function togliDalCestino(fid){
+  A.cestino.fogli = A.cestino.fogli.filter(p => p.id !== fid);
+  A.cestino.sezioni.forEach(s => { s.fogli = (s.fogli || []).filter(p => p.id !== fid); });
+}
+function adottaId(p, nuovo){
+  const vecchio = p.id;
+  A.impostazioni.recenti.forEach(x => { if (x.id === vecchio) x.id = nuovo; });
+  if (A.impostazioni.foglio === vecchio) A.impostazioni.foglio = nuovo;
+  if (cifrati.has(vecchio)){ cifrati.set(nuovo, cifrati.get(vecchio)); cifrati.delete(vecchio); }
+  p.id = nuovo;
+}
+/* il Foglio aperto cambiato su un altro dispositivo si ridisegna (solo se non ci stai scrivendo) */
+function ridisegnaCorrente(){
+  const p = corrente;
+  if (!p || vistaGrezza) return;
+  if (chiuso(p)){ mostraVuoto(); if (stretto()) vista('elenco'); return; }
+  immagineScelta = null;
+  titoloPrima = p.titolo; $('#titolo').value = p.titolo;
+  $('#corpo').innerHTML = htmlFoglio(p.md);
+  segnaTessere(); applicaAllineamento(); applicaSfondo(); azzeraPassi(); togliManiglie(); disegnaSommario();
+  htmlAperto = $('#corpo').innerHTML;
+  riempiImmagini(); aggiornaBarraImmagine(); aggiornaVuoto(); disegnaRimandi();
+  $('#metaFoglio').textContent = T('Modificato {quando}', { quando:dataBreve(p.modificata) });
+  const s = sezione(p.sezioneId), qd = quadernoDiFoglio(p);
+  $('#percorso').textContent = (qd ? qd.nome + ' / ' : '') + (s ? s.nome : '');
+}
+/* immagini usate dai Fogli ma non ancora su questo dispositivo */
+async function scaricaImmagini(){
+  const servono = new Set();
+  A.fogli.forEach(p => { if (!p.protetto) idsImmagini(p.md).forEach(x => servono.add(x)); });
+  if (!servono.size) return;
+  const presenti = new Set((await leggiChiavi('i:')).map(x => x.slice(2)));
+  const dove = new Map();
+  Object.keys(SY.file).forEach(k => { const m = k.match(RE_IMG_FILE); if (m && !dove.has(m[1])) dove.set(m[1], k); });
+  const metti = [];
+  for (const x of servono){
+    if (presenti.has(x) || !dove.has(x)) continue;
+    const k = dove.get(x);
+    let r;
+    try { r = await dbx('files/download', { path:SY.file[k].p }, { giu:true }); }
+    catch(e){ if (e.tipo === 'conflitto') continue; throw e; }
+    const est = k.split('.').pop();
+    metti.push(['i:' + x, { tipo: est === 'png' ? 'image/png' : est === 'gif' ? 'image/gif' : est === 'webp' ? 'image/webp' : 'image/jpeg', b64: inB64(await r.arrayBuffer()) }]);
+  }
+  if (!metti.length) return;
+  await scriviMolti(metti, []);
+  if (corrente) riempiImmagini();
+}
+/* l'indice che va in Dropbox, ricavato dall'archivio di qui */
+function indiceNuovo(percorsi, R, rimandati, F){
+  const fogli = {}, immagini = {};
+  A.fogli.forEach(p => {
+    if (rimandati.has(p.id) && R && R.fogli[p.id]) return;
+    if (contenutoDi(p) == null && !(SY.base.fogli[p.id])) return;
+    let file = percorsi.get(p.id);
+    if (rimandati.has(p.id) && SY.base.fogli[p.id] && F[SY.base.fogli[p.id].file]) file = F[SY.base.fogli[p.id].file].p;
+    fogli[p.id] = Object.assign(metaDi(p), { file }, p.protetto ? { protetto:true } : {});
+    if (!p.protetto) idsImmagini(p.md).forEach(x => { if (A.immagini[x]) immagini[x] = copiaJ(A.immagini[x]); });
+  });
+  rimandati.forEach(fid => { if (R && R.fogli[fid]) fogli[fid] = copiaJ(R.fogli[fid]); });
+  if (rimandati.size && R) Object.entries(R.immagini).forEach(([x, v]) => { if (!immagini[x]) immagini[x] = copiaJ(v); });
+  return {
+    app:'folio', v:1,
+    quaderni: A.quaderni.map(q => pulisci(q, CAMPI_Q)),
+    sezioni: A.sezioni.map(s => pulisci(s, CAMPI_S)),
+    fogli, immagini,
+    cassaforte: A.cassaforte ? copiaJ(A.cassaforte) : null
+  };
+}
+
+const PER_CLAUDE_IT =
+`# Note di folio: istruzioni per Claude
+
+Questa cartella è la copia in Dropbox delle note dell'app folio (folio.nautargo.com).
+
+- Ogni Foglio è un file .md, nelle cartelle Quaderno/Gruppo. Le immagini stanno in immagini/, accanto ai Fogli che le usano.
+- Puoi leggere tutti i file .md.
+- Non sovrascrivere mai un Foglio esistente, a meno che l'utente non lo chieda espressamente.
+- Per aggiungere qualcosa crea un file .md nuovo nella cartella giusta: folio lo trova e lo mostra come Foglio nuovo.
+- Se un file contiene righe <!-- tessera -->, lasciale dove sono: dividono il Foglio in tessere.
+- I file .folio sono Fogli protetti e cifrati: non aprirli e non modificarli.
+- Non toccare la cartella .folio: contiene l'indice dell'app.
+`;
+const PER_CLAUDE_EN =
+`# folio notes: instructions for Claude
+
+This folder is the Dropbox copy of the notes of the folio app (folio.nautargo.com).
+
+- Every Page is an .md file, in Notebook/Group folders. Images live in immagini/, next to the Pages that use them.
+- You can read every .md file.
+- Never overwrite an existing Page, unless the user explicitly asks for it.
+- To add something, create a new .md file in the right folder: folio finds it and shows it as a new Page.
+- If a file contains <!-- tessera --> lines, leave them where they are: they split the Page into cards.
+- .folio files are protected, encrypted Pages: do not open or edit them.
+- Do not touch the .folio folder: it holds the app's index.
+`;
+
+/* ---------- Impostazioni ---------- */
+function statoSyncTesto(){
+  const e = SY.errore;
+  const errori = {
+    rete: T('Senza rete: riprovo appena torna.'),
+    scollegato: T('Dropbox non risponde più a folio: scollega e collega di nuovo.'),
+    spazio: T('Dropbox è pieno: libera spazio per continuare.'),
+    password: T('I Fogli protetti di questo dispositivo hanno un\'altra password: togli loro la protezione qui, poi tocca Sincronizza ora.'),
+    indice: T('L\'indice in Dropbox non si legge: non tocco niente.'),
+    conflitto: T('Alcuni file sono cambiati mentre allineavo: riprovo al prossimo giro.'),
+    occupato: T('Dropbox è occupato: riprovo fra poco.'),
+    dropbox: T('Dropbox ha risposto con un errore: riprovo fra poco.')
+  };
+  if (giroInCorso) return T('Allineamento in corso…');
+  if (e) return errori[e] || errori.dropbox;
+  return SY.ultimo ? T('Ultimo allineamento: {quando}.', { quando:dataBreve(SY.ultimo) }) : T('Non ancora allineato.');
+}
+function righeSync(riga, ridisegna){
+  if (!SY){
+    riga(T('Dropbox'), T('Tieni i Fogli allineati fra i tuoi dispositivi, in una cartella del tuo Dropbox. Su ogni dispositivo basta collegarsi una volta.'), T('Collega'), collegaDropbox);
+    return;
+  }
+  riga(T('Dropbox') + (SY.conto ? ' - ' + SY.conto : ''), statoSyncTesto() + ' ' + T('Cartella: nautargo_folio, fra le app del tuo Dropbox.'),
+    T('Sincronizza ora'), () => { sincronizza(); ridisegna(); });
+  riga(T('Scollega'), T('I Fogli restano qui e in Dropbox. Questo dispositivo smette di allinearsi.'), T('Scollega'), () => scollegaDropbox(ridisegna), true);
+}
+
+/* ---------- avvio ---------- */
+async function avviaSync(){
+  const s = await leggiIdb(K_SYNC);
+  SY = s && s.servizio === 'dropbox' && s.refresh ? s : null;
+  await rientroDaDropbox();
+  setInterval(() => { if (SY && !document.hidden) sincronizza(); }, SYNC_OGNI);
+  document.addEventListener('visibilitychange', () => { if (SY) sincronizza(); });
+  addEventListener('online', () => { if (SY) sincronizza(); });
+  if (SY) sincronizza();
+}
 /* ============ eventi ============ */
 /* un gesto di scorrimento col dito: chiama fai(dx, dy) se è stato breve e deciso */
 function gesto(zona, fai){
@@ -7242,6 +8084,8 @@ async function avvia(){
     setTimeout(() => avviso(T('Ci sono modifiche non ancora salvate in un backup.'), T('Esporta'), esportaJson, 9000), 2500);
   }
 
+  avviaSync();
+
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')){
     /* una versione nuova pubblicata arriva da sola: quando è pronta lo si dice */
     const cera = !!navigator.serviceWorker.controller;
@@ -7273,6 +8117,7 @@ window.__prova = {
   segnapostoImmagini, idsImmagini, conImmagini, salvaImmaginiImportate, pulisciImmagini, urlImmagini, datiImmagini, htmlCorpo,
   scegliIcona, iconaGruppo, ICONE_GRUPPI, ordinaPer, riordinaSecondo, entraRiordino, esciRiordino, spostaGruppo, sezioniDi,
   dialogoImmagine, esportaMd, menuSezione, menuQuaderno,
+  sync: { stato: () => SY, imposta: s => { SY = s; }, sincronizza, unGiro, rientroDaDropbox, collegaDropbox, percorsiFogli, impronta, canonico, giro: () => giroInCorso },
   scriviCorrente, importaTesti: (testi, sid) => {
     testi.forEach(x => A.fogli.push({ id:id(), sezioneId:sid, titolo:titoloLibero(x.titolo), md:x.md, creata:oggi(), modificata:oggi() }));
     salva(); disegnaLato();
