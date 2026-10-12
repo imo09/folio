@@ -24,4 +24,4 @@ e `sw.js`: chi ha l'app installata riceve l'aggiornamento entro un paio di riape
 
 ## Versione
 
-8.0 (prova della sincronizzazione con Dropbox)
+8.1

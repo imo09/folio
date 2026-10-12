@@ -2,7 +2,7 @@
 <html lang="it" data-tema="chiaro">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Yx0vceP6m/ZHHJUbs/7mefYfLQKQi6vzZvy8MWk+1Y0=' 'sha256-fpARYFRdpw/uDz05nDdzsl1vp5N7G0msJzTPOScV11k='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://api.dropboxapi.com https://content.dropboxapi.com; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'self'; manifest-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Yx0vceP6m/ZHHJUbs/7mefYfLQKQi6vzZvy8MWk+1Y0=' 'sha256-8CrigX4xyDJ/zgW97lyKR2YVPyJyGFUoryoSqoneDXU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://api.dropboxapi.com https://content.dropboxapi.com; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'self'; manifest-src 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>folio</title>
 <meta name="description" content="Blocco note semplice. Le pagine restano sul tuo dispositivo.">
@@ -280,9 +280,9 @@ html[data-tema="scuro"] .maniglia{color:#1C1917}
   color:var(--tenue);background:var(--superficie-2);user-select:none;pointer-events:none;
 }
 #corpo [data-conta="\2713"]::after{color:var(--carta);background:var(--ottone)}
-/* tessere: schede larghe quanto il Foglio, con la presa in alto al centro e il + sotto */
+/* tessere: schede larghe quanto il Foglio, con la presa in alto al centro; fra l'una e l'altra uno spazio */
 #corpo[data-tessere]>.tessera{
-  position:relative;margin:0 0 30px;padding:20px 16px 14px;border:1px solid var(--bordo);border-radius:12px;
+  position:relative;margin:0 0 12px;padding:20px 16px 14px;border:1px solid var(--bordo);border-radius:12px;
   background:var(--superficie);box-shadow:0 1px 3px rgba(40,30,15,.06);
 }
 #corpo[data-tessere]>.tessera>*:last-child{margin-bottom:0}
@@ -291,12 +291,6 @@ html[data-tema="scuro"] .maniglia{color:#1C1917}
   background:var(--bordo);cursor:grab;
 }
 #corpo[data-tessere]>.tessera:hover::before{background:var(--tenue)}
-#corpo[data-tessere]>.tessera::after{
-  content:"+";position:absolute;left:50%;bottom:-25px;width:20px;height:20px;margin-left:-10px;border-radius:50%;
-  border:1px solid var(--bordo);background:var(--carta);color:var(--tenue);
-  font:500 15px/18px var(--sans);text-align:center;cursor:pointer;user-select:none;
-}
-#corpo[data-tessere]>.tessera:hover::after{color:var(--ottone);border-color:var(--ottone)}
 #corpo[data-tessere]>.tessera.in-volo{opacity:.45}
 #sommario li{margin:0}
 #sommario button.voce-som{
@@ -549,6 +543,15 @@ html[data-tema="scuro"] .bott.pieno{color:#1C1917}
 .menu button{display:block;width:100%;text-align:left;padding:8px 11px;border-radius:7px;font-size:14.5px}
 .menu button:hover{background:var(--superficie-2)}
 .menu button.rischio{color:var(--allarme)}
+/* sola lettura (8.1): folio è in uso su un altro dispositivo */
+#bUso{color:var(--ottone)}
+body[data-sola-lettura] #strumenti,body[data-sola-lettura] #barraImmagine{display:none !important}
+/* tirando giù l'elenco: Sincronizza ora */
+#albero{overscroll-behavior-y:contain}
+.tira{height:0;overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--tenue);font-size:13px;transition:height .2s ease-out}
+.tira.tirando{transition:none}
+.tira.gira .tratto{animation:tiraGiro .9s linear infinite}
+@keyframes tiraGiro{to{transform:rotate(360deg)}}
 .menu button.con-icona{display:flex;align-items:center;gap:11px}
 .tratto{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .menu .tratto{color:var(--tenue)}
@@ -615,6 +618,7 @@ html[data-tema="scuro"] .avviso button{color:#E8BE7C}
   <input id="cerca" class="nascosto" type="search" placeholder="Cerca" autocomplete="off">
   <span class="cresce"></span>
   <span id="contaSel" class="nascosto"></span>
+  <button class="ico nascosto" id="bUso" aria-label="folio"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
   <span id="stato" aria-live="polite" title="salvato"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M18 3v4h-4"/></svg></span>
   <button class="ico nascosto" id="bGrezzo" aria-pressed="false" aria-label="Vista testo markdown" title="Vista testo (markdown)"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h7"/><path d="m16 14 3 3 3-5"/></svg></button>
   <button class="ico" id="bCerca" aria-label="Cerca"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg></button>
@@ -1884,7 +1888,7 @@ return exports;
 (function(){
 'use strict';
 
-const VERSIONE_APP = '8.0';
+const VERSIONE_APP = '8.1';
 
 /* ============ utilità ============ */
 const $ = s => document.querySelector(s);
@@ -2474,7 +2478,6 @@ const EN = {
   "Scrivi a tessere": "Write in cards",
   "Condividi ed esporta": "Share and export",
   "Tessere unite in un testo unico.": "Cards merged into one text.",
-  "Ora il Foglio è a tessere: il + sotto una tessera ne aggiunge un'altra.": "This Page is now in cards: the + under a card adds another one.",
   "Tessera eliminata.": "Card deleted.",
   "Nuova tessera sopra": "New card above",
   "Nuova tessera sotto": "New card below",
@@ -2607,7 +2610,28 @@ const EN = {
   "Tieni i Fogli allineati fra i tuoi dispositivi, in una cartella del tuo Dropbox. Su ogni dispositivo basta collegarsi una volta.": "Keep your Pages in sync across your devices, in a folder of your Dropbox. On each device you connect just once.",
   "Cartella: nautargo_folio, fra le app del tuo Dropbox.": "Folder: nautargo_folio, among the apps in your Dropbox.",
   "Sincronizza ora": "Sync now",
-  "I Fogli restano qui e in Dropbox. Questo dispositivo smette di allinearsi.": "Your Pages stay here and in Dropbox. This device stops syncing."
+  "I Fogli restano qui e in Dropbox. Questo dispositivo smette di allinearsi.": "Your Pages stay here and in Dropbox. This device stops syncing.",
+  "Tessere senza data": "Cards without date",
+  "Scrivi a diario": "Write as a diary",
+  "Ora il Foglio è a tessere: tocca la presa in alto di una tessera per aggiungerne un'altra.": "This Page is now in cards: tap the grip at the top of a card to add another one.",
+  "Tessere senza data: le nuove tessere partono vuote.": "Cards without date: new cards start empty.",
+  "Diario: ogni tessera nuova parte con data e ora. Le aggiungi dalla presa in alto della tessera.": "Diary: every new card starts with date and time. Add them from the grip at the top of a card.",
+  "telefono Android": "Android phone",
+  "tablet Android": "Android tablet",
+  "un altro dispositivo": "another device",
+  "folio è in uso su {nome}: qui puoi leggere. Tocca il lucchetto in alto per usarla qui.": "folio is in use on {nome}: here you can read. Tap the lock at the top to use it here.",
+  "Ora puoi scrivere anche qui.": "You can write here too now.",
+  "Sola lettura: folio è in uso su {nome}": "Read only: folio is in use on {nome}",
+  "folio è in uso su {nome}": "folio is in use on {nome}",
+  "Hai fatto una modifica, ma folio è in uso su {nome}. Vuoi usarla qui? L'altro dispositivo passa in sola lettura.": "You made a change, but folio is in use on {nome}. Use it here? The other device switches to read only.",
+  "Qui puoi leggere. Per scrivere usa folio su questo dispositivo: l'altro passa in sola lettura.": "Here you can read. To write, use folio on this device: the other one switches to read only.",
+  "Annulla la modifica": "Discard the change",
+  "Solo lettura": "Read only",
+  "Usa qui": "Use here",
+  "Ora folio si usa qui: gli altri dispositivi passano in sola lettura.": "folio is now used here: the other devices switch to read only.",
+  "Rilascia per sincronizzare": "Release to sync",
+  "Tira per sincronizzare": "Pull to sync",
+  "Fogli allineati.": "Pages synced."
 };
 
 /* subito, prima che la pagina compaia: la schermata iniziale è già nella lingua giusta */
@@ -2625,7 +2649,7 @@ const BENVENUTO_IT =
 
 ## Cos'è folio
 
-- Un blocco note digitale che vive **solo su questo dispositivo**: niente account, niente server, funziona anche senza rete.
+- Un blocco note digitale che vive **su questo dispositivo**: niente account, niente server, funziona anche senza rete. Se vuoi, si allinea fra i tuoi dispositivi con **Dropbox**.
 - È ordinato in tre livelli: il **Quaderno** contiene i **Gruppi**, il Gruppo contiene i **Fogli**.
 - Ogni Foglio è testo semplice in markdown: lo esporti e lo apri ovunque, anche con un assistente AI.
 - Puoi installarlo come app: dal menu del browser, "Aggiungi a schermata Home" o "Installa".
@@ -2640,21 +2664,40 @@ const BENVENUTO_IT =
 | le opzioni di un Gruppo o di un Foglio | i tre punti, oppure tieni premuto |
 | cercare, o ritrovare gli ultimi aperti | la lente in alto |
 | tornare all'elenco | la freccia in alto, o scorri verso destra |
+| sincronizzare subito | tira giù l'elenco dall'alto |
 
 Il salvataggio è automatico: l'icona in alto fa un giro quando ha salvato. Gli elementi nuovi nascono con data e ora nel nome: rinominali quando vuoi.
 
 ## Scrivere e formattare
 
-La barra di formattazione ha i formati essenziali: titoli, **grassetto**, *corsivo*, ~~barrato~~, \`codice\`, elenchi, caselle, citazioni, tabelle e linee. Si arrotola con la freccia; nelle Impostazioni scegli se tenerla in alto, sopra la tastiera o libera di spostarsi.
+La barra di formattazione ha i formati essenziali: titoli, **grassetto**, *corsivo*, ~~barrato~~, \`codice\`, elenchi, caselle, citazioni, tabelle e linee. Si arrotola con la freccia; nelle Impostazioni scegli se tenerla in alto, sopra la tastiera o libera di spostarsi. Tenendola premuta la trascini dove vuoi.
 
 - **Allineamento**: il pulsante con le righe allinea tutti i paragrafi del Foglio, oppure tutti i titoli dello stesso livello, secondo dove sta il cursore. A ogni tocco: sinistra, centro, destra, giustificato.
 - **Tabelle**: tocca una cella per +riga, -riga, +col, -col e per le maniglie che trascinano righe e colonne.
+- **Caselle**: accanto a un titolo compare quante ne hai spuntate, per esempio 3/5.
 - **Annulla**: la freccia curva, o Ctrl+Z, annulla anche la formattazione.
 
 1. Negli elenchi le frecce di rientro spostano una voce
    1. e al secondo livello i numeri diventano lettere
 
 > Incolla un testo in markdown, per esempio scritto da un assistente AI: folio lo formatta da solo.
+
+## Tessere e diario
+
+Dal menu a tre punti del Foglio aperto:
+
+- **Scrivi a tessere** divide il Foglio in schede, una sotto l'altra. Ogni tessera ha in alto una presa: trascinala per spostare la tessera, toccala per aggiungerne una sopra o sotto, spostarla o eliminarla. Esempio: una lista di idee, una tessera per idea, da riordinare quando cambiano le priorità.
+- **Scrivi a diario** fa lo stesso, ma ogni tessera nuova parte con data e ora in grassetto, che puoi cambiare. Tocca la tessera sotto la data e scrivi. Esempio:
+
+> **11/10/2026, 08:30**
+>
+> Sopralluogo in cantiere: getto del solaio rimandato a giovedì.
+
+> **11/10/2026, 18:15**
+>
+> Sentito il fornitore: consegna confermata.
+
+**Unisci le tessere** rimette tutto in un testo unico.
 
 ## Immagini
 
@@ -2671,8 +2714,17 @@ Lo stesso elenco accetta un indirizzo web, come [nautargo.com](https://nautargo.
 - **Preferiti**: la stella porta un Foglio in cima, da qualunque Quaderno.
 - **Gruppi**: dal loro menu a tre punti scegli un'icona; con **Riordina Gruppi** li sposti trascinandoli. Nelle Impostazioni scegli l'ordine: creazione, ultima modifica o nome.
 - **Sommario e paragrafi**: appena scrivi un titolo, il sommario compare in alto; la freccia a destra di ogni titolo chiude o apre il suo paragrafo.
+- **Sfondo**: puntini, righe o quadretti, per un Foglio, un Gruppo o tutti.
 - **Selezione**: dal menu del Quaderno scegli più Fogli o Gruppi da spostare, condividere o eliminare.
 - **Gesti**: sul nome del Quaderno scorri per passare a un altro.
+
+## Sincronizzazione con Dropbox
+
+- Nelle **Impostazioni**, blocco Sincronizzazione, tocca **Collega**: login a Dropbox e "Consenti". Su ogni dispositivo basta farlo una volta.
+- In Dropbox i Fogli stanno nella cartella **nautargo_folio**, fra le app: un file \`.md\` per Foglio, nelle cartelle del Quaderno e del Gruppo, leggibile anche fuori da folio. I Fogli protetti restano cifrati.
+- folio si allinea da solo all'apertura, ogni minuto e poco dopo ogni modifica. Per farlo subito, **tira giù l'elenco** dall'alto.
+- Si scrive su un dispositivo alla volta: sugli altri compare il **lucchetto** in alto e si può solo leggere. Alla prima modifica folio chiede se usarla lì; l'altro dispositivo passa in sola lettura.
+- Se lo stesso Foglio cambia in due posti, folio tiene entrambe le versioni: l'altra arriva con "(conflitto)" nel titolo. Ciò che elimini su un dispositivo, sugli altri va nel Cestino.
 
 ## Funzioni utili
 
@@ -2685,23 +2737,24 @@ Lo stesso elenco accetta un indirizzo web, come [nautargo.com](https://nautargo.
 
 ## I tuoi dati
 
-- I Fogli restano nella memoria di questo browser e non vengono mandati a nessuno.
-- Se svuoti i dati del sito o cambi dispositivo, senza backup si perdono.
+- I Fogli restano nella memoria di questo browser. Con la sincronizzazione accesa, una copia va nel tuo Dropbox e a nessun altro.
+- Senza sincronizzazione, se svuoti i dati del sito o cambi dispositivo, senza backup si perdono.
 - Il backup si fa da **Impostazioni**: un file \`.json\` rimette tutto com'era, uno \`.zip\` contiene i Fogli in \`.md\` con le loro immagini.
 
 ## Prime cose da provare
 
 - [ ] Spunta questa casella
 - [ ] Crea un Gruppo tutto tuo e scegli la sua icona
+- [ ] Prova un Foglio a diario
 - [ ] Segna questo Foglio come preferito
-- [ ] Fai il primo backup
+- [ ] Collega Dropbox, oppure fai il primo backup
 `;
 const BENVENUTO_EN =
 `A calm notepad, made of pages. Write, put things in order, find them again.
 
 ## What folio is
 
-- A digital notepad that lives **only on this device**: no account, no server, and it works offline too.
+- A digital notepad that lives **on this device**: no account, no server, and it works offline too. If you like, it syncs across your devices with **Dropbox**.
 - It has three levels: a **Notebook** holds **Groups**, a Group holds **Pages**.
 - Every Page is plain markdown text: export it and open it anywhere, even with an AI assistant.
 - You can install it as an app: from the browser menu, "Add to Home screen" or "Install".
@@ -2716,21 +2769,40 @@ const BENVENUTO_EN =
 | see the options of a Group or a Page | the three dots, or press and hold |
 | search, or find what you opened last | the magnifier at the top |
 | go back to the list | the arrow at the top, or swipe right |
+| sync right away | pull the list down from the top |
 
 Saving is automatic: the icon at the top spins once when it has saved. New items are born with date and time in their name: rename them whenever you like.
 
 ## Writing and formatting
 
-The formatting bar has the essentials: headings, **bold**, *italic*, ~~strikethrough~~, \`code\`, lists, checkboxes, quotes, tables and lines. Roll it up with the arrow; in Settings choose whether it stays at the top, above the keyboard or free to move.
+The formatting bar has the essentials: headings, **bold**, *italic*, ~~strikethrough~~, \`code\`, lists, checkboxes, quotes, tables and lines. Roll it up with the arrow; in Settings choose whether it stays at the top, above the keyboard or free to move. Press and hold it to drag it where you like.
 
 - **Alignment**: the button with the lines aligns all the paragraphs of the Page, or all the headings of the same level, depending on where the cursor is. Each tap: left, center, right, justified.
 - **Tables**: tap a cell for +row, -row, +col, -col and for the handles that drag rows and columns.
+- **Checkboxes**: next to a heading you see how many are ticked, for example 3/5.
 - **Undo**: the curved arrow, or Ctrl+Z, undoes formatting too.
 
 1. In lists the indent arrows move an item
    1. and at the second level numbers become letters
 
 > Paste markdown text, for example written by an AI assistant: folio formats it by itself.
+
+## Cards and diary
+
+From the three-dot menu of the open Page:
+
+- **Write in cards** splits the Page into cards, one under the other. Each card has a grip at the top: drag it to move the card, tap it to add a card above or below, move it or delete it. Example: a list of ideas, one card per idea, to reorder when priorities change.
+- **Write as a diary** does the same, but every new card starts with date and time in bold, which you can change. Tap the card under the date and write. Example:
+
+> **11/10/2026, 08:30**
+>
+> Site visit: the slab pour is moved to Thursday.
+
+> **11/10/2026, 18:15**
+>
+> Called the supplier: delivery confirmed.
+
+**Merge the cards** puts everything back into a single text.
 
 ## Images
 
@@ -2747,8 +2819,17 @@ The same list accepts a web address, like [nautargo.com](https://nautargo.com). 
 - **Favorites**: the star brings a Page to the top, from any Notebook.
 - **Groups**: from their three-dot menu pick an icon; with **Reorder Groups** move them by dragging. In Settings choose the order: creation, last edit or name.
 - **Outline and sections**: as soon as you write a heading, the outline appears at the top; the arrow to the right of each heading folds or unfolds its section.
+- **Background**: dots, lines or squares, for one Page, a Group or all of them.
 - **Selection**: from the Notebook menu pick several Pages or Groups to move, share or delete.
 - **Gestures**: on the Notebook name swipe to move to another one.
+
+## Sync with Dropbox
+
+- In **Settings**, Sync section, tap **Connect**: sign in to Dropbox and "Allow". On each device you do it once.
+- In Dropbox your Pages live in the **nautargo_folio** folder, among the apps: one \`.md\` file per Page, in Notebook and Group folders, readable outside folio too. Protected Pages stay encrypted.
+- folio syncs by itself when it opens, every minute and shortly after every change. To do it right away, **pull the list down** from the top.
+- You write on one device at a time: on the others a **lock** appears at the top and you can only read. At the first change folio asks whether to use it there; the other device switches to read only.
+- If the same Page changes in two places, folio keeps both versions: the other one arrives with "(conflict)" in the title. What you delete on one device goes to the Trash on the others.
 
 ## Useful features
 
@@ -2761,16 +2842,17 @@ The same list accepts a web address, like [nautargo.com](https://nautargo.com). 
 
 ## Your data
 
-- Pages stay in this browser's storage and are not sent to anyone.
-- If you clear the site data or change device, without a backup they are lost.
+- Pages stay in this browser's storage. With sync on, a copy goes to your Dropbox and to no one else.
+- Without sync, if you clear the site data or change device, without a backup they are lost.
 - Back up from **Settings**: a \`.json\` file puts everything back as it was, a \`.zip\` holds the Pages as \`.md\` with their images.
 
 ## First things to try
 
 - [ ] Tick this box
 - [ ] Create a Group of your own and pick its icon
+- [ ] Try a diary Page
 - [ ] Mark this Page as a favorite
-- [ ] Make your first backup
+- [ ] Connect Dropbox, or make your first backup
 `;
 
 function archivioNuovo(){
@@ -2917,7 +2999,7 @@ function inFila(lavoro){
 const salvaOra = () => inFila(salvaDavvero);
 let riservaDaPulire = 0;       /* quante protezioni nuove aspettano una riserva ripulita */
 async function salvaDavvero(){
-  if (letturaFallita || inPausa) return;
+  if (letturaFallita || inPausa || fermoAltrove()) return;
   const pulire = riservaDaPulire;
   try {
     await aggiornaCifre();
@@ -3536,7 +3618,14 @@ const TRATTI = {
   nuvola:'<path d="M7 18.5h10.5a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.6 9.1 4.7 4.7 0 0 0 7 18.5z"/>',
   backup:'<path d="M12 4v10M8 10l4 4 4-4"/><path d="M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"/>',
   archivio:'<ellipse cx="12" cy="6" rx="7" ry="2.8"/><path d="M5 6v12c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8V6M5 12c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8"/>',
-  ripristino:'<path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3L4.5 9"/><path d="M4.5 4.5V9H9"/>'
+  ripristino:'<path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3L4.5 9"/><path d="M4.5 4.5V9H9"/>',
+  piu:'<path d="M12 5v14M5 12h14"/>',
+  importa:'<path d="M12 4v10M8 10l4 4 4-4"/><path d="M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"/>',
+  icona:'<circle cx="8" cy="8" r="3.3"/><rect x="13.5" y="4.7" width="6.6" height="6.6" rx="1.4"/><path d="M8 13.5 11.7 20H4.3z"/><path d="m16.8 13.4 3.4 3.4-3.4 3.4-3.4-3.4z"/>',
+  riordina:'<path d="M7.5 4v16M4 7.5l3.5-3.5 3.5 3.5M16.5 20V4M13 16.5l3.5 3.5 3.5-3.5"/>',
+  quaderno:'<path d="M12 6.5C10 5 7 4.5 3.5 5v13.5c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5z"/><path d="M12 6.5V20"/>',
+  diario:'<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h3"/>',
+  sincro:'<path d="M19.5 12a7.5 7.5 0 0 1-13.4 4.6M4.5 12a7.5 7.5 0 0 1 13.4-4.6"/><path d="M18.3 3.5v4.2h-4.2M5.7 20.5v-4.2h4.2"/>'
 };
 const svgTratto = nome => '<svg class="tratto" viewBox="0 0 24 24" aria-hidden="true">' + (TRATTI[nome] || '') + '</svg>';
 
@@ -3867,7 +3956,7 @@ function apri(fid){
   $('#foglio').classList.remove('nascosto');
   $('#senzaFoglio').classList.add('nascosto');
   $('#strumenti').classList.remove('nascosto');
-  $('#corpo').setAttribute('contenteditable','true');
+  $('#corpo').setAttribute('contenteditable', soloLettura() ? 'false' : 'true');
   titoloPrima = p.titolo;
   $('#titolo').value = p.titolo;
   $('#corpo').innerHTML = htmlFoglio(p.md);
@@ -5200,12 +5289,16 @@ function menu(x, y, voci){
    condivisione e protezione, infine impostazioni ed eliminazione (sempre ultima) */
 function menuFoglio(p, x, y){
   const dentroFoglio = corrente && corrente.id === p.id && document.body.dataset.vista === 'foglio';
-  const scrivibile = dentroFoglio && !vistaGrezza;
+  const scrivibile = dentroFoglio && !vistaGrezza && !soloLettura();
   const voci = [
     /* dal Foglio aperto: l'immagine va dove era il cursore */
     ...(scrivibile ? [{ testo:T('Inserisci immagine'), icona:'immagine', fai: dialogoImmagine }] : []),
     { testo:T('Sfondo'), icona:'sfondo', fai: () => dialogoSfondo(p) },
-    ...(scrivibile ? [{ testo: conTessere() ? T('Unisci le tessere') : T('Scrivi a tessere'), icona: conTessere() ? 'unisci' : 'tessere', fai: commutaTessere }] : []),
+    /* tessere e diario: il diario è a tessere, e ogni tessera nuova parte con data e ora */
+    ...(scrivibile ? (conTessere()
+      ? [{ testo:T('Unisci le tessere'), icona:'unisci', fai: commutaTessere },
+         p.diario ? { testo:T('Tessere senza data'), icona:'tessere', fai: commutaDiario } : { testo:T('Scrivi a diario'), icona:'diario', fai: commutaDiario }]
+      : [{ testo:T('Scrivi a tessere'), icona:'tessere', fai: commutaTessere }, { testo:T('Scrivi a diario'), icona:'diario', fai: commutaDiario }]) : []),
     '-',
     { testo: p.preferito ? T('Togli dai preferiti') : T('Segna come preferito'), icona:'stella', fai: () => commutaPreferito(p) },
     { testo:T('Rinomina'), icona:'rinomina', fai: () => chiediTesto(T('Rinomina Foglio'),T('Titolo'), p.titolo, n => {
@@ -5227,6 +5320,7 @@ function menuFoglio(p, x, y){
         const n = { id:id(), sezioneId:p.sezioneId, titolo:titoloLibero(p.titolo + ' ' + T('(copia)')), md:p.md, creata:oggi(), modificata:oggi(), protetto:!!p.protetto };
         if (p.allinea) n.allinea = Object.assign({}, p.allinea);
         if (p.sfondo) n.sfondo = Object.assign({}, p.sfondo);
+        if (p.diario) n.diario = true;
         A.fogli.push(n); salva(); disegnaLato(); apri(n.id);
       }) },
     { testo:T('Seleziona Fogli'), icona:'seleziona', fai: () => entraSelezione('fogli') },
@@ -5248,37 +5342,39 @@ function menuFoglio(p, x, y){
   menu(x, y, voci);
 }
 
+/* menu a tre punti di Gruppi e Quaderni, a gruppi come quello del Foglio:
+   creare, organizzare, condividere, eliminare (sempre ultima) */
 function menuSezione(s, x, y){
   menu(x, y, [
-    { testo:T('Nuovo Foglio qui'), fai: () => nuovoFoglio(s.id) },
-    { testo:T('Importa file qui'), fai: () => importaFile({ sezione:s.id }) },
-    { testo:T('Rinomina'), fai: () => rinominaSezione(s) },
-    { testo:T('Cambia icona'), fai: () => scegliIcona(s) },
+    { testo:T('Nuovo Foglio qui'), icona:'piu', fai: () => nuovoFoglio(s.id) },
+    { testo:T('Importa file qui'), icona:'importa', fai: () => importaFile({ sezione:s.id }) },
     '-',
-    { testo:T('Condividi il Gruppo (.zip)'), fai: () => condividiSezioni([s]) },
+    { testo:T('Rinomina'), icona:'rinomina', fai: () => rinominaSezione(s) },
+    { testo:T('Cambia icona'), icona:'icona', fai: () => scegliIcona(s) },
+    ...(A.impostazioni.riordinoManuale ? [{ testo:T('Riordina Gruppi'), icona:'riordina', fai: entraRiordino }] : []),
+    { testo:T('Seleziona Gruppi'), icona:'seleziona', fai: () => entraSelezione('sezioni') },
     '-',
-    { testo:T('Seleziona Gruppi'), fai: () => entraSelezione('sezioni') },
-    ...(A.impostazioni.riordinoManuale ? [{ testo:T('Riordina Gruppi'), fai: entraRiordino }] : []),
+    { testo:T('Condividi il Gruppo (.zip)'), icona:'condividi', fai: () => condividiSezioni([s]) },
     '-',
-    { testo:T('Elimina Gruppo'), rischio:true, fai: () => dialogoEliminaSezioni([s]) }
+    { testo:T('Elimina Gruppo'), icona:'elimina', rischio:true, fai: () => dialogoEliminaSezioni([s]) }
   ]);
 }
 
 function menuQuaderno(x, y){
   const q = quaderno(A.impostazioni.quaderno);
   menu(x, y, [
-    { testo:T('Nuovo Quaderno'), fai: nuovoQuaderno },
-    { testo:T('Nuovo Gruppo'), fai: nuovaSezione },
-    { testo:T('Importa file'), fai: () => importaFile({ quadernoId:q.id }) },
+    { testo:T('Nuovo Gruppo'), icona:'piu', fai: nuovaSezione },
+    { testo:T('Nuovo Quaderno'), icona:'quaderno', fai: nuovoQuaderno },
+    { testo:T('Importa file'), icona:'importa', fai: () => importaFile({ quadernoId:q.id }) },
     '-',
-    { testo:T('Condividi il Quaderno (.zip)'), fai: () => condividiSezioni(sezioniDi(q.id), q.nome) },
+    { testo:T('Rinomina Quaderno'), icona:'rinomina', fai: () => rinominaQuaderno(q) },
+    ...(A.impostazioni.riordinoManuale ? [{ testo:T('Riordina Gruppi'), icona:'riordina', fai: entraRiordino }] : []),
+    { testo:T('Seleziona Fogli'), icona:'seleziona', fai: () => entraSelezione('fogli') },
+    { testo:T('Seleziona Gruppi'), icona:'seleziona', fai: () => entraSelezione('sezioni') },
     '-',
-    { testo:T('Seleziona Fogli'), fai: () => entraSelezione('fogli') },
-    { testo:T('Seleziona Gruppi'), fai: () => entraSelezione('sezioni') },
-    ...(A.impostazioni.riordinoManuale ? [{ testo:T('Riordina Gruppi'), fai: entraRiordino }] : []),
+    { testo:T('Condividi il Quaderno (.zip)'), icona:'condividi', fai: () => condividiSezioni(sezioniDi(q.id), q.nome) },
     '-',
-    { testo:T('Rinomina Quaderno'), fai: () => rinominaQuaderno(q) },
-    { testo:T('Elimina Quaderno'), rischio:true, fai: () => eliminaQuaderno(q) }
+    { testo:T('Elimina Quaderno'), icona:'elimina', rischio:true, fai: () => eliminaQuaderno(q) }
   ]);
 }
 
@@ -6165,6 +6261,7 @@ function unisci(dati){
     if (p.protetto){ nuovo.protetto = true; nuovo.cifra = p.cifra; }
     if (p.allinea) nuovo.allinea = Object.assign({}, p.allinea);
     if (p.sfondo) nuovo.sfondo = Object.assign({}, p.sfondo);
+    if (p.diario) nuovo.diario = true;
     A.fogli.push(nuovo);
     /* le misure delle immagini che il Foglio usa arrivano con lui (i dati sono già stati scritti) */
     idsImmagini(p.md).forEach(k => { if (dati.immagini[k]) A.immagini[k] = dati.immagini[k]; });
@@ -6715,18 +6812,30 @@ function imponiSfondo(dopo){
 
 /* ============ tessere: il Foglio diviso in schede riordinabili ============ */
 /* Con le tessere il corpo contiene solo <section class="tessera">, larghe quanto il Foglio.
-   Ogni tessera ha in alto una presa (si trascina per spostarla, si tocca per il suo menu) e
-   sotto un + che aggiunge una tessera dopo di lei. Nel file il testo resta tutto di seguito,
-   con un commento invisibile davanti a ogni tessera. */
+   Ogni tessera ha in alto una presa: si trascina per spostarla, si tocca per il suo menu
+   (nuova tessera sopra o sotto, sposta, elimina). Nel file il testo resta tutto di seguito,
+   con un commento invisibile davanti a ogni tessera.
+   Il diario (8.1) è un Foglio a tessere con p.diario: ogni tessera nuova parte con data e ora
+   in grassetto, "11/10/2026, 20:31", modificabili. */
 function segnaTessere(){
   corpo().toggleAttribute('data-tessere', !!corpo().querySelector(':scope > section.tessera'));
 }
-const nuovaSezioneTessera = () => {
+const nuovaSezioneTessera = diario => {
   const s = document.createElement('section');
   s.className = 'tessera';
-  s.innerHTML = '<p><br></p>';
+  s.innerHTML = diario ? '<p><strong>' + dataDiario() + '</strong></p><p><br></p>' : '<p><br></p>';
   return s;
 };
+const conDiario = () => !!(corrente && corrente.diario && conTessere());
+/* data e ora del diario: sempre gg/mm/aaaa, hh:mm, 24 ore */
+function dataDiario(){
+  const d = new Date();
+  return due(d.getDate()) + '/' + due(d.getMonth() + 1) + '/' + d.getFullYear() + ', ' + due(d.getHours()) + ':' + due(d.getMinutes());
+}
+const RE_DATA_DIARIO = /^\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2}$/;
+/* un paragrafo che contiene solo la data in grassetto */
+const soloData = n => !!n && n.nodeName === 'P' && n.children.length === 1 && /^(STRONG|B)$/.test(n.firstElementChild.nodeName)
+  && n.textContent.trim() === n.firstElementChild.textContent.trim() && RE_DATA_DIARIO.test(n.textContent.trim());
 const tesseraVuota = t => !t.textContent.trim() && !t.querySelector('img,table,hr,input');
 const BLOCCHI_VERI = /^(P|H[1-6]|UL|OL|BLOCKQUOTE|PRE|DIV|TABLE|HR|SECTION)$/;
 
@@ -6768,15 +6877,44 @@ function commutaTessere(){
   if (conTessere()){
     [...c.children].forEach(s => { if (eScatola(s)) s.replaceWith(...s.childNodes); });
     if (!c.firstChild) c.innerHTML = '<p><br></p>';
+    if (corrente.diario){ delete corrente.diario; corrente.modificata = oggi(); }
     avviso(T('Tessere unite in un testo unico.'));
   } else {
     const s = nuovaSezioneTessera(); s.innerHTML = '';
     while (c.firstChild) s.appendChild(c.firstChild);
     c.appendChild(s);
-    avviso(T('Ora il Foglio è a tessere: il + sotto una tessera ne aggiunge un\'altra.'));
+    avviso(T('Ora il Foglio è a tessere: tocca la presa in alto di una tessera per aggiungerne un\'altra.'));
   }
   segnaTessere(); sistemaTessere();
   dopoModifica();
+}
+/* diario: acceso, il testo che c'è resta nella prima tessera e in fondo ne nasce una con data e ora;
+   spento, le tessere restano ma le nuove non hanno più la data */
+function commutaDiario(){
+  if (!corrente || vistaGrezza) return;
+  if (corrente.diario && conTessere()){
+    delete corrente.diario; corrente.modificata = oggi();
+    avviso(T('Tessere senza data: le nuove tessere partono vuote.'));
+    dopoModifica();
+    return;
+  }
+  segnaPasso('comando');
+  const c = corpo();
+  if (!conTessere()){
+    const vuoto = !c.textContent.trim() && !c.querySelector('img,table,hr,input');
+    const s = nuovaSezioneTessera(); s.innerHTML = '';
+    if (!vuoto){ while (c.firstChild) s.appendChild(c.firstChild); }
+    c.innerHTML = '';
+    if (!vuoto) c.appendChild(s);
+  }
+  corrente.diario = true; corrente.modificata = oggi();
+  const n = nuovaSezioneTessera(true);
+  c.appendChild(n);
+  segnaTessere(); sistemaTessere();
+  cursoreIn(n, true);
+  dopoModifica();
+  n.scrollIntoView({ block:'nearest' });
+  avviso(T('Diario: ogni tessera nuova parte con data e ora. Le aggiungi dalla presa in alto della tessera.'));
 }
 function cursoreIn(t, inFondo){
   corpo().focus();
@@ -6787,9 +6925,9 @@ function cursoreIn(t, inFondo){
 }
 function nuovaTessera(rif, sopra){
   segnaPasso('comando');
-  const s = nuovaSezioneTessera();
+  const s = nuovaSezioneTessera(conDiario());
   corpo().insertBefore(s, sopra ? rif : rif.nextSibling);
-  cursoreIn(s);
+  cursoreIn(s, conDiario());
   dopoModifica();
   s.scrollIntoView({ block:'nearest' });
 }
@@ -6851,14 +6989,13 @@ function confineTessera(indietro){
   return true;
 }
 
-/* la presa in alto al centro della tessera e il + sotto: sono disegnati dal foglio di stile,
+/* la presa in alto al centro della tessera è disegnata dal foglio di stile:
    qui si riconosce dove è caduto il tocco */
 function zonaTessera(bersaglio, x, y){
   if (!conTessere() || !bersaglio || !bersaglio.closest) return null;
   const t = bersaglio.closest('section.tessera');
   if (!t || !eScatola(t)) return null;
   const r = t.getBoundingClientRect(), centro = r.left + r.width / 2;
-  if (y > r.bottom - 1 && Math.abs(x - centro) < 22) return { tipo:'piu', t };
   if (y >= r.top && y < r.top + 20 && Math.abs(x - centro) < 40) return { tipo:'presa', t };
   return null;
 }
@@ -6866,6 +7003,7 @@ let gestoTessera = null, fineTessera = 0;
 function avviaTessere(){
   const c = corpo();
   c.addEventListener('pointerdown', e => {
+    if (soloLettura()) return;
     const z = zonaTessera(e.target, e.clientX, e.clientY);
     if (!z) return;
     if (e.pointerType !== 'touch') e.preventDefault();
@@ -6873,7 +7011,7 @@ function avviaTessere(){
   });
   /* mentre si trascina una tessera la pagina non scorre */
   c.addEventListener('touchmove', e => { if (gestoTessera) e.preventDefault(); }, { passive:false });
-  /* il tocco su presa o + non mette il cursore e non apre la tastiera */
+  /* il tocco sulla presa non mette il cursore e non apre la tastiera */
   c.addEventListener('touchend', e => {
     const p = e.changedTouches[0];
     if (gestoTessera || Date.now() - fineTessera < 500 || zonaTessera(e.target, p.clientX, p.clientY)) e.preventDefault();
@@ -6907,11 +7045,21 @@ function avviaTessere(){
       return;
     }
     if (e.type !== 'pointerup') return;
-    if (g.z.tipo === 'piu') nuovaTessera(g.z.t, false);
-    else menuTessera(g.z.t, e.clientX - 20, e.clientY + 14);
+    menuTessera(g.z.t, e.clientX - 20, e.clientY + 14);
   };
   addEventListener('pointerup', fine);
   addEventListener('pointercancel', fine);
+  /* diario: toccando una tessera che ha solo la data (fuori dalla data stessa) si scrive sotto */
+  c.addEventListener('click', e => {
+    if (!conDiario() || soloLettura() || !e.target.closest) return;
+    const t = e.target.closest('section.tessera');
+    if (!t || !eScatola(t) || zonaTessera(e.target, e.clientX, e.clientY)) return;
+    const ult = t.lastElementChild;
+    if (!soloData(ult) || /^(STRONG|B)$/.test(e.target.nodeName)) return;
+    const p = document.createElement('p'); p.innerHTML = '<br>';
+    t.appendChild(p);
+    cursoreIn(t, true);
+  });
 }
 /* ============ sincronizzazione con Dropbox (8.0) ============ */
 /* folio salva sempre prima nel browser; Dropbox tiene una copia allineata e leggibile anche fuori:
@@ -6926,7 +7074,7 @@ const K_SYNC = 'sync', K_ACCESSO = 'folio.accesso';
 const F_INDICE = '/.folio/indice.json', F_CLAUDE = '/.folio/per-claude.md';
 const URL_TOKEN = 'https://api.dropboxapi.com/oauth2/token';
 const SYNC_OGNI = 60000, SYNC_DOPO = 4000, ESTERNI_DOPO = 20000;
-const META = ['sezioneId','titolo','creata','modificata','preferito','allinea','sfondo'];
+const META = ['sezioneId','titolo','creata','modificata','preferito','allinea','sfondo','diario'];
 const RE_IMG_FILE = /\/immagini\/([a-z0-9]{8,})\.(jpe?g|png|gif|webp)$/;
 let SY = null;                     /* collegamento e memoria dell'allineamento: record "sync", mai nei backup */
 let giroInCorso = null, ancoraUnGiro = false, timerSync = 0, ridisegnaSync = null;
@@ -7042,7 +7190,8 @@ async function dbx(rotta, arg, opz){
   throw erroreSync(r.status === 429 || r.status >= 500 ? 'occupato' : 'dropbox', sommario);
 }
 async function suDropbox(percorso, dati, rev){
-  const m = await dbx('files/upload', { path:percorso, mode: rev ? { '.tag':'update', update:rev } : 'add', autorename:false, mute:true, strict_conflict:true },
+  const modo = rev === 'sovrascrivi' ? 'overwrite' : rev ? { '.tag':'update', update:rev } : 'add';
+  const m = await dbx('files/upload', { path:percorso, mode:modo, autorename:false, mute:true, strict_conflict:true },
     { su: typeof dati === 'string' ? new TextEncoder().encode(dati) : dati });
   SY.file[m.path_lower] = { p:m.path_display, rev:m.rev, quando:m.server_modified };
   return m;
@@ -7128,7 +7277,7 @@ async function rientroDaDropbox(){
     if (!r.ok) throw new Error('token');
     const j = await r.json();
     if (!j.access_token || !j.refresh_token) throw new Error('token');
-    SY = { servizio:'dropbox', token:j.access_token, scade:Date.now() + (j.expires_in || 14400) * 1000, refresh:j.refresh_token,
+    SY = { servizio:'dropbox', dispositivo:id(), token:j.access_token, scade:Date.now() + (j.expires_in || 14400) * 1000, refresh:j.refresh_token,
       conto:'', file:{}, cursore:null, indice:null, indiceRev:null, base:null, ultimo:null, errore:'' };
     try { const c = await dbx('users/get_current_account'); SY.conto = c.email || (c.name && c.name.display_name) || ''; } catch(e){}
     await salvaStatoSync();
@@ -7143,7 +7292,7 @@ function scollegaDropbox(poi){
     if (giroInCorso) await giroInCorso.catch(() => {});
     if (!SY) return;
     try { await dbx('auth/token/revoke'); } catch(e){}
-    SY = null; clearTimeout(timerSync);
+    SY = null; clearTimeout(timerSync); impostaUso('');
     try { await scriviMolti([], [K_SYNC]); } catch(e){}
     avviso(T('Dropbox scollegato.'));
     if (poi) poi();
@@ -7155,7 +7304,7 @@ function programmaSync(ms){ if (!SY) return; clearTimeout(timerSync); timerSync 
 /* dopo ogni salvataggio, un giro qualche secondo dopo l'ultima battuta */
 function dopoSalvataggio(){ if (!SY) return; if (giroInCorso) ancoraUnGiro = true; else programmaSync(SYNC_DOPO); }
 function sincronizza(){
-  if (!SY || inPausa || letturaFallita) return Promise.resolve();
+  if (!SY || inPausa || letturaFallita || chiestoUso) return Promise.resolve();
   if (giroInCorso){ ancoraUnGiro = true; return giroInCorso; }
   clearTimeout(timerSync);
   giroInCorso = giro().finally(() => {
@@ -7189,6 +7338,7 @@ async function unGiro(){
   await inFila(aggiornaCifre);                 /* la cifra dei Fogli protetti aperti è aggiornata */
   await elenca();
   const F = SY.file;
+  await controllaUso(F);
   let R = await leggiIndice();
   if (!R) SY.base = null;                      /* indice sparito: si riparte, abbinando i file per percorso */
   if (!SY.base) SY.base = { indice:{ quaderni:[], sezioni:[], fogli:{}, immagini:{}, cassaforte:null }, fogli:{} };
@@ -7338,6 +7488,7 @@ async function unGiro(){
     if (corrente && !foglio(corrente.id)){ mostraVuoto(); if (stretto()) vista('elenco'); }
     else if (ridisegna && corrente && !occupato()) ridisegnaCorrente();
     A.impostazioni.modificheDaSalvare = true;
+    if (soloLettura()) fotoUso = condivisi();      /* quello che arriva da fuori non è una modifica fatta qui */
     await salvaOra();
     await salvaStatoSync();
     disegnaLato();
@@ -7424,8 +7575,10 @@ function ripara(){
   if (!qOk.has(A.impostazioni.quaderno)) A.impostazioni.quaderno = A.quaderni[0].id;
 }
 /* nessuna modifica: solo il Foglio di benvenuto del primo avvio */
+/* (anche il benvenuto di una versione precedente, mai modificato: creato e modificato coincidono) */
 const archivioIntatto = () => A.fogli.length <= 1 && A.quaderni.length === 1 && A.sezioni.length === 1
-  && !A.cestino.fogli.length && !A.cestino.sezioni.length && A.fogli.every(p => p.md === BENVENUTO_IT || p.md === BENVENUTO_EN);
+  && !A.cestino.fogli.length && !A.cestino.sezioni.length && A.fogli.every(p => p.md === BENVENUTO_IT || p.md === BENVENUTO_EN
+    || (p.creata === p.modificata && /^(Benvenuto in folio|Welcome to folio)$/.test(p.titolo)));
 
 /* password dei Fogli protetti: viaggia solo il sale con la verifica, mai la password */
 function fondiCassaforte(R, BI){
@@ -7668,14 +7821,178 @@ function righeSync(riga, ridisegna){
   riga(T('Scollega'), T('I Fogli restano qui e in Dropbox. Questo dispositivo smette di allinearsi.'), T('Scollega'), () => scollegaDropbox(ridisegna), true);
 }
 
+/* ---------- un dispositivo alla volta (8.1) ---------- */
+/* In .folio/attivo.json c'è il dispositivo che sta usando folio. Gli altri leggono soltanto: lucchetto
+   in alto, niente barra di formattazione; alla prima modifica chiedono se usare folio lì, e chi
+   conferma prende il posto. Il dispositivo attivo lo ricorda ogni 4 minuti e lo lascia quando esce
+   dall'app; un segno fermo da più di 10 minuti vale come libero (app chiusa, computer spento). */
+const F_ATTIVO = '/.folio/attivo.json', USO_BATTITO = 4 * 60000, USO_SCADE = 10 * 60000;
+let usoAltrove = '', fotoUso = '', chiestoUso = false, usoAcceso = true;
+const soloLettura = () => !!(SY && usoAltrove);
+function nomeDispositivo(){
+  const u = navigator.userAgent || '';
+  return /iPhone/.test(u) ? 'iPhone' : /iPad/.test(u) ? 'iPad'
+    : /Android/.test(u) ? (/Mobile/.test(u) ? T('telefono Android') : T('tablet Android'))
+    : /Macintosh/.test(u) ? 'Mac' : /Windows/.test(u) ? 'Windows' : /Linux/.test(u) ? 'Linux' : T('un altro dispositivo');
+}
+/* i dati che viaggiano: con il dispositivo in sola lettura non devono cambiare */
+const condivisi = () => JSON.stringify([A.quaderni.map(q => pulisci(q, CAMPI_Q)), A.sezioni.map(s => pulisci(s, CAMPI_S)),
+  A.fogli.map(p => [p.id, metaDi(p), contenutoDi(p)]), A.cassaforte]);
+function impostaUso(altrove){
+  const prima = usoAltrove;
+  usoAltrove = SY && altrove ? altrove : '';
+  if (usoAltrove && !prima){
+    scriviCorrente();
+    fotoUso = condivisi();
+    avviso(T('folio è in uso su {nome}: qui puoi leggere. Tocca il lucchetto in alto per usarla qui.', { nome:usoAltrove }), null, null, 8000);
+  }
+  if (!usoAltrove && prima && SY) avviso(T('Ora puoi scrivere anche qui.'));
+  applicaUso();
+}
+function applicaUso(){
+  const b = soloLettura(), u = $('#bUso');
+  document.body.toggleAttribute('data-sola-lettura', b);
+  if (u){
+    u.classList.toggle('nascosto', !b);
+    u.title = b ? T('Sola lettura: folio è in uso su {nome}', { nome:usoAltrove }) : '';
+    u.setAttribute('aria-label', u.title || 'folio');
+  }
+  $('#titolo').readOnly = b; $('#grezzo').readOnly = b;
+  if (corrente) $('#corpo').setAttribute('contenteditable', b ? 'false' : 'true');
+  const a = document.activeElement;
+  if (b && a && ($('#corpo').contains(a) || a.id === 'titolo' || a.id === 'grezzo')) a.blur();
+}
+/* chiamata da ogni salvataggio: in sola lettura una modifica ai Fogli si ferma e chiede */
+function fermoAltrove(){
+  if (!soloLettura()) return false;
+  if (chiestoUso) return true;
+  if (condivisi() === fotoUso) return false;
+  chiediUso(true);
+  return true;
+}
+function chiediUso(modificato){
+  if (chiestoUso || !soloLettura()) return;
+  chiestoUso = true;
+  const nome = usoAltrove;
+  dialogo(T('folio è in uso su {nome}', { nome }), (c, chiudi, pie) => {
+    c.appendChild(el('p', null, modificato
+      ? T('Hai fatto una modifica, ma folio è in uso su {nome}. Vuoi usarla qui? L\'altro dispositivo passa in sola lettura.', { nome })
+      : T('Qui puoi leggere. Per scrivere usa folio su questo dispositivo: l\'altro passa in sola lettura.')));
+    const no = el('button','bott', modificato ? T('Annulla la modifica') : T('Solo lettura'));
+    no.onclick = () => { chiudi(); chiestoUso = false; if (modificato) location.reload(); };
+    const si = el('button','bott pieno', T('Usa qui'));
+    si.onclick = () => { chiudi(); chiestoUso = false; usaQui(); };
+    pie.append(no, si);
+  }, null, null, { pieLibero:true, uscita: chiudi => { if (!modificato){ chiudi(); chiestoUso = false; } } });
+}
+async function usaQui(){
+  if (!SY) return;
+  SY.prendo = true;
+  usoAltrove = ''; applicaUso();
+  avviso(T('Ora folio si usa qui: gli altri dispositivi passano in sola lettura.'));
+  await salvaOra();
+  await salvaStatoSync();
+  sincronizza();
+}
+async function scriviUso(rev, libera){
+  const v = { id: libera ? null : SY.dispositivo, nome: libera ? '' : nomeDispositivo() };
+  const m = await suDropbox(F_ATTIVO, JSON.stringify(v), rev);
+  SY.attivo = Object.assign(v, { rev:m.rev });
+}
+async function controllaUso(F){
+  if (!usoAcceso){ impostaUso(''); return; }
+  const f = F[F_ATTIVO];
+  if (SY.prendo){ await scriviUso('sovrascrivi'); SY.prendo = false; impostaUso(''); return; }
+  let att = null;
+  if (f){
+    if (SY.attivo && SY.attivo.rev === f.rev) att = SY.attivo;
+    else {
+      const t = await scaricaTesto(F_ATTIVO);
+      try { att = Object.assign(JSON.parse(t.testo), { rev:t.rev }); } catch(e){ att = { id:null, rev:f.rev }; }
+      SY.attivo = att;
+    }
+  }
+  const eta = f && f.quando ? Date.now() - new Date(f.quando).getTime() : Infinity;
+  const mio = !!(att && att.id === SY.dispositivo);
+  if (mio || !att || !att.id || eta > USO_SCADE){
+    /* libero, o già mio: lo prende (o lo ricorda) solo chi ha l'app davanti */
+    if (!document.hidden && (!mio || eta > USO_BATTITO)) await scriviUso(f ? f.rev : null).catch(e => { if (e.tipo !== 'conflitto') throw e; });
+    impostaUso('');
+    return;
+  }
+  impostaUso(att.nome || T('un altro dispositivo'));
+}
+/* uscendo dall'app il posto si libera, così l'altro dispositivo scrive subito */
+function rilasciaUso(){
+  if (!SY || soloLettura() || !SY.attivo || SY.attivo.id !== SY.dispositivo || !SY.file[F_ATTIVO]) return;
+  scriviUso(SY.file[F_ATTIVO].rev, true).then(salvaStatoSync).catch(() => {});
+}
+
+/* ---------- nell'elenco, tirando giù dall'alto: Sincronizza ora ---------- */
+function tiraPerSincronizzare(){
+  const a = $('#albero');
+  if (!a) return;
+  const ind = el('div','tira');
+  ind.innerHTML = svgTratto('sincro') + '<span></span>';
+  a.parentNode.insertBefore(ind, a);
+  const scritta = ind.querySelector('span'), giro = ind.querySelector('svg');
+  let y0 = null, pronto = false;
+  const chiudi = () => { ind.classList.remove('tirando', 'gira'); ind.style.height = ''; giro.style.transform = ''; };
+  a.addEventListener('touchstart', e => {
+    y0 = SY && modo === 'normale' && a.scrollTop <= 0 && e.touches.length === 1 && !ind.classList.contains('gira') ? e.touches[0].clientY : null;
+    pronto = false;
+  }, { passive:true });
+  a.addEventListener('touchmove', e => {
+    if (y0 == null) return;
+    const dy = e.touches[0].clientY - y0;
+    if (dy <= 0 || a.scrollTop > 0){ chiudi(); return; }
+    const h = Math.min(64, dy * 0.45);
+    pronto = h >= 48;
+    ind.classList.add('tirando');
+    ind.style.height = h + 'px';
+    giro.style.transform = 'rotate(' + Math.round(dy * 2) + 'deg)';
+    scritta.textContent = pronto ? T('Rilascia per sincronizzare') : T('Tira per sincronizzare');
+  }, { passive:true });
+  const lascia = () => {
+    if (y0 == null) return;
+    y0 = null;
+    if (!pronto){ chiudi(); return; }
+    ind.classList.remove('tirando'); ind.classList.add('gira');
+    ind.style.height = '40px'; giro.style.transform = '';
+    scritta.textContent = T('Allineamento in corso…');
+    sincronizza().finally(() => {
+      chiudi();
+      if (SY) avviso(SY.errore ? statoSyncTesto() : T('Fogli allineati.'));
+    });
+  };
+  a.addEventListener('touchend', lascia);
+  a.addEventListener('touchcancel', lascia);
+}
+
 /* ---------- avvio ---------- */
 async function avviaSync(){
   const s = await leggiIdb(K_SYNC);
   SY = s && s.servizio === 'dropbox' && s.refresh ? s : null;
+  if (SY && !SY.dispositivo){ SY.dispositivo = id(); await salvaStatoSync(); }
   await rientroDaDropbox();
   setInterval(() => { if (SY && !document.hidden) sincronizza(); }, SYNC_OGNI);
-  document.addEventListener('visibilitychange', () => { if (SY) sincronizza(); });
+  document.addEventListener('visibilitychange', () => {
+    if (!SY) return;
+    if (document.hidden) rilasciaUso();
+    sincronizza();
+  });
   addEventListener('online', () => { if (SY) sincronizza(); });
+  /* in sola lettura, toccare il testo per scrivere chiede se usare folio qui */
+  $('#zona').addEventListener('click', e => {
+    if (!soloLettura()) return;
+    const t = e.target;
+    if (!t || !t.closest || t.closest('a, #sommario, #rimandi') || (t.closest('#corpo') && zonaPiega(t, e.clientX))) return;
+    if (!(t.closest('#corpo, #titolo, #grezzo') || t === $('#zona') || t === $('#foglio'))) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    chiediUso(false);
+  }, true);
+  $('#bUso').onclick = () => chiediUso(false);
+  tiraPerSincronizzare();
   if (SY) sincronizza();
 }
 /* ============ eventi ============ */
@@ -8117,7 +8434,7 @@ window.__prova = {
   segnapostoImmagini, idsImmagini, conImmagini, salvaImmaginiImportate, pulisciImmagini, urlImmagini, datiImmagini, htmlCorpo,
   scegliIcona, iconaGruppo, ICONE_GRUPPI, ordinaPer, riordinaSecondo, entraRiordino, esciRiordino, spostaGruppo, sezioniDi,
   dialogoImmagine, esportaMd, menuSezione, menuQuaderno,
-  sync: { stato: () => SY, imposta: s => { SY = s; }, sincronizza, unGiro, rientroDaDropbox, collegaDropbox, percorsiFogli, impronta, canonico, giro: () => giroInCorso },
+  sync: { stato: () => SY, imposta: s => { SY = s; }, uso: v => { usoAcceso = v; }, impostaUso, soloLettura, usaQui, chiediUso, commutaDiario, dataDiario, nuovaTessera, sincronizza, unGiro, rientroDaDropbox, collegaDropbox, percorsiFogli, impronta, canonico, giro: () => giroInCorso },
   scriviCorrente, importaTesti: (testi, sid) => {
     testi.forEach(x => A.fogli.push({ id:id(), sezioneId:sid, titolo:titoloLibero(x.titolo), md:x.md, creata:oggi(), modificata:oggi() }));
     salva(); disegnaLato();
