@@ -2,7 +2,7 @@
 <html lang="it" data-tema="chiaro">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Yx0vceP6m/ZHHJUbs/7mefYfLQKQi6vzZvy8MWk+1Y0=' 'sha256-8CrigX4xyDJ/zgW97lyKR2YVPyJyGFUoryoSqoneDXU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://api.dropboxapi.com https://content.dropboxapi.com; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'self'; manifest-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Yx0vceP6m/ZHHJUbs/7mefYfLQKQi6vzZvy8MWk+1Y0=' 'sha256-fNtzpwdkMDSHzSXi5XUDWaaA6xWQzTU+sbOs3RGj7pc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://api.dropboxapi.com https://content.dropboxapi.com; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'self'; manifest-src 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>folio</title>
 <meta name="description" content="Blocco note semplice. Le pagine restano sul tuo dispositivo.">
@@ -1888,7 +1888,7 @@ return exports;
 (function(){
 'use strict';
 
-const VERSIONE_APP = '8.1';
+const VERSIONE_APP = '8.3';
 
 /* ============ utilità ============ */
 const $ = s => document.querySelector(s);
@@ -2484,6 +2484,7 @@ const EN = {
   "Sposta su": "Move up",
   "Sposta giù": "Move down",
   "Elimina tessera": "Delete card",
+  "Seleziona testo": "Select text",
   "Puoi anche tenerla premuta e trascinarla: in cima o in fondo si aggancia.": "You can also press and hold it, then drag it: it snaps at the top or bottom.",
   "Applica a": "Apply to",
   "Questo Foglio": "This Page",
@@ -2686,7 +2687,7 @@ La barra di formattazione ha i formati essenziali: titoli, **grassetto**, *corsi
 
 Dal menu a tre punti del Foglio aperto:
 
-- **Scrivi a tessere** divide il Foglio in schede, una sotto l'altra. Ogni tessera ha in alto una presa: trascinala per spostare la tessera, toccala per aggiungerne una sopra o sotto, spostarla o eliminarla. Esempio: una lista di idee, una tessera per idea, da riordinare quando cambiano le priorità.
+- **Scrivi a tessere** divide il Foglio in schede, una sotto l'altra. Ogni tessera ha in alto una presa: trascinala per spostare la tessera, toccala per selezionarne solo il testo, aggiungerne una sopra o sotto, spostarla o eliminarla. Esempio: una lista di idee, una tessera per idea, da riordinare quando cambiano le priorità.
 - **Scrivi a diario** fa lo stesso, ma ogni tessera nuova parte con data e ora in grassetto, che puoi cambiare. Tocca la tessera sotto la data e scrivi. Esempio:
 
 > **11/10/2026, 08:30**
@@ -2791,7 +2792,7 @@ The formatting bar has the essentials: headings, **bold**, *italic*, ~~strikethr
 
 From the three-dot menu of the open Page:
 
-- **Write in cards** splits the Page into cards, one under the other. Each card has a grip at the top: drag it to move the card, tap it to add a card above or below, move it or delete it. Example: a list of ideas, one card per idea, to reorder when priorities change.
+- **Write in cards** splits the Page into cards, one under the other. Each card has a grip at the top: drag it to move the card, tap it to select just its text, add a card above or below, move it or delete it. Example: a list of ideas, one card per idea, to reorder when priorities change.
 - **Write as a diary** does the same, but every new card starts with date and time in bold, which you can change. Tap the card under the date and write. Example:
 
 > **11/10/2026, 08:30**
@@ -3625,6 +3626,11 @@ const TRATTI = {
   riordina:'<path d="M7.5 4v16M4 7.5l3.5-3.5 3.5 3.5M16.5 20V4M13 16.5l3.5 3.5 3.5-3.5"/>',
   quaderno:'<path d="M12 6.5C10 5 7 4.5 3.5 5v13.5c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5z"/><path d="M12 6.5V20"/>',
   diario:'<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h3"/>',
+  selezionaTesto:'<path d="M7 4H5.5v16H7M17 4h1.5v16H17"/><path d="M12 7v10M10.5 7h3M10.5 17h3"/>',
+  sopra:'<rect x="4" y="11" width="16" height="9" rx="1.8"/><path d="M12 3v5.5M9.25 5.75h5.5"/>',
+  sotto:'<rect x="4" y="4" width="16" height="9" rx="1.8"/><path d="M12 15.5V21M9.25 18.25h5.5"/>',
+  su:'<path d="M12 19V5M6.5 10.5 12 5l5.5 5.5"/>',
+  giu:'<path d="M12 5v14M6.5 13.5 12 19l5.5-5.5"/>',
   sincro:'<path d="M19.5 12a7.5 7.5 0 0 1-13.4 4.6M4.5 12a7.5 7.5 0 0 1 13.4-4.6"/><path d="M18.3 3.5v4.2h-4.2M5.7 20.5v-4.2h4.2"/>'
 };
 const svgTratto = nome => '<svg class="tratto" viewBox="0 0 24 24" aria-hidden="true">' + (TRATTI[nome] || '') + '</svg>';
@@ -4348,6 +4354,8 @@ function rinominaQuaderno(q){
 function cestinaFogli(fg, silenzioso){
   if (!fg.length) return;
   const q = quadernoDiFoglio(fg[0]);
+  /* su telefono, eliminato il Foglio aperto, si torna all'elenco del Quaderno: la pagina vuota sarebbe un vicolo cieco */
+  const daAperto = stretto() && document.body.dataset.vista === 'foglio' && !!corrente && fg.some(p => p.id === corrente.id);
   fg.forEach(p => {
     const s = sezione(p.sezioneId), qd = s ? quaderno(s.quadernoId) : null;
     const i = A.fogli.indexOf(p);
@@ -4358,6 +4366,10 @@ function cestinaFogli(fg, silenzioso){
     if (corrente && corrente.id === p.id) mostraVuoto();
   });
   salva(); disegnaLato();
+  if (daAperto){
+    vista('elenco');
+    if (history.state && history.state.folio){ try { history.back(); } catch(e){} }
+  }
   if (!silenzioso) avviso(T('{n} nel cestino.', { n:tn(fg.length, 'Foglio', 'Fogli') }), T('Annulla'), () => {
     fg.forEach(p => ripristinaFoglio(A.cestino.fogli.find(x => x.id === p.id), true));
     salva(); disegnaLato();
@@ -6948,16 +6960,25 @@ function eliminaTessera(t){
   dopoModifica();
   avviso(T('Tessera eliminata.'), T('Annulla'), annulla);
 }
+/* seleziona tutto, ma solo dentro la tessera */
+function selezionaTessera(t){
+  corpo().focus();
+  const r = document.createRange();
+  r.selectNodeContents(t);
+  const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+}
 function menuTessera(t, x, y){
   const prima = t.previousElementSibling, dopo = t.nextElementSibling;
   menu(x, y, [
-    { testo:T('Nuova tessera sopra'), fai: () => nuovaTessera(t, true) },
-    { testo:T('Nuova tessera sotto'), fai: () => nuovaTessera(t, false) },
-    ...(prima || dopo ? ['-'] : []),
-    ...(prima ? [{ testo:T('Sposta su'), fai: () => spostaTessera(t, prima) }] : []),
-    ...(dopo ? [{ testo:T('Sposta giù'), fai: () => spostaTessera(t, dopo.nextElementSibling) }] : []),
+    { testo:T('Seleziona testo'), icona:'selezionaTesto', fai: () => selezionaTessera(t) },
     '-',
-    { testo:T('Elimina tessera'), rischio:true, fai: () => eliminaTessera(t) }
+    { testo:T('Nuova tessera sopra'), icona:'sopra', fai: () => nuovaTessera(t, true) },
+    { testo:T('Nuova tessera sotto'), icona:'sotto', fai: () => nuovaTessera(t, false) },
+    ...(prima || dopo ? ['-'] : []),
+    ...(prima ? [{ testo:T('Sposta su'), icona:'su', fai: () => spostaTessera(t, prima) }] : []),
+    ...(dopo ? [{ testo:T('Sposta giù'), icona:'giu', fai: () => spostaTessera(t, dopo.nextElementSibling) }] : []),
+    '-',
+    { testo:T('Elimina tessera'), icona:'elimina', rischio:true, fai: () => eliminaTessera(t) }
   ]);
 }
 
