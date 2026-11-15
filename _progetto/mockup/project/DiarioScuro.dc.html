@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>folio - diario, tema scuro</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+svg{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #1B1815; color: #F1E8D7; font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-size: 15px; line-height: 1.4">
+
+  <header style="height: 56px; flex: none; display: flex; align-items: center; padding: 0 6px 0 4px">
+    <button aria-label="Torna all'elenco" style="width: 44px; height: 44px; display: grid; place-items: center; color: #F1E8D7">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 22px; height: 22px; stroke-width: 2"><path d="M15 5l-7 7 7 7"></path></svg>
+    </button>
+    <span style="flex-grow: 1; min-width: 0; font-size: 13px; color: #B5AA9A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Lavoro / Cantiere via Roma</span>
+    <button aria-label="Vista testo markdown" style="width: 44px; height: 44px; display: grid; place-items: center; color: #B5AA9A">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px"><path d="m9 8-4 4 4 4m6-8 4 4-4 4"></path></svg>
+    </button>
+    <button aria-label="Cerca" style="width: 44px; height: 44px; display: grid; place-items: center; color: #B5AA9A">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg>
+    </button>
+    <button aria-label="Azioni del Foglio" style="width: 44px; height: 44px; display: grid; place-items: center; color: #B5AA9A">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px; fill: currentColor; stroke: none"><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg>
+    </button>
+  </header>
+
+  <main style="flex-grow: 1; min-height: 0; overflow: hidden; padding: 12px 16px 0; display: flex; flex-direction: column">
+    <h1 style="margin: 0 4px; font-size: 28px; line-height: 1.2; font-weight: 700; letter-spacing: -0.015em">Diario di cantiere</h1>
+    <div style="display: flex; align-items: center; gap: 10px; margin: 6px 4px 16px">
+      <span style="font-size: 12.5px; color: #B5AA9A; font-variant-numeric: tabular-nums">Modificato oggi alle 16:26</span>
+      <span style="padding: 3px 9px; border-radius: 999px; background: #4A3A22; color: #E8A867; font-size: 11.5px; font-weight: 600">diario</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px; font-size: 17px; line-height: 1.6">
+
+      <section style="position: relative; background: #24201A; border: 1px solid #3A332A; border-radius: 12px; padding: 22px 16px 14px; display: flex; flex-direction: column; gap: 6px">
+        <span aria-hidden="true" style="position: absolute; top: 8px; left: 50%; width: 36px; height: 4px; margin-left: -18px; border-radius: 2px; background: #4A4134"></span>
+        <span style="font-size: 12.5px; font-weight: 600; color: #B5AA9A; letter-spacing: .02em; font-variant-numeric: tabular-nums">13/11/2026, 08:30</span>
+        <p style="margin: 0">Sopralluogo con il direttore dei lavori. Armatura del solaio completa, manca la verifica dei distanziatori.</p>
+      </section>
+
+      <section style="position: relative; background: #24201A; border: 1px solid #3A332A; border-radius: 12px; padding: 22px 16px 14px; display: flex; flex-direction: column; gap: 6px">
+        <span aria-hidden="true" style="position: absolute; top: 8px; left: 50%; width: 36px; height: 4px; margin-left: -18px; border-radius: 2px; background: #E8A867"></span>
+        <span style="font-size: 12.5px; font-weight: 600; color: #B5AA9A; letter-spacing: .02em; font-variant-numeric: tabular-nums">13/11/2026, 18:15</span>
+        <p style="margin: 0">Sentito il fornitore: consegna del calcestruzzo <strong>confermata per giovedì</strong> alle 7:00.</p>
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <label style="display: flex; align-items: flex-start; gap: 12px">
+            <span style="width: 18px; height: 18px; margin-top: 5px; border-radius: 5px; background: #E8A867; color: #1B1815; display: grid; place-items: center; flex: none">
+              <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 13px; height: 13px; stroke-width: 3"><path d="m6 12.5 4 4 8-9"></path></svg>
+            </span>
+            <span style="color: #B5AA9A">Avvisare la squadra</span>
+          </label>
+          <label style="display: flex; align-items: flex-start; gap: 12px">
+            <span style="width: 18px; height: 18px; margin-top: 5px; box-sizing: border-box; border-radius: 5px; border: 1.6px solid #B5AA9A; background: #1B1815; flex: none"></span>
+            <span>Prenotare la pompa</span>
+          </label>
+        </div>
+      </section>
+
+      <section style="position: relative; background: #24201A; border: 1px solid #3A332A; border-radius: 12px; padding: 22px 16px 14px; display: flex; flex-direction: column; gap: 6px">
+        <span aria-hidden="true" style="position: absolute; top: 8px; left: 50%; width: 36px; height: 4px; margin-left: -18px; border-radius: 2px; background: #4A4134"></span>
+        <span style="font-size: 12.5px; font-weight: 600; color: #B5AA9A; letter-spacing: .02em; font-variant-numeric: tabular-nums">14/11/2026, 16:26</span>
+        <p style="margin: 0">Pioggia dal primo pomeriggio. Getto del solaio rimandato a giovedì, teli stesi sull'armatura.</p>
+      </section>
+
+    </div>
+  </main>
+
+  <div role="status" style="position: absolute; left: 16px; right: 16px; bottom: 26px; background: #F1E8D7; color: #1B1815; border-radius: 12px; padding: 12px 16px; font-size: 14px; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 22px rgba(0,0,0,.4)">
+    <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px; flex: none; stroke-width: 2"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>
+    <span>Testo della tessera copiato.</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

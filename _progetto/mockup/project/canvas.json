@@ -1,0 +1,34 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-11-15T07:30:00Z" },
+  "title": "folio 9.0 - mockup",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 390, "h": 844, "title": "Elenco" },
+    "Foglio.dc.html": { "x": 470, "y": 0, "w": 390, "h": 844, "title": "Foglio" },
+    "DiarioScuro.dc.html": { "x": 940, "y": 0, "w": 390, "h": 844, "title": "Diario - tema scuro" },
+    "Logo.dc.html": { "x": 1410, "y": 0, "w": 880, "h": 844, "title": "Logo e icona" },
+    "Tessera.dc.html": { "x": 0, "y": 1264, "w": 390, "h": 844, "title": "Tessera - Copia testo" },
+    "Importa.dc.html": { "x": 470, "y": 1264, "w": 390, "h": 844, "title": "Importa" },
+    "ImportaAI.dc.html": { "x": 940, "y": 1264, "w": 390, "h": 844, "title": "Importa con AI" },
+    "Anteprima.dc.html": { "x": 1410, "y": 1264, "w": 390, "h": 844, "title": "Anteprima e peso" }
+  },
+  "order": [
+    "Main.dc.html",
+    "Foglio.dc.html",
+    "DiarioScuro.dc.html",
+    "Logo.dc.html",
+    "Tessera.dc.html",
+    "Importa.dc.html",
+    "ImportaAI.dc.html",
+    "Anteprima.dc.html"
+  ],
+  "notes": {
+    "t-aspetto": { "x": 0, "y": -300, "text": "9.0 - aspetto", "kind": "title1", "maxW": 2290 },
+    "t-funzioni": { "x": 0, "y": 964, "text": "8.4 - funzioni nuove", "kind": "title1", "maxW": 1800 },
+    "n-copia": { "x": 1880, "y": 1264, "w": 380, "text": "Tessere e diario: nel menu della presa arriva \"Copia testo\", subito dopo \"Seleziona testo\". Funziona anche sui dispositivi in sola lettura.", "fill": "orange" },
+    "n-ai": { "x": 1880, "y": 1824, "w": 380, "text": "Import con AI: le istruzioni vivono dentro l'app, si copiano o si scaricano. L'assistente restituisce uno .zip con Quaderno / Gruppo / Foglio.md, che entra dopo l'anteprima.", "fill": "orange" }
+  },
+  "designSystems": []
+}
