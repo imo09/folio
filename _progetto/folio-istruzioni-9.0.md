@@ -1,6 +1,6 @@
 # folio - istruzioni di passaggio per la prossima versione (8.4 e 9.0)
 
-Documento per l'AI che eseguirà il lavoro. Scritto il 15/11/2026 partendo da folio 8.3 (`index.html`, 8.477 righe, ramo `claude/next-version-features-optimization-u24tby`). Contiene: stato verificato, richieste di Simo, progetto di dettaglio, ordine dei lavori, prove, punti aperti. I mockup stanno in `_progetto/mockup/` e su https://claude.ai/artifact/FiZbhryvGTztCDSznZRRof (privato: lo apre solo Simo finché non lo condivide).
+Documento di progetto della 9.0. Scritto il 15/11/2026 partendo da folio 8.3; i punti aperti sono stati decisi da Simo lo stesso giorno (sezione finale) e la 9.0 è stata realizzata seguendo questo documento: cosa è stato fatto e cosa resta sta in `_progetto/folio-handoff-9.0.md`. Il testo resta valido come riferimento per chi riprende il lavoro. Partenza: folio 8.3 (`index.html`, 8.477 righe, ramo `claude/next-version-features-optimization-u24tby`). Contiene: stato verificato, richieste di Simo, progetto di dettaglio, ordine dei lavori, prove, punti aperti. I mockup stanno in `_progetto/mockup/` e su https://claude.ai/artifact/FiZbhryvGTztCDSznZRRof (privato: lo apre solo Simo finché non lo condivide).
 
 Etichette: **[deciso]** richiesto da Simo o vincolo esistente. **[proposto]** scelta di progetto, da considerare valida salvo diversa indicazione. **[aperto]** va chiesto a Simo prima di toccare quel pezzo. **[verificato]** controllato sul codice 8.3 o misurato. **[da verificare]** va provato prima di darlo per buono.
 
@@ -46,11 +46,11 @@ Etichette: **[deciso]** richiesto da Simo o vincolo esistente. **[proposto]** sc
 20. **Nessuna regressione**: struttura dell'archivio, sincronizzazione (8.0, 8.1), Fogli protetti, cestino, tessere e diario devono comportarsi come oggi. Non cambiare i nomi dei campi salvati né il formato di `.folio/indice.json`.
 21. **Lessico**: Quaderno > Gruppo > Foglio; tessera; diario. Nessuna parola nuova per concetti esistenti.
 
-## D. Due consegne [proposto, vedi punto 140]
+## D. Una consegna sola [deciso, vedi punto 140]
 
-22. **8.4 "motore"**: funzioni richieste (copia tessera, peso, importazioni), ottimizzazioni, correzioni. Aspetto invariato.
-23. **9.0 "aspetto"**: nuova grafica, logo, icone, splash, fogli dal basso. Nessuna funzione nuova.
-24. **Perché separate**: è la regola nautargo (aspetto e motore in versioni diverse) e rende rintracciabile una regressione. Se Simo sceglie una consegna sola, l'ordine dei lavori resta lo stesso.
+22. **9.0**: funzioni richieste (copia tessera, peso, importazioni), ottimizzazioni, correzioni, nuova grafica, logo, icone, splash, fogli dal basso. Le sezioni E (motore) e F (aspetto) restano separate in questo documento.
+23. **Ordine dei lavori**: lo stesso della sezione J, motore prima e aspetto dopo, così una regressione si rintraccia comunque.
+24. **Dove si legge "8.4"** in questo documento si intende la parte motore della 9.0.
 
 ---
 
@@ -216,14 +216,14 @@ Etichette: **[deciso]** richiesto da Simo o vincolo esistente. **[proposto]** sc
 ```svg
 <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <rect width="512" height="512" rx="112" fill="#26211B"/>
-  <path d="M232 388V208a72 72 0 0 1 72-72h14" fill="none" stroke="#F6F0E3" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M176 250h120" fill="none" stroke="#F6F0E3" stroke-width="52" stroke-linecap="round"/>
-  <circle cx="338" cy="384" r="30" fill="#E8A867"/>
+  <path d="M213 382V202a72 72 0 0 1 72-72h14" fill="none" stroke="#F6F0E3" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M213 244h64" fill="none" stroke="#F6F0E3" stroke-width="52" stroke-linecap="round"/>
+  <circle cx="319" cy="378" r="30" fill="#E8A867"/>
 </svg>
 ```
 
-111. **Cosa cambia rispetto a oggi**: asta e taglio hanno lo stesso spessore (52) e sono lo stesso tipo di tratto; l'uncino è un quarto di cerchio esatto; il segno è centrato da solo, senza spostamenti; il punto è più grande e prende l'Ottone della famiglia (#E8A867 al posto di #8F5F22); il fondo prende l'inchiostro caldo dell'app (#26211B).
-112. **File da produrre**: `icona-192.png` e `icona-512.png` (angoli tondi, `purpose: any`); `icona-maschera-512.png` a tutto campo senza trasparenza (`purpose: maskable`, il segno sta dentro il cerchio di sicurezza: verificato, il punto più lontano è a 194 px dal centro contro i 204 ammessi); `icona-180.png` a tutto campo senza trasparenza (iPhone arrotonda da solo); `icona.svg` come icona della scheda del browser, con il PNG di riserva; facoltativa `icona-mono-512.png` (`purpose: monochrome`). Aggiornare `manifest.webmanifest`, i `<link>` in testa e l'elenco `ROBA` di `sw.js`.
+111. **Cosa cambia rispetto a oggi**: asta e taglio hanno lo stesso spessore (52) e sono lo stesso tipo di tratto; il taglio parte dall'asta e va solo verso destra, come nel marchio 8.3 [deciso: senza la sporgenza a sinistra, che lo faceva somigliare alla "f" di Facebook]; l'uncino è un quarto di cerchio esatto; il segno è centrato da solo, senza spostamenti; il punto è più grande e prende l'Ottone della famiglia (#E8A867 al posto di #8F5F22); il fondo prende l'inchiostro caldo dell'app (#26211B).
+112. **File da produrre**: `icona-192.png` e `icona-512.png` (angoli tondi, `purpose: any`); `icona-maschera-512.png` a tutto campo senza trasparenza (`purpose: maskable`, il segno sta dentro il cerchio di sicurezza: verificato, il punto più lontano è a 167 px dal centro contro i 204 ammessi); `icona-180.png` a tutto campo senza trasparenza (iPhone arrotonda da solo); `icona.svg` come icona della scheda del browser, con il PNG di riserva; facoltativa `icona-mono-512.png` (`purpose: monochrome`). Aggiornare `manifest.webmanifest`, i `<link>` in testa e l'elenco `ROBA` di `sw.js`.
 113. **Nome** [aperto, punto 146]: "folio" in Poppins 600 come le altre app nautargo, con il punto ottone. Per non caricare niente dalla rete: un file di carattere ridotto alle sole lettere f, o, l, i, incorporato in base64 (pochi kB), oppure le cinque lettere disegnate come tracciati SVG. Licenza OFL: citarla nel `README.md`.
 114. **Splash**: stessa idea di oggi con il segno nuovo: l'asta si traccia, il taglio si allunga, il punto cade; poi il nome; in basso "by **nautargo**". Dura 1,60 s o un tocco, non blocca i tocchi, resta disattivabile, assente con "riduci movimento" e alla ricarica nella stessa sessione.
 
@@ -315,16 +315,16 @@ for m in re.finditer(r'<script>(.*?)</script>', h, re.S):
 138. **Dropbox**: chi ha la sincronizzazione accesa può già far comparire Fogli nuovi mettendo file `.md` nella cartella di folio. Resta com'è; l'importazione da zip è la strada principale perché porta anche le immagini.
 139. **Fuori perimetro**: etichette, allegati dentro folio, immagini nei Fogli protetti, sincronizzazione su altri servizi, monetizzazione, versione nativa.
 
-## Punti aperti
+## Decisioni del 15/11/2026 (erano i punti aperti)
 
-140. **Consegne**: (a) due versioni, 8.4 motore e 9.0 aspetto [consigliata], (b) una sola 9.0 con tutto.
-141. **Pulsante più**: (a) più tondo in basso a destra che crea un Foglio, "Nuovo Gruppo" nel menu e a contorno in fondo all'elenco [consigliata], (b) resta com'è oggi: il più del Quaderno crea un Gruppo, quello del Gruppo un Foglio.
-142. **Sommario**: (a) pillola accanto alla data che apre i titoli in un foglio dal basso [consigliata], (b) resta la barra fissa sopra il testo, solo ridisegnata.
-143. **Allegati che non sono immagini** (pdf, audio, documenti) nell'importazione: (a) restano nello zip in `allegati/` e nel Foglio compare una riga "[Allegato non importato: nome.pdf]" [consigliata], (b) l'AI li ignora e li elenca solo nel riepilogo, (c) folio impara a tenere allegati, in una versione futura a parte.
-144. **Elenco dei Fogli**: (a) due righe con data e inizio del testo [consigliata], (b) una riga come oggi, (c) scelta nelle Impostazioni fra le due.
-145. **Logo**: (a) l'evoluzione del punto 110 [consigliata], (b) esplorare altre due direzioni prima di decidere.
-146. **Carattere del nome**: (a) Poppins 600 incorporato per la sola parola "folio" [consigliata], (b) resta il carattere di sistema.
-147. **Copia della tessera**: (a) solo la voce nel menu della presa [consigliata], (b) anche una piccola icona di copia in alto a destra di ogni tessera, per copiare con un tocco.
+140. **Consegne** [deciso]: una sola 9.0 con tutto (vedi sezione D).
+141. **Pulsante più** [deciso]: più tondo in basso a destra che crea un Foglio; "Nuovo Gruppo" nel menu del Quaderno e a contorno in fondo all'elenco.
+142. **Sommario** [deciso]: pillola accanto alla data; sul telefono apre i titoli in un foglio dal basso, sul computer in un riquadro.
+143. **Allegati che non sono immagini** [deciso]: restano nello zip in `allegati/` e nel Foglio compare una riga "[Allegato non importato: nome.pdf]".
+144. **Elenco dei Fogli** [deciso]: due righe, con data e inizio del testo.
+145. **Logo** [deciso]: l'evoluzione del punto 110, senza la sporgenza del taglio a sinistra.
+146. **Carattere del nome** [deciso]: Poppins 600 per la sola parola "folio", trasformata in tracciato SVG (nessun carattere da caricare, nessuna modifica alla regola di sicurezza).
+147. **Copia della tessera** [deciso]: solo la voce nel menu della presa.
 
 ---
 
@@ -384,6 +384,8 @@ Usa la lettera indicata nella riga "Struttura richiesta".
 - Il testo sta in `content`, in un formato simile all'HTML. `en-todo` è una casella (`checked="true"` vuol dire spuntata). `en-media` indica un'immagine o un allegato: il suo `hash` è l'MD5 dei dati della `resource` corrispondente.
 - Ogni `resource` ha i dati in base64 in `data`, il tipo in `mime` e spesso il nome in `resource-attributes/file-name`.
 - Le date sono scritte come `20240131T101500Z`, in ora universale.
+- L'indirizzo di origine, se c'è, sta in `note-attributes/source-url`.
+- `en-crypt` è testo cifrato: scrivi `[Testo protetto non importato]`.
 
 ## Se non puoi creare file
 
