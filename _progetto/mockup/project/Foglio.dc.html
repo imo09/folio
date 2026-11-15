@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>folio - Foglio aperto</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+svg{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #F2EBDC; color: #26211B; font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-size: 15px; line-height: 1.4">
+
+  <header style="height: 56px; flex: none; display: flex; align-items: center; padding: 0 6px 0 4px">
+    <button aria-label="Torna all'elenco" style="width: 44px; height: 44px; display: grid; place-items: center; color: #26211B">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 22px; height: 22px; stroke-width: 2"><path d="M15 5l-7 7 7 7"></path></svg>
+    </button>
+    <span style="flex-grow: 1; min-width: 0; font-size: 13px; color: #5A5045; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Lavoro / Cantiere via Roma</span>
+    <button aria-label="Vista testo markdown" style="width: 44px; height: 44px; display: grid; place-items: center; color: #5A5045">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px"><path d="m9 8-4 4 4 4m6-8 4 4-4 4"></path></svg>
+    </button>
+    <button aria-label="Cerca" style="width: 44px; height: 44px; display: grid; place-items: center; color: #5A5045">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg>
+    </button>
+    <button aria-label="Azioni del Foglio" style="width: 44px; height: 44px; display: grid; place-items: center; color: #5A5045">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px; fill: currentColor; stroke: none"><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg>
+    </button>
+  </header>
+
+  <div role="toolbar" aria-label="Formattazione" style="flex: none; margin: 2px 12px 0; height: 48px; border-radius: 12px; background: #FBF8F1; box-shadow: 0 1px 2px rgba(60,48,30,.06), 0 6px 18px rgba(60,48,30,.08); display: flex; align-items: center; padding: 0 4px">
+    <button aria-label="Titolo grande" style="width: 38px; height: 44px; font-size: 13.5px; font-weight: 600; color: #26211B">H1</button>
+    <button aria-label="Titolo medio" style="width: 38px; height: 44px; font-size: 13.5px; font-weight: 600; color: #26211B; background: #EED7B0; border-radius: 8px">H2</button>
+    <button aria-label="Titolo piccolo" style="width: 38px; height: 44px; font-size: 13.5px; font-weight: 600; color: #26211B">H3</button>
+    <span style="width: 1px; height: 20px; background: #DDD0B6; margin: 0 4px"></span>
+    <button aria-label="Grassetto" style="width: 36px; height: 44px; font-size: 15px; font-weight: 700">B</button>
+    <button aria-label="Corsivo" style="width: 36px; height: 44px; font-size: 15px; font-style: italic; font-family: Georgia, serif">I</button>
+    <span style="width: 1px; height: 20px; background: #DDD0B6; margin: 0 4px"></span>
+    <button aria-label="Elenco puntato" style="width: 38px; height: 44px; display: grid; place-items: center">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px"><path d="M9 6h11M9 12h11M9 18h11"></path><circle cx="4.5" cy="6" r="1.2" fill="currentColor" stroke="none"></circle><circle cx="4.5" cy="12" r="1.2" fill="currentColor" stroke="none"></circle><circle cx="4.5" cy="18" r="1.2" fill="currentColor" stroke="none"></circle></svg>
+    </button>
+    <button aria-label="Casella da spuntare" style="width: 38px; height: 44px; display: grid; place-items: center">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px"><rect x="4" y="4" width="16" height="16" rx="4"></rect><path d="m8.4 12.2 2.6 2.6 4.6-5.4"></path></svg>
+    </button>
+    <span style="flex-grow: 1"></span>
+    <button aria-label="Annulla" style="width: 38px; height: 44px; display: grid; place-items: center; color: #5A5045">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px"><path d="M9 7 5 11l4 4"></path><path d="M5 11h9a5 5 0 0 1 0 10h-3"></path></svg>
+    </button>
+    <button aria-label="Riduci la barra" style="width: 34px; height: 44px; display: grid; place-items: center; color: #5A5045">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px; stroke-width: 2"><path d="M9 6l6 6-6 6"></path></svg>
+    </button>
+  </div>
+
+  <main style="flex-grow: 1; min-height: 0; overflow: hidden; padding: 24px 20px 0; display: flex; flex-direction: column">
+    <h1 style="margin: 0; font-size: 28px; line-height: 1.2; font-weight: 700; letter-spacing: -0.015em">Misure e quantità</h1>
+    <div style="display: flex; align-items: center; justify-content: space-between; margin: 2px 0 14px; min-height: 44px">
+      <span style="font-size: 12.5px; color: #5A5045; font-variant-numeric: tabular-nums">Modificato ieri alle 18:40</span>
+      <button aria-label="Sommario, 4 titoli" style="height: 44px; display: flex; align-items: center">
+        <span style="height: 30px; padding: 0 12px; border-radius: 999px; background: #FBF8F1; border: 1px solid #DDD0B6; display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: #82531A; font-variant-numeric: tabular-nums">
+          <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 15px; height: 15px; stroke-width: 2"><path d="M4 7h16M4 12h10M4 17h7"></path></svg>
+          <span>4</span>
+        </span>
+      </button>
+    </div>
+
+    <div style="font-size: 17px; line-height: 1.62; display: flex; flex-direction: column; gap: 12px">
+      <p style="margin: 0">Conteggi del piano primo, da confermare con il direttore dei lavori prima dell'ordine.</p>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px">
+        <h2 style="margin: 0; font-size: 21px; line-height: 1.3; font-weight: 700">Solaio</h2>
+        <button aria-label="Chiudi il paragrafo" style="width: 44px; height: 32px; display: grid; place-items: center; color: #8A7F70">
+          <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px; stroke-width: 2"><path d="m6 9 6 6 6-6"></path></svg>
+        </button>
+      </div>
+
+      <div style="border: 1px solid #DDD0B6; border-radius: 10px; overflow: hidden; background: #FBF8F1; font-size: 15.5px">
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); background: #E9E0CD; font-weight: 600">
+          <span style="padding: 8px 12px">Voce</span>
+          <span style="padding: 8px 12px; text-align: right">Quantità</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid #DDD0B6">
+          <span style="padding: 8px 12px">Superficie</span>
+          <span style="padding: 8px 12px; text-align: right; font-variant-numeric: tabular-nums">84,50 m²</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid #DDD0B6">
+          <span style="padding: 8px 12px">Calcestruzzo</span>
+          <span style="padding: 8px 12px; text-align: right; font-variant-numeric: tabular-nums">16,90 m³</span>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <h2 style="margin: 0; font-size: 21px; line-height: 1.3; font-weight: 700">Da ordinare</h2>
+          <span style="padding: 3px 8px; border-radius: 999px; background: #E9E0CD; font-size: 11.5px; font-weight: 600; color: #5A5045; font-variant-numeric: tabular-nums">1/3</span>
+        </div>
+        <button aria-label="Chiudi il paragrafo" style="width: 44px; height: 32px; display: grid; place-items: center; color: #8A7F70">
+          <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px; stroke-width: 2"><path d="m6 9 6 6 6-6"></path></svg>
+        </button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <label style="display: flex; align-items: flex-start; gap: 12px">
+          <span style="width: 18px; height: 18px; margin-top: 5px; border-radius: 5px; background: #82531A; color: #FFF9EE; display: grid; place-items: center; flex: none">
+            <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 13px; height: 13px; stroke-width: 3"><path d="m6 12.5 4 4 8-9"></path></svg>
+          </span>
+          <span style="color: #5A5045">Massetto alleggerito</span>
+        </label>
+        <label style="display: flex; align-items: flex-start; gap: 12px">
+          <span style="width: 18px; height: 18px; margin-top: 5px; box-sizing: border-box; border-radius: 5px; border: 1.6px solid #5A5045; background: #FBF8F1; flex: none"></span>
+          <span>Ferri del balcone, <strong>entro giovedì</strong></span>
+        </label>
+        <label style="display: flex; align-items: flex-start; gap: 12px">
+          <span style="width: 18px; height: 18px; margin-top: 5px; box-sizing: border-box; border-radius: 5px; border: 1.6px solid #5A5045; background: #FBF8F1; flex: none"></span>
+          <span>Rete elettrosaldata</span>
+        </label>
+      </div>
+
+      <blockquote style="margin: 6px 0 0; padding: 2px 0 2px 16px; border-left: 2px solid #B8863F; color: #5A5045">Verificare lo spessore con il progetto strutturale, tavola 12.</blockquote>
+
+      <p style="margin: 4px 0 0">Vedi anche <a href="#" style="color: #26211B; background: #EED7B0; border-radius: 5px; padding: 1px 6px; text-decoration: none; box-shadow: inset 0 -1px 0 #82531A">Diario di cantiere</a>.</p>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

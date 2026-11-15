@@ -1,6 +1,6 @@
 /* folio - copia per l'uso senza rete. La versione arriva dall'app: non va cambiata a mano. */
-const VERSIONE = 'folio-v8.3';
-const ROBA = ['./', './index.html', './manifest.webmanifest', './icona-192.png', './icona-512.png', './icona-180.png'];
+const VERSIONE = 'folio-v9.0';
+const ROBA = ['./', './index.html', './manifest.webmanifest', './icona.svg', './icona-192.png', './icona-512.png', './icona-maschera-512.png', './icona-mono-512.png', './icona-180.png'];
 
 self.addEventListener('install', e => {
   /* cache:'reload' scavalca la cache del browser: la versione nuova prende davvero i file nuovi */

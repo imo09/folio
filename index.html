@@ -2,14 +2,15 @@
 <html lang="it" data-tema="chiaro">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Yx0vceP6m/ZHHJUbs/7mefYfLQKQi6vzZvy8MWk+1Y0=' 'sha256-fNtzpwdkMDSHzSXi5XUDWaaA6xWQzTU+sbOs3RGj7pc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://api.dropboxapi.com https://content.dropboxapi.com; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'self'; manifest-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Yx0vceP6m/ZHHJUbs/7mefYfLQKQi6vzZvy8MWk+1Y0=' 'sha256-vc20LYKT7mge2JS1/tDl0k/g1hmKWxYrrX4xWLhhcpc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://api.dropboxapi.com https://content.dropboxapi.com; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'self'; manifest-src 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>folio</title>
 <meta name="description" content="Blocco note semplice. Le pagine restano sul tuo dispositivo.">
-<meta name="theme-color" content="#F6F0E3">
+<meta name="theme-color" content="#F2EBDC">
 <meta name="color-scheme" content="light dark">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icona-192.png">
+<link rel="icon" href="icona.svg" type="image/svg+xml">
+<link rel="icon" href="icona-192.png" type="image/png" sizes="192x192">
 <link rel="apple-touch-icon" href="icona-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="folio">
@@ -20,9 +21,11 @@
   --carta:#F2EBDC; --superficie:#FBF8F1; --superficie-2:#E9E0CD; --fascia:#E5D9C1;
   --inchiostro:#26211B; --tenue:#5A5045; --bordo:#CEBFA2;
   --ottone:#82531A; --ottone-tenue:#EED7B0; --allarme:#8E3B31;
+  --ottone-vivo:#B8863F; --filo:#DDD0B6; --su-ottone:#FFF9EE;
   --grigio:#E2DCD0;
   --raggio:10px; --ombra:0 1px 2px rgba(60,48,30,.07);
-  --corpo:var(--sans); --corpo-px:17px; --colonna:640px; --barra:54px;
+  --galleggia:0 1px 2px rgba(60,48,30,.06), 0 6px 18px rgba(60,48,30,.08);
+  --corpo:var(--sans); --corpo-px:17px; --colonna:640px; --barra:56px;
   --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
   --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
@@ -32,9 +35,11 @@
 html[data-tema="scuro"]{
   --carta:#1B1815; --superficie:#24201A; --superficie-2:#332D24; --fascia:#352E24;
   --inchiostro:#F1E8D7; --tenue:#B5AA9A; --bordo:#4A4134;
-  --ottone:#E0B26C; --ottone-tenue:#4A3A22; --allarme:#E39486;
+  --ottone:#E8A867; --ottone-tenue:#4A3A22; --allarme:#E39486;
+  --ottone-vivo:#E8A867; --filo:#3A332A; --su-ottone:#1B1815;
   --grigio:#3A342B;
   --ombra:0 1px 2px rgba(0,0,0,.3);
+  --galleggia:0 1px 2px rgba(0,0,0,.25), 0 8px 22px rgba(0,0,0,.35);
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -50,9 +55,11 @@ button,input,select,textarea{font:inherit;color:inherit}
 button{background:none;border:0;cursor:pointer;padding:0}
 :focus-visible{outline:2px solid var(--ottone);outline-offset:2px;border-radius:4px}
 .nascosto{display:none !important}
-.ico{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:var(--tenue);flex:none}
+.ico{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;color:var(--tenue);flex:none}
 .ico:hover{background:var(--superficie-2);color:var(--inchiostro)}
-.ico svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ico svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+svg.parola{display:block;height:19px;width:auto;fill:var(--inchiostro)}
+svg.parola .punto-parola{fill:var(--ottone-vivo)}
 .ico.accesa{background:var(--ottone-tenue);color:var(--inchiostro)}
 
 /* ---------- splash iniziale ---------- */
@@ -61,22 +68,15 @@ button{background:none;border:0;cursor:pointer;padding:0}
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
   transition:opacity .45s ease-out;
 }
-/* il logo si compone come scritto a mano: la f si traccia dall'alto, poi il taglio, poi il punto */
-#splash svg{width:82px;height:82px;animation:sboccia .6s cubic-bezier(.2,.8,.2,1) both}
-#splash .s-asta{stroke-dasharray:100 100;animation:traccia .75s .28s cubic-bezier(.55,0,.3,1) both}
-#splash .s-taglio{transform-box:fill-box;transform-origin:left center;animation:taglio .3s .9s cubic-bezier(.3,.7,.2,1) both}
-#splash .s-punto{transform-box:fill-box;transform-origin:center;animation:goccia .45s 1.08s cubic-bezier(.3,1.6,.5,1) both}
-#splash b{font-size:25px;font-weight:600;letter-spacing:.06em;display:inline-flex;align-items:baseline}
-#splash .s-parola{display:inline-block;animation:affiora .55s .62s cubic-bezier(.2,.8,.2,1) both}
-#splash .punto{
-  display:inline-block;vertical-align:baseline;width:8px;height:8px;border-radius:50%;
-  background:var(--ottone);margin-left:2px;animation:goccia .45s 1.22s cubic-bezier(.3,1.6,.5,1) both;
-}
-#splash .tocca{
-  position:absolute;bottom:16vh;font-size:12.5px;letter-spacing:.06em;color:var(--tenue);
-  animation:respiro 1.8s 1.3s ease-in-out infinite both;
-}
-@keyframes respiro{0%,100%{opacity:.35}50%{opacity:.9}}
+/* il segno si compone come scritto a mano: l'asta si traccia, il taglio si allunga, il punto cade; poi il nome */
+#splash .s-segno{width:88px;height:88px;animation:sboccia .6s cubic-bezier(.2,.8,.2,1) both}
+#splash .s-asta{stroke-dasharray:100 100;animation:traccia .7s .25s cubic-bezier(.55,0,.3,1) both}
+#splash .s-taglio{transform-box:fill-box;transform-origin:left center;animation:taglio .28s .8s cubic-bezier(.3,.7,.2,1) both}
+#splash .s-punto{transform-box:fill-box;transform-origin:center;animation:goccia .42s .98s cubic-bezier(.3,1.6,.5,1) both}
+#splash .s-parola{display:block;animation:affiora .5s .55s cubic-bezier(.2,.8,.2,1) both}
+#splash .s-parola svg{height:30px}
+#splash .firma{position:absolute;bottom:calc(10vh + env(safe-area-inset-bottom,0px));font-size:12.5px;letter-spacing:.04em;color:var(--tenue);animation:affiora .5s 1.05s ease-out both}
+#splash .firma b{color:var(--inchiostro);font-weight:700}
 #splash.via{opacity:0;pointer-events:none}
 @keyframes sboccia{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
 @keyframes traccia{0%{stroke-dashoffset:-100;opacity:0}8%{opacity:1}100%{stroke-dashoffset:0;opacity:1}}
@@ -87,30 +87,26 @@ button{background:none;border:0;cursor:pointer;padding:0}
 
 /* ---------- barra in alto, sempre presente ---------- */
 #barra{
-  height:var(--barra);display:flex;align-items:center;gap:4px;padding:0 10px;flex:none;
-  border-bottom:1px solid var(--bordo);background:var(--carta);
-  position:relative;z-index:20;transition:background .18s;
+  height:var(--barra);display:flex;align-items:center;gap:2px;padding:0 6px 0 10px;flex:none;
+  background:var(--carta);position:relative;z-index:20;transition:background .18s,box-shadow .18s;
 }
+/* la riga sotto la barra compare solo quando sotto qualcosa è scorso */
+#barra.scorsa{box-shadow:0 1px 0 var(--filo)}
 #marchio{flex:none;pointer-events:none}
 body[data-modo="selezione"] #barra{background:var(--ottone-tenue)}
 body[data-modo="cestino"] #barra{background:var(--grigio)}
 #marchio{display:flex;align-items:center;gap:8px;min-width:0}
 /* tra logo e nome lo stesso vuoto che c'è tra il bordo dello schermo e il logo (10 + 4 px) */
-#logo{width:26px;height:26px;flex:none;display:block;margin:0 10px 0 4px}
-#marchio b{font-size:18px;font-weight:600;letter-spacing:.05em}
-#marchio b{display:inline-flex;align-items:baseline}
-#marchio .punto{
-  display:inline-block;vertical-align:baseline;width:6px;height:6px;border-radius:50%;
-  background:var(--ottone);margin-left:1px;flex:none;
-}
-#percorso{display:none;flex:1;min-width:0;font-size:13.5px;color:var(--tenue);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left:8px;padding-left:10px;border-left:1px solid var(--bordo)}
+#logo{width:28px;height:28px;flex:none;display:block;margin:0 10px 0 6px}
+html[data-tema="scuro"] #logo .fondo-logo,html[data-tema="scuro"] #splash .s-fondo{fill:#332D24}
+#percorso{display:none;flex:1;min-width:0;font-size:13px;color:var(--tenue);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left:4px}
 .cresce{flex:1;min-width:0}
 #lato,#principale{min-width:0}
 body[data-modo="ricerca"] #barra > .cresce{display:none}
 #cerca::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none}
 #cerca{
   flex:1;min-width:0;background:var(--superficie);border:1px solid var(--bordo);
-  border-radius:9px;padding:8px 11px;font-size:15px;
+  border-radius:10px;padding:9px 12px;font-size:15px;
 }
 #contaSel{font-size:14px;font-weight:600;padding:0 6px;white-space:nowrap}
 .segmenti{display:flex;background:var(--superficie);border:1px solid var(--bordo);border-radius:9px;padding:2px;flex:none}
@@ -127,68 +123,65 @@ body[data-modo="ricerca"] #barra > .cresce{display:none}
 @keyframes giro{from{transform:rotate(-140deg)}to{transform:rotate(0)}}
 
 /* ---------- impianto ---------- */
-#app{display:grid;grid-template-columns:306px minmax(0,1fr);flex:1;min-height:0}
-#lato{border-right:1px solid var(--bordo);background:var(--superficie);display:flex;flex-direction:column;min-height:0}
-#principale{display:flex;flex-direction:column;min-height:0;position:relative}
+#app{display:grid;grid-template-columns:320px minmax(0,1fr);flex:1;min-height:0}
+#lato{border-right:1px solid var(--filo);background:var(--superficie);display:flex;flex-direction:column;min-height:0;position:relative}
+#principale{display:flex;flex-direction:column;min-height:0;position:relative;background:var(--carta)}
 body[data-modo="cestino"] #app{display:block}
 body[data-modo="cestino"] #lato,body[data-modo="cestino"] #principale{display:none}
 #cestino{height:100%;overflow:auto}
 
 /* ---------- riga del quaderno ---------- */
-#capQuaderno{display:flex;align-items:center;gap:2px;padding:10px 8px 8px 14px;border-bottom:1px solid var(--bordo)}
+#capQuaderno{display:flex;align-items:flex-start;gap:2px;padding:8px 6px 12px 16px}
+.testata-q{display:flex;flex-direction:column;min-width:0;flex:0 1 auto}
 #nomeQuaderno{
-  display:flex;align-items:center;gap:6px;min-width:0;font-size:16.5px;font-weight:600;
-  padding:3px 6px 3px 0;border-radius:8px;
+  display:flex;align-items:center;gap:6px;min-width:0;min-height:44px;font-size:22px;font-weight:700;
+  letter-spacing:-.01em;padding:0 6px 0 0;border-radius:8px;text-align:left;
 }
 #nomeQuaderno .testo{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#nomeQuaderno svg{width:14px;height:14px;flex:none;fill:none;stroke:var(--tenue);stroke-width:2}
-.conteggi{display:flex;gap:9px;align-items:center;margin-left:8px;color:var(--tenue);font-size:12.5px}
-.conteggi span{display:flex;align-items:center;gap:3px;font-variant-numeric:tabular-nums}
-.conteggi svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+#nomeQuaderno svg{width:16px;height:16px;flex:none;fill:none;stroke:var(--tenue);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.conteggi{color:var(--tenue);font-size:13px;font-variant-numeric:tabular-nums;margin-top:-2px}
 
-/* ---------- albero ---------- */
-#albero{flex:1;overflow:auto;padding:6px 8px 10px;min-height:0;position:relative}
-.sezione{margin-bottom:4px}
+/* ---------- albero (9.0): niente fasce piene, icone in tessere tonde, voci su due righe ---------- */
+#albero{flex:1;overflow:auto;padding:0 8px 104px;min-height:0;position:relative}
+.sezione{margin:0}
+.sezione + .sezione{border-top:1px solid var(--filo);margin-top:6px;padding-top:6px}
 .cap-sezione{
-  display:flex;align-items:center;gap:4px;width:100%;padding:4px 4px 4px 9px;border-radius:9px;
-  background:var(--fascia);color:var(--tenue);min-height:44px;
+  display:flex;align-items:center;gap:2px;width:100%;padding:0 0 0 8px;border-radius:10px;
+  background:none;color:var(--inchiostro);min-height:48px;
 }
 .cap-sezione .apri{
-  display:flex;align-items:center;gap:7px;flex:1;min-width:0;text-align:left;padding:6px 2px;
-  font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:inherit;
+  display:flex;align-items:center;gap:10px;flex:1;min-width:0;text-align:left;min-height:48px;
+  font-size:15px;font-weight:600;color:inherit;
 }
-.cap-sezione .apri:hover .nome{text-decoration:underline;text-underline-offset:3px}
-.cap-sezione .nome{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cap-sezione .linguetta{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
-.cap-sezione .mini{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;color:var(--tenue);flex:none}
-.cap-sezione .mini:hover{background:var(--superficie);color:var(--inchiostro)}
+.cap-sezione .nome{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tondo-gruppo{width:32px;height:32px;border-radius:50%;background:var(--ottone-tenue);color:var(--ottone);display:grid;place-items:center;flex:none}
+.tondo-gruppo svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round}
+.cap-sezione .linguetta{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round}
+.stato-gruppo{display:grid;place-items:center;color:var(--tenue);flex:none}
+.stato-gruppo svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cap-sezione .mini{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;color:var(--tenue);flex:none}
+.cap-sezione .mini:hover{background:var(--superficie-2);color:var(--inchiostro)}
 .mini.piu,.ico.piu{background:var(--ottone-tenue);color:var(--ottone)}
-.mini.piu:hover,.ico.piu:hover{background:var(--ottone);color:var(--carta)}
-html[data-tema="scuro"] .mini.piu:hover,html[data-tema="scuro"] .ico.piu:hover{color:#1C1917}
 .mini.piu svg,.ico.piu svg{stroke-width:2.2}
-/* il più è pieno in entrambi i temi: si vede su ogni fondo */
-html[data-tema="chiaro"] .mini.piu,html[data-tema="chiaro"] .ico.piu{background:var(--ottone);color:#FFF9EE}
-html[data-tema="chiaro"] .mini.piu:hover,html[data-tema="chiaro"] .ico.piu:hover{background:#6E4513;color:#FFF9EE}
-html[data-tema="scuro"] .mini.piu,html[data-tema="scuro"] .ico.piu{background:var(--ottone);color:#1B1815}
-html[data-tema="scuro"] .mini.piu:hover,html[data-tema="scuro"] .ico.piu:hover{background:#F0C686;color:#1B1815}
-/* il più dei Gruppi è il negativo di quello del Quaderno: solo bordo e segno, senza riempimento */
-html[data-tema] .cap-sezione .mini.piu{background:transparent;color:var(--ottone);box-shadow:inset 0 0 0 1.6px var(--ottone)}
-html[data-tema] .cap-sezione .mini.piu:hover{background:var(--ottone-tenue);color:var(--ottone)}
-.cap-sezione .mini svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+/* il più del Gruppo: solo il segno, in ottone */
+html[data-tema] .cap-sezione .mini.piu{background:transparent;color:var(--ottone);box-shadow:none}
+html[data-tema] .cap-sezione .mini.piu:hover{background:var(--ottone-tenue)}
+.cap-sezione .mini svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .sezione.chiusa .fogli{display:none}
-.conta{font-variant-numeric:tabular-nums;opacity:.7;font-weight:600}
-.fogli{display:flex;flex-direction:column;gap:1px;margin:3px 0 0 13px;padding-left:9px;border-left:1px solid var(--bordo)}
+.conta{font-variant-numeric:tabular-nums;color:var(--tenue);font-weight:400;font-size:13px}
+.fogli{display:flex;flex-direction:column;gap:2px;margin:2px 0 4px}
 .voce{
-  display:flex;align-items:flex-start;gap:8px;width:100%;text-align:left;
-  padding:7px 9px;border-radius:8px;font-size:14.5px;color:var(--inchiostro);
+  display:flex;align-items:center;gap:8px;width:100%;text-align:left;position:relative;
+  padding:9px 2px 9px 16px;border-radius:10px;font-size:15px;color:var(--inchiostro);min-height:48px;
 }
 .voce:hover{background:var(--superficie-2)}
 .voce.attiva{background:var(--ottone-tenue);font-weight:600}
+.voce.attiva::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:2px;background:var(--ottone-vivo)}
 .voce .tit{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .voce .lucchetto{width:13px;height:13px;fill:none;stroke:var(--tenue);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-1px;margin-right:5px}
-.voce .frammento{display:block;font-size:12.5px;color:var(--tenue);font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.voce .frammento{display:block;font-size:12.5px;color:var(--tenue);font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
 .spunto{
-  width:17px;height:17px;flex:none;margin-top:2px;border:1.6px solid var(--tenue);border-radius:5px;
+  width:18px;height:18px;flex:none;border:1.6px solid var(--tenue);border-radius:5px;
   display:grid;place-items:center;background:var(--superficie);
 }
 .spunto.segnato{background:var(--ottone);border-color:var(--ottone)}
@@ -197,26 +190,41 @@ html[data-tema] .cap-sezione .mini.piu:hover{background:var(--ottone-tenue);colo
   transform:rotate(-45deg) translate(1px,-1px);
 }
 .stella{
-  width:26px;height:26px;border-radius:7px;display:grid;place-items:center;flex:none;
-  color:var(--tenue);opacity:.5;margin-top:-2px;
+  width:40px;height:40px;border-radius:10px;display:grid;place-items:center;flex:none;
+  color:var(--tenue);opacity:.6;
 }
 .stella:hover{opacity:1;background:var(--superficie)}
 .stella.piena{opacity:1;color:var(--ottone)}
-.stella svg{width:16px;height:16px;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round;fill:none}
+.stella svg{width:17px;height:17px;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round;fill:none}
 .stella.piena svg{fill:currentColor}
-.sezione.preferiti .cap-sezione{background:var(--ottone-tenue);color:var(--ottone)}
-.sezione.preferiti .fogli{border-left-color:var(--ottone)}
-.voce .dove{display:block;font-size:12px;color:var(--tenue);font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sezione.preferiti .tondo-gruppo svg{fill:currentColor}
+.voce .dove{display:block;font-size:12.5px;color:var(--tenue);font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vuoto-gruppo{font-style:italic;padding:4px 16px 10px !important;font-size:13.5px !important}
+.nuovo-gruppo{
+  margin:16px 8px 0;width:calc(100% - 16px);height:44px;border:1px solid var(--bordo);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ottone);font-weight:600;font-size:14px;
+}
+.nuovo-gruppo:hover{background:var(--superficie-2)}
+.nuovo-gruppo svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+/* il pulsante più, tondo e pieno, crea un Foglio */
+.fab{
+  position:absolute;right:18px;bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:6;
+  width:56px;height:56px;border-radius:50%;background:var(--ottone);color:var(--su-ottone);
+  display:grid;place-items:center;box-shadow:0 1px 2px rgba(60,48,30,.12),0 8px 20px rgba(60,48,30,.22);
+  transition:transform .15s;
+}
+.fab:hover{filter:brightness(1.06)}
+.fab:active{transform:scale(.95)}
+.fab svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
 .vuoto{padding:18px 12px;color:var(--tenue);font-size:14px;line-height:1.55}
-.pie-lato{display:flex;gap:6px;align-items:center;padding:10px 12px;border-top:1px solid var(--bordo)}
+.pie-lato{display:flex;gap:6px;align-items:center;padding:10px 12px;border-top:1px solid var(--filo)}
 .primaria{
   flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
-  background:var(--ottone);color:#FFF9EE;border-radius:9px;padding:9px 12px;font-weight:600;font-size:14.5px;
+  background:var(--ottone);color:var(--su-ottone);border-radius:10px;padding:9px 12px;font-weight:600;font-size:14.5px;
 }
-html[data-tema="scuro"] .primaria{color:#1C1917}
 .primaria:hover{filter:brightness(1.06)}
 .primaria svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
-.piccolo{border:1px solid var(--bordo);border-radius:8px;padding:8px 10px;font-size:13.5px;background:var(--carta);flex:none}
+.piccolo{border:1px solid var(--bordo);border-radius:8px;padding:8px 12px;font-size:13.5px;background:var(--carta);flex:none;min-height:36px}
 .piccolo:hover{background:var(--superficie-2)}
 .piccolo.rischio{color:var(--allarme)}
 
@@ -235,34 +243,43 @@ html[data-tema="scuro"] .primaria{color:#1C1917}
 #maniglie{position:absolute;inset:0;pointer-events:none;z-index:4}
 .maniglia{
   position:absolute;pointer-events:auto;touch-action:none;cursor:grab;display:grid;place-items:center;
-  background:var(--ottone);color:#FFF9EE;border-radius:6px;box-shadow:0 1px 4px rgba(40,30,15,.25);
+  background:var(--ottone);color:var(--su-ottone);border-radius:6px;box-shadow:0 1px 4px rgba(40,30,15,.25);
 }
 .maniglia.riga{width:16px;height:26px}
 .maniglia.colonna{width:26px;height:16px}
 .maniglia svg{width:12px;height:12px;fill:currentColor}
-html[data-tema="scuro"] .maniglia{color:#1C1917}
 .linea-posto{position:absolute;background:var(--ottone);border-radius:2px;pointer-events:none}
 #corpo .in-spostamento,#corpo .in-spostamento td,#corpo .in-spostamento th{background:var(--ottone-tenue)}
-#titolo{width:100%;border:0;background:none;font:600 29px/1.25 var(--corpo);margin-bottom:2px;padding:0}
+#titolo{width:100%;border:0;background:none;font:700 28px/1.2 var(--corpo);letter-spacing:-.015em;margin-bottom:0;padding:0}
 #titolo::placeholder{color:var(--tenue);opacity:.55}
-.meta{font-size:12.5px;color:var(--tenue);margin-bottom:18px}
-/* sommario: fermo sotto la barra in alto, il Foglio scorre sotto */
+.riga-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 14px;min-height:44px}
+.meta{font-size:12.5px;color:var(--tenue);font-variant-numeric:tabular-nums;min-width:0}
+/* la pillola del sommario: il numero dei titoli, apre l'elenco */
+.pillola-som{
+  height:32px;padding:0 12px;border-radius:999px;background:var(--superficie);border:1px solid var(--filo);
+  display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--ottone);flex:none;font-variant-numeric:tabular-nums;
+}
+.pillola-som:hover,.pillola-som[aria-expanded="true"]{background:var(--ottone-tenue)}
+.pillola-som svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.fascia-peso{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 16px;padding:10px 12px;border-radius:10px;background:var(--ottone-tenue);font-size:13.5px}
+.fascia-peso span{flex:1 1 200px}
+/* sommario su computer: un riquadro sopra il Foglio, a destra, che si apre dalla pillola */
 #sommario{
-  flex:none;order:-1;z-index:7;margin:8px auto 0;width:calc(100% - 16px);max-width:var(--colonna);
-  padding:3px 4px 3px 12px;border:1px solid var(--bordo);border-radius:12px;background:var(--superficie);box-shadow:var(--ombra);
+  position:absolute;top:70px;right:16px;z-index:9;width:300px;max-height:60vh;overflow:auto;
+  padding:4px 6px 10px 14px;border:1px solid var(--filo);border-radius:12px;background:var(--superficie);box-shadow:var(--galleggia);
 }
-#sommario .capo{display:flex;align-items:center;gap:2px;min-height:34px}
-#sommario .apri-som{
-  flex:1;min-width:0;display:flex;align-items:center;gap:7px;text-align:left;font-size:11.5px;font-weight:700;
-  letter-spacing:.06em;text-transform:uppercase;color:var(--tenue);padding:6px 0;
-}
-#sommario .apri-som svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;flex:none}
-#sommario .apri-som .conta{font-size:11.5px}
-#sommario .mini{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;color:var(--tenue);flex:none}
+#sommario .capo{display:flex;align-items:center;gap:2px;min-height:40px}
+#sommario .titolo-som{flex:1;font-size:13px;font-weight:600;color:var(--tenue)}
+#sommario .mini,.scheda .mini{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;color:var(--tenue);flex:none}
 #sommario .mini:hover{background:var(--superficie-2);color:var(--inchiostro)}
-#sommario .mini svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-#sommario ol{list-style:none;margin:2px 0 8px;padding:0 8px 0 0;display:flex;flex-direction:column;gap:2px;max-height:38vh;overflow:auto}
-#sommario button.voce-som.chiusa::after{content:" \203A";color:var(--ottone)}
+#sommario .mini svg,.scheda .bott svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.elenco-som{list-style:none;margin:2px 0 4px;padding:0 8px 0 0;display:flex;flex-direction:column;gap:2px}
+.elenco-som li{margin:0}
+button.voce-som{display:block;width:100%;text-align:left;font-size:15px;color:var(--inchiostro);padding:7px 0;line-height:1.35;border-bottom:1px solid transparent}
+button.voce-som:hover{color:var(--ottone)}
+button.voce-som.liv2{padding-left:16px;font-size:14px;color:var(--tenue)}
+button.voce-som.liv3{padding-left:32px;font-size:13.5px;color:var(--tenue)}
+button.voce-som.chiusa::after{content:" \203A";color:var(--ottone)}
 /* paragrafi pieghevoli: la freccia sta all'estremo destro della riga del titolo */
 :is(#corpo,#corpo>.tessera)>h1,:is(#corpo,#corpo>.tessera)>h2,:is(#corpo,#corpo>.tessera)>h3{position:relative;padding-right:34px}
 :is(#corpo,#corpo>.tessera)>h1::before,:is(#corpo,#corpo>.tessera)>h2::before,:is(#corpo,#corpo>.tessera)>h3::before{
@@ -282,24 +299,20 @@ html[data-tema="scuro"] .maniglia{color:#1C1917}
 #corpo [data-conta="\2713"]::after{color:var(--carta);background:var(--ottone)}
 /* tessere: schede larghe quanto il Foglio, con la presa in alto al centro; fra l'una e l'altra uno spazio */
 #corpo[data-tessere]>.tessera{
-  position:relative;margin:0 0 12px;padding:20px 16px 14px;border:1px solid var(--bordo);border-radius:12px;
-  background:var(--superficie);box-shadow:0 1px 3px rgba(40,30,15,.06);
+  position:relative;margin:0 0 12px;padding:22px 16px 14px;border:1px solid var(--filo);border-radius:12px;
+  background:var(--superficie);
 }
 #corpo[data-tessere]>.tessera>*:last-child{margin-bottom:0}
 #corpo[data-tessere]>.tessera::before{
-  content:"";position:absolute;top:8px;left:50%;width:30px;height:4px;margin-left:-15px;border-radius:2px;
+  content:"";position:absolute;top:8px;left:50%;width:36px;height:4px;margin-left:-18px;border-radius:2px;
   background:var(--bordo);cursor:grab;
 }
-#corpo[data-tessere]>.tessera:hover::before{background:var(--tenue)}
-#corpo[data-tessere]>.tessera.in-volo{opacity:.45}
-#sommario li{margin:0}
-#sommario button.voce-som{
-  text-align:left;font-size:14px;color:var(--inchiostro);padding:3px 0;line-height:1.4;
-  border-bottom:1px solid transparent;
+#corpo[data-tessere]>.tessera:hover::before{background:var(--ottone-vivo)}
+/* diario: la data in testa alla tessera è piccola e tenue, a cifre allineate (solo stile, nel file resta in grassetto) */
+#corpo[data-diario]>.tessera>p:first-child>strong:only-child,#corpo[data-diario]>.tessera>p:first-child>b:only-child{
+  font:600 12.5px/1.5 var(--sans);letter-spacing:.02em;color:var(--tenue);font-variant-numeric:tabular-nums;
 }
-#sommario button.voce-som:hover{border-bottom-color:var(--ottone);color:var(--ottone)}
-#sommario button.voce-som.liv2{padding-left:16px;font-size:13.5px;color:var(--tenue)}
-#sommario button.voce-som.liv3{padding-left:32px;font-size:13px;color:var(--tenue)}
+#corpo[data-tessere]>.tessera.in-volo{opacity:.45}
 
 #corpo{font:var(--corpo-px)/1.62 var(--corpo);outline:none;min-height:46vh;position:relative}
 #corpo:not([data-tessere])[data-vuoto="1"]:not(:focus)>*:first-child::before{
@@ -315,9 +328,9 @@ html[data-tema="scuro"] .maniglia{color:#1C1917}
 
 /* ---------- barra strumenti: in alto, sopra la tastiera, o libera ---------- */
 #strumenti{
-  z-index:6;flex:none;order:0;margin:8px auto 0;width:calc(100% - 16px);max-width:var(--colonna);
-  background:var(--superficie);border:1px solid var(--bordo);border-radius:12px;
-  box-shadow:var(--ombra);display:flex;flex-direction:column;gap:4px;padding:5px;
+  z-index:6;flex:none;order:0;margin:4px auto 0;width:calc(100% - 24px);max-width:var(--colonna);
+  background:var(--superficie);border:0;border-radius:12px;
+  box-shadow:var(--galleggia);display:flex;flex-direction:column;gap:4px;padding:4px;
 }
 .riga-barra{display:flex;align-items:center;gap:2px;min-width:0}
 /* barra dell'immagine: sopra quella del testo, separata da una riga sottile */
@@ -336,23 +349,23 @@ html[data-tema="scuro"] .maniglia{color:#1C1917}
 #strumenti[data-pos="libera"] #bAvvolgi{touch-action:none;cursor:grab}
 #strumenti.in-volo{opacity:.9;cursor:grabbing}
 #strumenti.calamita{transition:left .3s cubic-bezier(.3,1.35,.5,1),top .25s ease-out}
-.avvolgi{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;flex:none;color:var(--tenue)}
+.avvolgi{width:34px;height:38px;border-radius:8px;display:grid;place-items:center;flex:none;color:var(--tenue)}
 .avvolgi:hover{background:var(--superficie-2);color:var(--inchiostro)}
 .avvolgi svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;transition:transform .18s}
 .avvolgi[data-verso="sinistra"] svg{transform:rotate(180deg)}
 #strumenti.arrotolata .attrezzi,#strumenti.arrotolata .fisso{display:none}
-#strumenti.arrotolata{width:42px;margin-left:auto;margin-right:8px}
+#strumenti.arrotolata{width:44px;margin-left:auto;margin-right:12px}
 #strumenti.arrotolata:not([data-pos="libera"]){position:absolute;right:8px;margin:0;z-index:8;box-shadow:0 4px 14px rgba(40,30,15,.18)}
 #strumenti.arrotolata[data-pos="tastiera"]{top:auto;bottom:calc(8px + env(safe-area-inset-bottom,0px))}
 #strumenti[data-pos="libera"].arrotolata{margin:0}
 .attrezzi{display:flex;align-items:center;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
 .attrezzi::-webkit-scrollbar{display:none}
-.att{min-width:32px;height:30px;padding:0 7px;border-radius:7px;display:grid;place-items:center;color:var(--inchiostro);font-size:14px;flex:none}
+.att{min-width:36px;height:38px;padding:0 7px;border-radius:8px;display:grid;place-items:center;color:var(--inchiostro);font-size:14px;font-weight:600;flex:none}
 .att:hover{background:var(--superficie-2)}
-.att.accesa{background:var(--ottone-tenue);color:var(--inchiostro);box-shadow:inset 0 0 0 1px var(--ottone)}
-.att svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.att.accesa{background:var(--ottone-tenue);color:var(--inchiostro)}
+.att svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .att b{font-weight:700}.att i{font-family:var(--serif)}.att s{opacity:.9}
-.sep{width:1px;height:18px;background:var(--bordo);margin:0 4px;flex:none;align-self:center}
+.sep{width:1px;height:20px;background:var(--filo);margin:0 4px;flex:none;align-self:center}
 /* barra tenuta premuta: si stacca, si trascina; la linea mostra dove si aggancerà */
 #strumenti.sganciata{transform:scale(1.03);box-shadow:0 12px 30px rgba(40,30,15,.28);transition:transform .15s}
 #strumenti{-webkit-touch-callout:none;user-select:none}
@@ -446,7 +459,7 @@ html[data-tema="scuro"] .maniglia{color:#1C1917}
 
 .rimandi{max-width:var(--colonna);margin:0 auto;padding:14px 22px 0;border-top:1px solid var(--bordo);font-size:13.5px;color:var(--tenue)}
 .rimandi a{color:var(--ottone);cursor:pointer;text-decoration:none;border-bottom:1px solid var(--bordo)}
-.rimandi span+span::before{content:" - "}
+.rimandi span+span+span::before{content:" - "}
 
 /* ---------- riordino dei Gruppi ---------- */
 body[data-modo="riordino"] #barra{background:var(--ottone-tenue)}
@@ -496,41 +509,49 @@ html[data-tema="scuro"] .maniglia-gruppo{color:#1C1917}
 .riga-cestino svg{width:16px;height:16px;flex:none;fill:none;stroke:var(--tenue);stroke-width:1.8;stroke-linejoin:round}
 
 /* ---------- pannelli, dialoghi, menu ---------- */
-.velo{position:fixed;inset:0;background:rgba(30,24,14,.32);display:grid;place-items:center;z-index:40;padding:16px;backdrop-filter:blur(1.5px)}
+.velo{position:fixed;inset:0;background:rgba(30,24,14,.34);display:grid;place-items:center;z-index:40;padding:16px;animation:velo .18s ease-out}
+@keyframes velo{from{opacity:0}}
 .scheda{
-  background:var(--superficie);border:1px solid var(--bordo);border-radius:14px;width:min(460px,100%);
-  max-height:86dvh;display:flex;flex-direction:column;box-shadow:0 12px 34px rgba(40,30,15,.2);overflow:hidden;
+  background:var(--superficie);border:1px solid var(--filo);border-radius:16px;width:min(480px,100%);
+  max-height:86dvh;display:flex;flex-direction:column;box-shadow:0 14px 40px rgba(40,30,15,.22);overflow:hidden;
 }
-.scheda h2{margin:0;padding:16px 18px 6px;font-size:16.5px;font-weight:600}
+.presa-foglio{display:none}
+.scheda h2{margin:0;padding:18px 20px 6px;font-size:20px;font-weight:700;letter-spacing:-.01em}
 .scheda h3{
-  margin:18px 0 2px;font-size:11.5px;font-weight:700;letter-spacing:.07em;
-  text-transform:uppercase;color:var(--tenue);
+  margin:18px 0 2px;font-size:13px;font-weight:600;color:var(--inchiostro);
 }
 .scheda h3:first-child{margin-top:4px}
-.versione{margin:22px 0 2px;text-align:center;font-size:12px;color:var(--tenue);letter-spacing:.03em}
+.versione{margin:22px 0 2px;text-align:center;font-size:12px;color:var(--tenue);letter-spacing:.03em;display:flex;align-items:center;justify-content:center;gap:6px}
+.versione svg.parola{height:13px}
 .versione b{font-weight:600;color:var(--inchiostro)}
 .riga-imp{display:flex;align-items:center;gap:10px;padding:10px 0}
 /* impostazioni: ogni sezione in un riquadro a fondo tenue */
-.blocco-imp{background:color-mix(in srgb, var(--fascia) 55%, var(--superficie));border-radius:12px;padding:2px 14px 8px;margin:0 0 12px}
-.blocco-imp h3,.scheda .blocco-imp h3:first-child{margin:12px 0 0}
-.blocco-imp .opz,.blocco-imp .piccolo,.blocco-imp .avvertenza{background:var(--superficie)}
+/* impostazioni: ogni sezione è una scheda chiara su fondo carta; le scelte sono segmenti */
+.scheda.impostazioni{background:var(--carta)}
+.scheda.impostazioni .pie{background:var(--carta)}
+.blocco-imp{background:var(--superficie);border:1px solid var(--filo);border-radius:12px;padding:2px 14px 10px;margin:0 0 12px}
+.blocco-imp h3,.scheda .blocco-imp h3:first-child{margin:14px 0 2px}
+.blocco-imp .piccolo,.blocco-imp .avvertenza{background:var(--carta)}
+.blocco-imp .gruppo{background:var(--carta);border:1px solid var(--filo);border-radius:10px;padding:3px;gap:3px}
+.blocco-imp .gruppo .opz{flex:1 1 auto;border:0;background:none;border-radius:8px;text-align:center;padding:8px 8px;color:var(--tenue);font-size:13.5px}
+.blocco-imp .gruppo .opz.scelta{background:var(--superficie);color:var(--inchiostro);box-shadow:0 1px 2px rgba(40,30,15,.12)}
 .blocco-imp .campo{margin:10px 0 6px}
 .riga-imp .dati{flex:1;min-width:0}
 .riga-imp .dati small{display:block;color:var(--tenue);font-size:12.5px}
 .nota-campo{display:block;color:var(--tenue);font-size:12.5px;line-height:1.45;margin-top:7px}
-.scheda .corpo-scheda{padding:6px 18px 16px;overflow:auto}
-.scheda .pie{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--bordo);flex-wrap:wrap}
-.bott{border:1px solid var(--bordo);border-radius:8px;padding:8px 14px;font-size:14.5px;background:var(--carta)}
+.scheda .corpo-scheda{overflow:auto}
+.scheda .corpo-scheda{padding:6px 20px 16px}
+.scheda .pie{display:flex;gap:8px;justify-content:flex-end;padding:12px 20px;border-top:1px solid var(--filo);flex-wrap:wrap}
+.bott{border:1px solid var(--bordo);border-radius:10px;padding:9px 16px;font-size:14.5px;font-weight:600;background:var(--carta);min-height:42px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
 .bott:hover{background:var(--superficie-2)}
-.bott.pieno{background:var(--ottone);border-color:var(--ottone);color:#FFF9EE;font-weight:600}
-html[data-tema="scuro"] .bott.pieno{color:#1C1917}
+.bott.pieno{background:var(--ottone);border-color:var(--ottone);color:var(--su-ottone)}
 .bott.rischio{color:var(--allarme)}
 .campo{display:block;margin:12px 0}
 .errore{color:var(--allarme);font-size:13.5px;margin:2px 0 0}
 .campo span{display:block;font-size:13px;color:var(--tenue);margin-bottom:5px}
-.campo input,.campo select,.campo textarea{width:100%;background:var(--carta);border:1px solid var(--bordo);border-radius:8px;padding:9px 11px}
+.campo input,.campo select,.campo textarea{width:100%;background:var(--carta);border:1px solid var(--bordo);border-radius:10px;padding:10px 12px}
 .gruppo{display:flex;gap:6px;flex-wrap:wrap}
-.opz{border:1px solid var(--bordo);border-radius:8px;padding:8px 12px;background:var(--carta);font-size:14px;text-align:left}
+.opz{border:1px solid var(--bordo);border-radius:10px;padding:8px 12px;background:var(--carta);font-size:14px;text-align:left}
 .opz.scelta{border-color:var(--ottone);background:var(--ottone-tenue);font-weight:600}
 .scelte{display:flex;flex-direction:column;gap:8px;margin-top:6px}
 .scelte .opz{padding:11px 13px}
@@ -539,8 +560,9 @@ html[data-tema="scuro"] .bott.pieno{color:#1C1917}
 .elenco-scelta button{text-align:left;padding:9px 11px;border-radius:8px;font-size:14.5px}
 .elenco-scelta button:hover,.elenco-scelta button.evidenza{background:var(--ottone-tenue)}
 .elenco-scelta .sez{display:block;font-size:12px;color:var(--tenue)}
-.menu{position:fixed;z-index:50;background:var(--superficie);border:1px solid var(--bordo);border-radius:10px;box-shadow:0 8px 22px rgba(40,30,15,.18);padding:5px;min-width:200px;max-height:70dvh;overflow:auto}
-.menu button{display:block;width:100%;text-align:left;padding:8px 11px;border-radius:7px;font-size:14.5px}
+.menu{position:fixed;z-index:50;background:var(--superficie);border:1px solid var(--filo);border-radius:12px;box-shadow:var(--galleggia);padding:6px;min-width:220px;max-height:70dvh;overflow:auto}
+.velo-menu{z-index:49}
+.menu button{display:block;width:100%;text-align:left;padding:9px 12px;border-radius:8px;font-size:14.5px}
 .menu button:hover{background:var(--superficie-2)}
 .menu button.rischio{color:var(--allarme)}
 /* sola lettura (8.1): folio è in uso su un altro dispositivo */
@@ -559,58 +581,136 @@ body[data-sola-lettura] #strumenti,body[data-sola-lettura] #barraImmagine{displa
 .blocco-imp h3{display:flex;align-items:center;gap:7px}
 .blocco-imp h3 .tratto{width:14px;height:14px;stroke-width:1.9}
 .menu button.scelto{font-weight:600;background:var(--ottone-tenue)}
-.menu hr{border:0;border-top:1px solid var(--bordo);margin:5px 2px}
-#avvisi{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;width:max-content;max-width:calc(100vw - 24px)}
-.avviso{background:var(--inchiostro);color:var(--carta);border-radius:10px;padding:10px 14px;font-size:14px;display:flex;align-items:center;gap:14px;box-shadow:0 6px 18px rgba(0,0,0,.22);animation:sali .2s ease-out}
-.avviso button{color:var(--ottone);font-weight:600;flex:none}
-html[data-tema="scuro"] .avviso button{color:#E8BE7C}
+.menu hr{border:0;border-top:1px solid var(--filo);margin:5px 10px}
+#avvisi{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;width:max-content;max-width:calc(100vw - 32px)}
+.avviso{background:var(--inchiostro);color:var(--carta);border-radius:12px;padding:12px 16px;font-size:14px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 22px rgba(0,0,0,.24);animation:sali .2s ease-out}
+.avviso button{color:#E8BE7C;font-weight:600;flex:none;min-height:32px}
+html[data-tema="scuro"] .avviso button{color:#82531A}
 @keyframes sali{from{opacity:0;transform:translateY(8px)}}
-.avvertenza{margin:10px 0 0;padding:10px 12px;border:1px solid var(--bordo);border-left:3px solid var(--ottone);border-radius:8px;font-size:13.5px;color:var(--tenue);line-height:1.5;background:var(--carta)}
+.avvertenza{margin:10px 0 0;padding:10px 12px;border-radius:10px;font-size:13.5px;color:var(--inchiostro);line-height:1.5;background:var(--superficie-2)}
+/* ---------- importazione e altri pannelli (9.0) ---------- */
+.sotto-titolo{margin:-2px 0 12px;font-size:13px;color:var(--tenue);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scelte-importa{gap:10px}
+.opz-icona{display:flex;align-items:center;gap:14px;padding:14px;border:1px solid var(--filo);border-radius:12px;background:var(--superficie)}
+.opz-icona:hover{border-color:var(--ottone-vivo)}
+.opz-icona .tondo{width:40px;height:40px;border-radius:50%;background:var(--ottone-tenue);color:var(--ottone);display:grid;place-items:center;flex:none}
+.opz-icona .tondo .tratto{width:20px;height:20px}
+.opz-icona .testi{display:flex;flex-direction:column;gap:2px;min-width:0}
+.opz-icona b{font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.opz-icona small{font-size:13px;color:var(--tenue);font-weight:400}
+.etichetta-nuovo{padding:1px 7px;border-radius:999px;background:var(--ottone-tenue);color:var(--ottone);font-size:11px;font-weight:700}
+.scegli-cartella{align-self:flex-start;margin:-4px 0 0 68px}
+.riga-annulla{display:flex;align-items:center;gap:12px;margin-top:16px;padding:10px 12px;border-radius:12px;background:var(--superficie-2);font-size:13px}
+.riga-annulla span{flex:1;min-width:0}
+.conti-import{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.conto{display:flex;flex-direction:column;padding:10px;border-radius:10px;background:var(--carta)}
+.conto b{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.conto span{font-size:12px;color:var(--tenue)}
+.albero-import{border:1px solid var(--filo);border-radius:12px;padding:6px 12px;margin:12px 0;font-size:14px;max-height:30vh;overflow:auto}
+.riga-q{display:flex;align-items:center;gap:8px;min-height:36px}
+.riga-q .tratto{color:var(--ottone)}
+.riga-q b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.riga-q small,.riga-s small{font-size:12.5px;color:var(--tenue);text-align:right}
+.riga-s{display:flex;align-items:center;gap:8px;min-height:30px;padding-left:24px}
+.riga-s span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.avvisi-import{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.riga-avviso{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;font-size:13.5px;line-height:1.45}
+.riga-avviso>.tratto{color:var(--tenue);margin-top:1px}
+.riga-avviso>span{flex:1 1 200px}
+.riga-avviso.forte{background:var(--ottone-tenue);border-radius:10px;padding:10px 12px}
+.riga-avviso.forte>.tratto{color:var(--ottone)}
+.riga-avviso .gruppo{width:100%;padding-left:26px}
+.link-avviso{color:var(--ottone);text-decoration:underline;text-underline-offset:2px;font-size:13.5px}
+.elenco-allegati{display:block;width:100%;padding-left:26px;color:var(--tenue)}
+.passo-ai{display:flex;gap:12px;margin:16px 0 0}
+.numero-passo{width:28px;height:28px;border-radius:50%;background:var(--inchiostro);color:var(--carta);display:grid;place-items:center;font-size:13px;font-weight:700;flex:none}
+.corpo-passo{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;padding-top:3px}
+.corpo-passo>b{font-weight:600}
+.corpo-passo>small{font-size:13px;color:var(--tenue)}
+.etichetta-campo{font-size:13px;color:var(--tenue);margin-top:4px}
+.scelte-radio{display:flex;flex-direction:column;gap:6px}
+.radio{display:flex;align-items:center;gap:10px;min-height:42px;padding:6px 12px;border:1px solid var(--filo);border-radius:10px;text-align:left;font-size:14px}
+.radio.scelta{border-color:var(--ottone-vivo);background:var(--ottone-tenue)}
+.pallino{width:16px;height:16px;border-radius:50%;border:1.6px solid var(--tenue);flex:none;box-sizing:border-box}
+.radio.scelta .pallino{border:5px solid var(--ottone)}
+.due-bottoni{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.due-bottoni .bott{flex:1 1 auto;white-space:nowrap}
+.due-bottoni .bott,.bott.tratteggiato{font-size:14px;padding:9px 10px}
+.bott .tratto{width:17px;height:17px}
+.bott.tratteggiato{width:100%;border:1px dashed var(--ottone-vivo);color:var(--ottone);background:none}
+.avvertenze-ai{margin:18px 0 0;padding:12px 14px 12px 30px;border-radius:12px;background:var(--superficie-2);font-size:12.5px;display:flex;flex-direction:column;gap:6px}
+.info-foglio{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 16px;margin:0;font-size:14.5px}
+.info-foglio dt{color:var(--tenue)}
+.info-foglio dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.elenco-parti{margin:8px 0 0;padding-left:22px;display:flex;flex-direction:column;gap:4px}
+.altri-ricerca{margin:6px 9px 12px}
 
 /* ---------- telefono ---------- */
 @media (max-width:899px){
   #app{grid-template-columns:minmax(0,1fr)}
-  #lato{border-right:0}
+  #lato{border-right:0;background:var(--carta)}
+  /* fogli dal basso: dialoghi e menu salgono dal fondo, a tutta larghezza, con una presa in alto */
+  .velo{place-items:end stretch;padding:0}
+  .scheda{width:100%;max-height:92dvh;border:0;border-radius:18px 18px 0 0;padding-bottom:env(safe-area-inset-bottom,0px);animation:dalBasso .22s cubic-bezier(.2,.8,.2,1)}
+  .scheda.intera{animation:none}
+  .presa-foglio{display:block;width:36px;height:4px;border-radius:2px;background:var(--bordo);margin:8px auto 0;flex:none}
+  .scheda h2{padding-top:10px}
+  .menu.dal-basso{left:0;right:0;bottom:0;top:auto;min-width:0;max-height:80dvh;border:0;border-radius:18px 18px 0 0;padding:6px 8px calc(14px + env(safe-area-inset-bottom,0px));animation:dalBasso .22s cubic-bezier(.2,.8,.2,1)}
+  .menu.dal-basso .presa-foglio{margin:2px auto 8px}
+  .menu.dal-basso button{min-height:50px;font-size:15.5px;padding:0 14px}
+  .menu.dal-basso button.con-icona{gap:14px}
+  .menu.dal-basso .tratto{width:20px;height:20px}
+  .menu.dal-basso hr{margin:6px 14px}
+  .conti-import{grid-template-columns:repeat(2,minmax(0,1fr))}
+  /* gli avvisi stanno sopra il pulsante più e sopra la barra vicino alla tastiera */
+  body[data-vista="elenco"] #avvisi{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+  body[data-vista="foglio"][data-barra="tastiera"] #avvisi{bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   body[data-vista="foglio"]:not([data-modo="cestino"]) #lato{display:none}
   body[data-vista="foglio"][data-modo="normale"] #percorso{display:block}
+  body[data-vista="foglio"][data-modo="normale"] #barra > .cresce{display:none}
   body[data-vista="elenco"] #principale{display:none}
-  .foglio{padding:20px 16px 190px}
-  #titolo{font-size:25px}
-  #strumenti{max-width:none;margin-top:6px}
+  .foglio{padding:20px 20px 190px}
+  #strumenti{max-width:none;margin-top:2px}
   .rimandi{padding:14px 16px 0}
   .pie-lato{padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
 }
-@media (min-width:900px){ #bIndietro{display:none} }
+@keyframes dalBasso{from{transform:translateY(100%)}}
+@media (min-width:900px){ #bIndietro{display:none} .fab{right:20px;bottom:20px} }
+/* dita e non mouse: bersagli da almeno 44 px */
+@media (pointer:coarse){
+  .ico,.cap-sezione .mini,.stella{width:44px;height:44px}
+  .att{height:40px;min-width:38px}
+  .avvolgi{height:40px}
+  .pillola-som{height:36px}
+  .piccolo{min-height:40px}
+  .bott{min-height:44px}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}#splash{display:none}}
-@media print{body{position:static;height:auto;overflow:visible;display:block}#app{display:block}#barra,#lato,#strumenti,#sommario,.rimandi{display:none}:is(#corpo,#corpo>.tessera)>.piegato{display:block}:is(#corpo,#corpo>.tessera)>h1::before,:is(#corpo,#corpo>.tessera)>h2::before,:is(#corpo,#corpo>.tessera)>h3::before{display:none}#zona{overflow:visible}.foglio{padding:0;max-width:none}}
+@media print{body{position:static;height:auto;overflow:visible;display:block}#app{display:block}#barra,#lato,#strumenti,#sommario,.rimandi,.fab,#fasciaPeso,.pillola-som,#avvisi,.velo,.menu,#maniglie{display:none !important}:is(#corpo,#corpo>.tessera)>.piegato{display:block}:is(#corpo,#corpo>.tessera)>h1::before,:is(#corpo,#corpo>.tessera)>h2::before,:is(#corpo,#corpo>.tessera)>h3::before{display:none}#zona{overflow:visible}.foglio{padding:0;max-width:none}}
 </style>
 </head>
 <body data-vista="elenco">
 <div id="splash" aria-hidden="true">
-  <svg viewBox="0 0 512 512">
-    <rect class="s-fondo" width="512" height="512" rx="118" fill="#2A2621"/>
-    <g transform="translate(-14 6)">
-      <path class="s-asta" pathLength="100" d="M247 378V212c0-44 34-70 78-60" fill="none" stroke="#F6F0E3" stroke-width="44" stroke-linecap="round"/>
-      <rect class="s-taglio" x="225" y="220" width="88" height="38" rx="11" fill="#F6F0E3"/>
-      <circle class="s-punto" cx="325" cy="378" r="22" fill="#8F5F22"/>
-    </g>
+  <svg class="s-segno" viewBox="0 0 512 512">
+    <rect class="s-fondo" width="512" height="512" rx="112" fill="#26211B"/>
+    <path class="s-asta" pathLength="100" d="M213 382V202a72 72 0 0 1 72-72h14" fill="none" stroke="#F6F0E3" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="s-taglio" d="M213 244h64" fill="none" stroke="#F6F0E3" stroke-width="52" stroke-linecap="round"/>
+    <circle class="s-punto" cx="319" cy="378" r="30" fill="#E8A867"/>
   </svg>
-  <b><span class="s-parola">folio</span><span class="punto"></span></b>
-  <span class="tocca">tocca per continuare</span>
+  <span class="s-parola"><svg class="parola" viewBox="0 -800 2320 820" role="img" aria-label="folio"><path d="M323 -439H226V0H84V-439H21V-554H84V-582Q84 -684 142 -732Q200 -780 317 -777V-659Q266 -660 246 -642Q226 -624 226 -577V-554H323ZM379 -277Q379 -362 416 -427Q454 -492 519 -528Q584 -563 664 -563Q744 -563 809 -528Q874 -492 912 -427Q949 -362 949 -277Q949 -192 910 -127Q872 -62 806 -26Q741 9 660 9Q580 9 516 -26Q452 -62 416 -127Q379 -192 379 -277ZM805 -277Q805 -356 764 -398Q722 -441 662 -441Q602 -441 562 -398Q521 -356 521 -277Q521 -198 560 -156Q600 -113 660 -113Q698 -113 732 -132Q765 -150 785 -187Q805 -224 805 -277ZM1192 -740V0H1052V-740ZM1315 -702Q1315 -737 1340 -760Q1364 -784 1401 -784Q1438 -784 1462 -760Q1487 -737 1487 -702Q1487 -667 1462 -644Q1438 -620 1401 -620Q1364 -620 1340 -644Q1315 -667 1315 -702ZM1470 -554V0H1330V-554ZM1573 -277Q1573 -362 1610 -427Q1648 -492 1713 -528Q1778 -563 1858 -563Q1938 -563 2003 -528Q2068 -492 2106 -427Q2143 -362 2143 -277Q2143 -192 2104 -127Q2066 -62 2000 -26Q1935 9 1854 9Q1774 9 1710 -26Q1646 -62 1610 -127Q1573 -192 1573 -277ZM1999 -277Q1999 -356 1958 -398Q1916 -441 1856 -441Q1796 -441 1756 -398Q1715 -356 1715 -277Q1715 -198 1754 -156Q1794 -113 1854 -113Q1892 -113 1926 -132Q1959 -150 1979 -187Q1999 -224 1999 -277Z"/><circle class="punto-parola" cx="2245" cy="-63" r="63"/></svg></span>
+  <span class="firma">by <b>nautargo</b></span>
 </div>
 
 <header id="barra">
   <button class="ico nascosto" id="bIndietro" aria-label="Torna all'elenco"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
   <svg id="logo" viewBox="0 0 512 512" aria-hidden="true">
-    <rect width="512" height="512" rx="118" fill="#2A2621"/>
-    <g transform="translate(-14 6)">
-      <path d="M247 378V212c0-44 34-70 78-60" fill="none" stroke="#F6F0E3" stroke-width="44" stroke-linecap="round"/>
-      <rect x="225" y="220" width="88" height="38" rx="11" fill="#F6F0E3"/>
-      <circle cx="325" cy="378" r="22" fill="#8F5F22"/>
-    </g>
+    <rect class="fondo-logo" width="512" height="512" rx="112" fill="#26211B"/>
+    <path d="M213 382V202a72 72 0 0 1 72-72h14" fill="none" stroke="#F6F0E3" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M213 244h64" fill="none" stroke="#F6F0E3" stroke-width="52" stroke-linecap="round"/>
+    <circle cx="319" cy="378" r="30" fill="#E8A867"/>
   </svg>
-  <div id="marchio"><b>folio<span class="punto"></span></b></div>
-  <div id="percorso" class="nascosto"></div>
+  <div id="marchio"><svg class="parola" viewBox="0 -800 2320 820" role="img" aria-label="folio"><path d="M323 -439H226V0H84V-439H21V-554H84V-582Q84 -684 142 -732Q200 -780 317 -777V-659Q266 -660 246 -642Q226 -624 226 -577V-554H323ZM379 -277Q379 -362 416 -427Q454 -492 519 -528Q584 -563 664 -563Q744 -563 809 -528Q874 -492 912 -427Q949 -362 949 -277Q949 -192 910 -127Q872 -62 806 -26Q741 9 660 9Q580 9 516 -26Q452 -62 416 -127Q379 -192 379 -277ZM805 -277Q805 -356 764 -398Q722 -441 662 -441Q602 -441 562 -398Q521 -356 521 -277Q521 -198 560 -156Q600 -113 660 -113Q698 -113 732 -132Q765 -150 785 -187Q805 -224 805 -277ZM1192 -740V0H1052V-740ZM1315 -702Q1315 -737 1340 -760Q1364 -784 1401 -784Q1438 -784 1462 -760Q1487 -737 1487 -702Q1487 -667 1462 -644Q1438 -620 1401 -620Q1364 -620 1340 -644Q1315 -667 1315 -702ZM1470 -554V0H1330V-554ZM1573 -277Q1573 -362 1610 -427Q1648 -492 1713 -528Q1778 -563 1858 -563Q1938 -563 2003 -528Q2068 -492 2106 -427Q2143 -362 2143 -277Q2143 -192 2104 -127Q2066 -62 2000 -26Q1935 9 1854 9Q1774 9 1710 -26Q1646 -62 1610 -127Q1573 -192 1573 -277ZM1999 -277Q1999 -356 1958 -398Q1916 -441 1856 -441Q1796 -441 1756 -398Q1715 -356 1715 -277Q1715 -198 1754 -156Q1794 -113 1854 -113Q1892 -113 1926 -132Q1959 -150 1979 -187Q1999 -224 1999 -277Z"/><circle class="punto-parola" cx="2245" cy="-63" r="63"/></svg></div>
+  <div id="percorso"></div>
   <div id="segmenti" class="segmenti nascosto">
     <button data-tipo="fogli" class="scelto">Fogli</button>
     <button data-tipo="sezioni">Gruppi</button>
@@ -630,17 +730,19 @@ html[data-tema="scuro"] .avviso button{color:#E8BE7C}
 <div id="app">
   <aside id="lato">
     <div id="capQuaderno">
-      <button id="nomeQuaderno" aria-label="Cambia Quaderno">
-        <span class="testo"></span>
-        <svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg>
-      </button>
-      <div class="conteggi" id="conteggi"></div>
+      <div class="testata-q">
+        <button id="nomeQuaderno" aria-label="Cambia Quaderno">
+          <span class="testo"></span>
+          <svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg>
+        </button>
+        <div class="conteggi" id="conteggi"></div>
+      </div>
       <span class="cresce"></span>
       <button class="ico" id="bCollassaTutto" aria-label="Chiudi o apri tutti i Gruppi"></button>
       <button class="ico" id="bMenuQuaderno" aria-label="Azioni del Quaderno"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="19" r="1.4" fill="currentColor"/></svg></button>
-      <button class="ico piu" id="bNuovaSezione" aria-label="Nuovo Gruppo" title="Nuovo Gruppo"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
     </div>
-    <nav id="albero"></nav>
+    <nav id="albero" aria-label="Gruppi e Fogli"></nav>
+    <button class="fab" id="bNuovoFoglio" aria-label="Nuovo Foglio" title="Nuovo Foglio"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
     <div class="pie-lato nascosto" id="pieSelezione">
       <button class="piccolo" id="bTutti">Tutti</button>
       <span class="cresce"></span>
@@ -709,8 +811,12 @@ html[data-tema="scuro"] .avviso button{color:#E8BE7C}
     </div>
     <div id="zona">
       <div class="foglio" id="foglio">
+        <div id="fasciaPeso" class="fascia-peso nascosto" role="status"></div>
         <input id="titolo" placeholder="Titolo del Foglio" autocomplete="off">
-        <div class="meta" id="metaFoglio"></div>
+        <div class="riga-meta">
+          <div class="meta" id="metaFoglio"></div>
+          <button class="pillola-som nascosto" id="bSommario" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h7"/></svg><span class="conta-som"></span></button>
+        </div>
         <div id="corpo" contenteditable="true" spellcheck="true"></div>
         <div id="maniglie" aria-hidden="true"></div>
         <textarea id="grezzo" class="nascosto" spellcheck="false"></textarea>
@@ -733,7 +839,7 @@ html[data-tema="scuro"] .avviso button{color:#E8BE7C}
     <div class="lista-cestino" id="listaCestino"></div>
   </section>
 </div>
-<div id="avvisi"></div>
+<div id="avvisi" role="status" aria-live="polite"></div>
 <script>
 /**
  * marked v12.0.2 - a markdown parser
@@ -1888,7 +1994,7 @@ return exports;
 (function(){
 'use strict';
 
-const VERSIONE_APP = '8.3';
+const VERSIONE_APP = '9.0';
 
 /* ============ utilità ============ */
 const $ = s => document.querySelector(s);
@@ -2116,7 +2222,6 @@ const EN = {
   "Ci sono modifiche non ancora salvate in un backup.": "Some changes aren't in a backup yet.",
   "Nuova versione di folio pronta.": "New version of folio ready.",
   "Ricarica": "Reload",
-  "tocca per continuare": "tap to continue",
   "Foglio protetto: il testo resta cifrato e si legge solo in folio, con la password.": "Protected Page: the text stays encrypted and can only be read in folio, with the password.",
   "Non riesco a chiudere i Fogli protetti: riprova.": "I can't lock the protected Pages: try again.",
   "Fogli protetti chiusi.": "Protected Pages locked.",
@@ -2379,7 +2484,6 @@ const EN = {
   "Vuoto": "Empty",
   "Quello che elimini resta qui 30 giorni, poi sparisce.": "What you delete stays here 30 days, then disappears.",
   "Archivio": "Archive",
-  "Occupa {kb} kB": "It takes {kb} kB",
   " nella memoria estesa del browser.": " in the browser's extended storage.",
   " nella memoria semplice, che si ferma attorno a 5 MB.": " in the basic storage, which stops at about 5 MB.",
   "Immagini incorporate: {n}, {mb} MB.": "Embedded images: {n}, {mb} MB.",
@@ -2632,7 +2736,123 @@ const EN = {
   "Ora folio si usa qui: gli altri dispositivi passano in sola lettura.": "folio is now used here: the other devices switch to read only.",
   "Rilascia per sincronizzare": "Release to sync",
   "Tira per sincronizzare": "Pull to sync",
-  "Fogli allineati.": "Pages synced."
+  "Fogli allineati.": "Pages synced.",
+  /* 9.0 */
+  "Copia testo": "Copy text",
+  "Testo della tessera copiato.": "Card text copied.",
+  "Niente da copiare.": "Nothing to copy.",
+  "Il backup è troppo grande per questo dispositivo: usa \"Esporta i Fogli\" (.zip) o un computer.": "The backup is too big for this device: use \"Export the Pages\" (.zip) or a computer.",
+  "L'archivio è troppo grande per questo dispositivo: esporta un Quaderno alla volta dal suo menu.": "The archive is too big for this device: export one Notebook at a time from its menu.",
+  "Mostra gli altri ({n})": "Show the others ({n})",
+  "Foglio molto lungo ({mb}): aperto in vista testo.": "Very long Page ({mb}): opened in text view.",
+  "Apri formattato": "Open formatted",
+  "Dividi": "Split",
+  "Dividi il Foglio": "Split the Page",
+  "Diventano {n} Fogli, nello stesso Gruppo. L'originale va nel Cestino.": "It becomes {n} Pages, in the same Group. The original goes to the Trash.",
+  "(inizio)": "(beginning)",
+  "Non ci sono titoli su cui dividerlo.": "There are no headings to split it on.",
+  "Foglio diviso in {n}.": "Page split into {n}.",
+  "Foglio lungo ({kb}): può aprirsi e salvarsi più lentamente.": "Long Page ({kb}): it may open and save more slowly.",
+  "Occupa {x} su circa {y} disponibili.": "It takes {x} of about {y} available.",
+  "Occupa {kb}": "It takes {kb}",
+  "La memoria semplice del browser è quasi piena (circa 5 MB): esporta un backup.": "The browser's basic storage is almost full (about 5 MB): export a backup.",
+  "La memoria del browser per folio è quasi piena: esporta un backup.": "The browser storage for folio is almost full: export a backup.",
+  ".md o .txt, scegliendo il Gruppo.": ".md or .txt, choosing the Group.",
+  "Alcuni file dello .zip usano una compressione che folio non legge.": "Some files in the .zip use a compression folio can't read.",
+  "Anteprima": "Preview",
+  "Archivio .zip o cartella": ".zip archive or folder",
+  "Backup di folio": "folio backup",
+  "Come vuoi ritrovarle?": "How do you want to find them?",
+  "Con Quaderni, Gruppi e immagini. Anche quello di \"Esporta i Fogli\".": "With Notebooks, Groups and images. Also the one from \"Export the Pages\".",
+  "Copia le istruzioni": "Copy the instructions",
+  "Così le note passano dall'assistente che scegli tu. folio non le manda a nessuno.": "This way your notes go through the assistant you choose. folio sends them to no one.",
+  "Da Evernote su computer: File > Esporta, formato .enex.": "From Evernote on a computer: File > Export, .enex format.",
+  "Da un'altra app, con un'AI": "From another app, with an AI",
+  "Dai all'assistente il file e queste istruzioni.": "Give the assistant the file and these instructions.",
+  "Dividi ai titoli": "Split at headings",
+  "Esporta le note dall'altra app.": "Export your notes from the other app.",
+  "File di testo": "Text files",
+  "File di testo, archivi .zip, cartelle, backup di folio, o da un'altra app con un'AI. Sempre con anteprima.": "Text files, .zip archives, folders, folio backups, or from another app with an AI. Always with a preview.",
+  "Fogli lunghi": "long Pages",
+  "Fogli molto lunghi": "very long Pages",
+  "Foglio lungo": "long Page",
+  "Foglio molto lungo": "very long Page",
+  "Gli .zip divisi in più parti non si leggono: uniscili prima.": ".zip files split into several parts can't be read: join them first.",
+  "Gli assistenti accettano file fino a una certa dimensione: se il tuo è troppo grande, esporta un taccuino alla volta.": "Assistants accept files up to a certain size: if yours is too big, export one notebook at a time.",
+  "I Fogli senza cartella vanno in": "Pages without a folder go to",
+  "I Gruppi senza Quaderno vanno in": "Groups without a Notebook go to",
+  "Il file non è uno .zip leggibile.": "The file is not a readable .zip.",
+  "Importa così": "Import as is",
+  "Importa qui lo .zip che ti restituisce.": "Import here the .zip it gives back.",
+  "Importa {n}": "Import {n}",
+  "Importati": "Imported",
+  "Importazione annullata: {n} nel Cestino.": "Import undone: {n} in the Trash.",
+  "Importo…": "Importing…",
+  "Istruzioni copiate.": "Instructions copied.",
+  "Leggo i file…": "Reading the files…",
+  "Oppure scegli una cartella": "Or choose a folder",
+  "Per esempio da Evernote: istruzioni pronte da dare all'assistente.": "For example from Evernote: ready-made instructions to give the assistant.",
+  "Prima di scrivere qualcosa, folio mostra un'anteprima. Niente viene sovrascritto.": "Before writing anything, folio shows a preview. Nothing is overwritten.",
+  "Questo .zip è in un formato che folio non legge (zip64, di solito oltre 4 GB): dividilo in archivi più piccoli.": "This .zip is in a format folio can't read (zip64, usually over 4 GB): split it into smaller archives.",
+  "Questo browser non apre gli zip compressi: aggiornalo, oppure crea lo zip senza compressione.": "This browser can't open compressed zips: update it, or make the zip without compression.",
+  "Questo collegamento porta a un file che non è in folio.": "This link points to a file that isn't in folio.",
+  "Qui non ci sono file .md o .txt da importare.": "There are no .md or .txt files to import here.",
+  "Scarica (.md)": "Download (.md)",
+  "Scegli lo .zip": "Choose the .zip",
+  "Serve un assistente che sappia leggere file e crearne (per esempio Claude o ChatGPT con gli strumenti per i file).": "You need an assistant that can read and create files (for example Claude or ChatGPT with file tools).",
+  "Tutto in un solo Foglio, a tessere": "Everything in a single Page, in cards",
+  "Ultima importazione: {quando}, {n}.": "Last import: {quando}, {n}.",
+  "Un Foglio per nota, nei Gruppi come nell'altra app": "One Page per note, in Groups as in the other app",
+  "Un Foglio per nota, tutte in un Gruppo": "One Page per note, all in one Group",
+  "Un file .json: aggiungi o sostituisci tutto.": "A .json file: add to or replace everything.",
+  "Una parte dello .zip è rovinata.": "Part of the .zip is damaged.",
+  "allegati non importati": "attachments not imported",
+  "allegato non importato": "attachment not imported",
+  "cartella": "folder",
+  "doppione saltato": "duplicate skipped",
+  "doppioni saltati": "duplicates skipped",
+  "esiste già: si unisce": "already there: merged",
+  "file cifrati": "encrypted files",
+  "file cifrato": "encrypted file",
+  "file scartati": "files discarded",
+  "file scartato": "file discarded",
+  "folio non legge i formati delle altre app. Un assistente AI sì: gli dai il file e queste istruzioni, lui ti restituisce uno .zip pronto da importare.": "folio doesn't read other apps' formats. An AI assistant does: give it the file and these instructions, and it gives you back a .zip ready to import.",
+  "immagine mancante": "missing image",
+  "immagini mancanti": "missing images",
+  "immagine": "image",
+  "immagini": "images",
+  "nuovo": "new",
+  "vedi elenco": "see list",
+  "{n} (folio tiene solo testo e immagini).": "{n} (folio keeps only text and images).",
+  "{n} con un percorso non valido.": "{n} with an invalid path.",
+  "{n} importati.": "{n} imported.",
+  "{n} nello .zip: folio non li apre.": "{n} in the .zip: folio can't open them.",
+  "{n} oltre 1 MB: si aprono in vista testo.": "{n} over 1 MB: they open in text view.",
+  "{n}: già in folio, uguali.": "{n}: already in folio, identical.",
+  "{n}: il Foglio le cita ma nell'archivio non ci sono.": "{n}: the Page mentions them but they're not in the archive.",
+  "{n}: possono aprirsi più lentamente.": "{n}: they may open more slowly.",
+  "Un file non si legge: {nome}.": "A file can't be read: {nome}.",
+  "Non riesco a leggere questi file.": "I can't read these files.",
+  "Sommario: {n}": "Outline: {n}",
+  "titolo": "heading",
+  "titoli": "headings",
+  "Chiudi il sommario": "Close the outline",
+  "Nessun Gruppo. Creane uno qui sotto.": "No Groups. Create one below.",
+  "Nessun Foglio. Tocca + per scriverne uno.": "No Pages. Tap + to write one.",
+  "Prova con una parola sola, o con l'inizio di una parola.": "Try a single word, or the beginning of a word.",
+  "Nuovo Foglio": "New Page",
+  "Informazioni sul Foglio": "Page info",
+  "Stampa o salva in PDF": "Print or save as PDF",
+  "Creato": "Created",
+  "Modificato": "Edited",
+  "Parole": "Words",
+  "Caratteri": "Characters",
+  "Peso del testo": "Text size",
+  "Immagini": "Images",
+  "Tessere del diario": "Diary cards",
+  "Tessere": "Cards",
+  "È un Foglio lungo: può aprirsi e salvarsi più lentamente. Puoi dividerlo ai titoli.": "This is a long Page: it may open and save more slowly. You can split it at its headings.",
+  "protetto": "protected"
 };
 
 /* subito, prima che la pagina compaia: la schermata iniziale è già nella lingua giusta */
@@ -2659,8 +2879,8 @@ const BENVENUTO_IT =
 
 | Per | Tocca |
 |---|---|
-| un nuovo Foglio | il **+** sulla riga del Gruppo |
-| un nuovo Gruppo | il **+** sulla riga del Quaderno |
+| un nuovo Foglio | il **+** tondo in basso, o quello sulla riga del Gruppo |
+| un nuovo Gruppo | **Nuovo Gruppo**, in fondo all'elenco |
 | cambiare Quaderno | il nome del Quaderno, in alto a sinistra |
 | le opzioni di un Gruppo o di un Foglio | i tre punti, oppure tieni premuto |
 | cercare, o ritrovare gli ultimi aperti | la lente in alto |
@@ -2687,7 +2907,7 @@ La barra di formattazione ha i formati essenziali: titoli, **grassetto**, *corsi
 
 Dal menu a tre punti del Foglio aperto:
 
-- **Scrivi a tessere** divide il Foglio in schede, una sotto l'altra. Ogni tessera ha in alto una presa: trascinala per spostare la tessera, toccala per selezionarne solo il testo, aggiungerne una sopra o sotto, spostarla o eliminarla. Esempio: una lista di idee, una tessera per idea, da riordinare quando cambiano le priorità.
+- **Scrivi a tessere** divide il Foglio in schede, una sotto l'altra. Ogni tessera ha in alto una presa: trascinala per spostare la tessera, toccala per selezionarne o copiarne il testo, aggiungerne una sopra o sotto, spostarla o eliminarla. Esempio: una lista di idee, una tessera per idea, da riordinare quando cambiano le priorità.
 - **Scrivi a diario** fa lo stesso, ma ogni tessera nuova parte con data e ora in grassetto, che puoi cambiare. Tocca la tessera sotto la data e scrivi. Esempio:
 
 > **11/10/2026, 08:30**
@@ -2714,7 +2934,7 @@ Lo stesso elenco accetta un indirizzo web, come [nautargo.com](https://nautargo.
 
 - **Preferiti**: la stella porta un Foglio in cima, da qualunque Quaderno.
 - **Gruppi**: dal loro menu a tre punti scegli un'icona; con **Riordina Gruppi** li sposti trascinandoli. Nelle Impostazioni scegli l'ordine: creazione, ultima modifica o nome.
-- **Sommario e paragrafi**: appena scrivi un titolo, il sommario compare in alto; la freccia a destra di ogni titolo chiude o apre il suo paragrafo.
+- **Sommario e paragrafi**: appena scrivi un titolo, accanto alla data compare il sommario con il numero dei titoli: toccalo per vederli. La freccia a destra di ogni titolo chiude o apre il suo paragrafo.
 - **Sfondo**: puntini, righe o quadretti, per un Foglio, un Gruppo o tutti.
 - **Selezione**: dal menu del Quaderno scegli più Fogli o Gruppi da spostare, condividere o eliminare.
 - **Gesti**: sul nome del Quaderno scorri per passare a un altro.
@@ -2729,7 +2949,9 @@ Lo stesso elenco accetta un indirizzo web, come [nautargo.com](https://nautargo.
 
 ## Funzioni utili
 
-- **Condividi e copia**: dal menu a tre punti di un Foglio, come file \`.md\` o come testo.
+- **Condividi e copia**: dal menu a tre punti di un Foglio, come file \`.md\`, come testo, o stampato in PDF.
+- **Importa**: dalle Impostazioni o dal menu del Quaderno. File di testo, archivi \`.zip\`, cartelle, backup, oppure le note di un'altra app (per esempio Evernote) con l'aiuto di un assistente AI: folio ti dà le istruzioni da passargli. Prima di scrivere c'è sempre un'anteprima, e l'ultima importazione si annulla.
+- **Fogli lunghi**: nessun limite di peso. Sopra 300 kB folio lo dice e propone di dividere il Foglio ai titoli; sopra 1 MB lo apre in vista testo, che resta veloce. Il peso lo trovi in **Informazioni sul Foglio**.
 - **Vista testo**: l'icona in alto mostra il markdown così com'è.
 - **Fogli protetti**: dal menu a tre punti un Foglio si chiude con una password. Una password sola li apre tutti; si richiudono uscendo dall'app.
 - **Cestino**: ciò che elimini resta 30 giorni. Lo trovi nelle Impostazioni.
@@ -2740,7 +2962,7 @@ Lo stesso elenco accetta un indirizzo web, come [nautargo.com](https://nautargo.
 
 - I Fogli restano nella memoria di questo browser. Con la sincronizzazione accesa, una copia va nel tuo Dropbox e a nessun altro.
 - Senza sincronizzazione, se svuoti i dati del sito o cambi dispositivo, senza backup si perdono.
-- Il backup si fa da **Impostazioni**: un file \`.json\` rimette tutto com'era, uno \`.zip\` contiene i Fogli in \`.md\` con le loro immagini.
+- Il backup si fa da **Impostazioni**: un file \`.json\` rimette tutto com'era, uno \`.zip\` contiene i Fogli in \`.md\` con le loro immagini e si reimporta da **Importa**.
 
 ## Prime cose da provare
 
@@ -2764,8 +2986,8 @@ const BENVENUTO_EN =
 
 | To | Tap |
 |---|---|
-| add a Page | the **+** on the Group row |
-| add a Group | the **+** on the Notebook row |
+| add a Page | the round **+** at the bottom, or the one on the Group row |
+| add a Group | **New Group**, at the end of the list |
 | switch Notebook | the Notebook name, top left |
 | see the options of a Group or a Page | the three dots, or press and hold |
 | search, or find what you opened last | the magnifier at the top |
@@ -2792,7 +3014,7 @@ The formatting bar has the essentials: headings, **bold**, *italic*, ~~strikethr
 
 From the three-dot menu of the open Page:
 
-- **Write in cards** splits the Page into cards, one under the other. Each card has a grip at the top: drag it to move the card, tap it to select just its text, add a card above or below, move it or delete it. Example: a list of ideas, one card per idea, to reorder when priorities change.
+- **Write in cards** splits the Page into cards, one under the other. Each card has a grip at the top: drag it to move the card, tap it to select or copy its text, add a card above or below, move it or delete it. Example: a list of ideas, one card per idea, to reorder when priorities change.
 - **Write as a diary** does the same, but every new card starts with date and time in bold, which you can change. Tap the card under the date and write. Example:
 
 > **11/10/2026, 08:30**
@@ -2819,7 +3041,7 @@ The same list accepts a web address, like [nautargo.com](https://nautargo.com). 
 
 - **Favorites**: the star brings a Page to the top, from any Notebook.
 - **Groups**: from their three-dot menu pick an icon; with **Reorder Groups** move them by dragging. In Settings choose the order: creation, last edit or name.
-- **Outline and sections**: as soon as you write a heading, the outline appears at the top; the arrow to the right of each heading folds or unfolds its section.
+- **Outline and sections**: as soon as you write a heading, the outline appears next to the date, with the number of headings: tap it to see them. The arrow to the right of each heading folds or unfolds its section.
 - **Background**: dots, lines or squares, for one Page, a Group or all of them.
 - **Selection**: from the Notebook menu pick several Pages or Groups to move, share or delete.
 - **Gestures**: on the Notebook name swipe to move to another one.
@@ -2834,7 +3056,9 @@ The same list accepts a web address, like [nautargo.com](https://nautargo.com). 
 
 ## Useful features
 
-- **Share and copy**: from a Page's three-dot menu, as an \`.md\` file or as text.
+- **Share and copy**: from a Page's three-dot menu, as an \`.md\` file, as text, or printed to PDF.
+- **Import**: from Settings or the Notebook menu. Text files, \`.zip\` archives, folders, backups, or the notes of another app (for example Evernote) with the help of an AI assistant: folio gives you the instructions to hand over. There is always a preview before anything is written, and the last import can be undone.
+- **Long Pages**: there is no size limit. Above 300 kB folio tells you and offers to split the Page at its headings; above 1 MB it opens it in text view, which stays fast. You find the size in **Page info**.
 - **Text view**: the icon at the top shows the markdown as it is.
 - **Protected Pages**: from the three-dot menu a Page is locked with a password. One password opens them all; they lock again when you leave the app.
 - **Trash**: what you delete stays there 30 days. You find it in Settings.
@@ -2845,7 +3069,7 @@ The same list accepts a web address, like [nautargo.com](https://nautargo.com). 
 
 - Pages stay in this browser's storage. With sync on, a copy goes to your Dropbox and to no one else.
 - Without sync, if you clear the site data or change device, without a backup they are lost.
-- Back up from **Settings**: a \`.json\` file puts everything back as it was, a \`.zip\` holds the Pages as \`.md\` with their images.
+- Back up from **Settings**: a \`.json\` file puts everything back as it was, a \`.zip\` holds the Pages as \`.md\` with their images and can be imported back from **Import**.
 
 ## First things to try
 
@@ -2999,6 +3223,7 @@ function inFila(lavoro){
 }
 const salvaOra = () => inFila(salvaDavvero);
 let riservaDaPulire = 0;       /* quante protezioni nuove aspettano una riserva ripulita */
+let riservaSporca = true, firmaRiserva = '';   /* la copia di riserva si riscrive solo se nei Fogli è cambiato qualcosa */
 async function salvaDavvero(){
   if (letturaFallita || inPausa || fermoAltrove()) return;
   const pulire = riservaDaPulire;
@@ -3020,7 +3245,9 @@ async function salvaDavvero(){
       suDisco.forEach((r, fid) => { if (!vivi.has(fid)) togli.push('f:' + fid); });
       if (!pezziScritti) togli.push(K_ARCHIVIO);       /* il vecchio blocco unico sparisce con la prima scrittura a pezzi */
       /* copia intera di riserva: ogni 10 minuti, e subito quando un Foglio diventa protetto */
-      const riserva = pulire > 0 || Date.now() - ultimaRiserva > 600000;
+      const firma = JSON.stringify([struttura.quaderni, struttura.sezioni, struttura.fogli, A.cestino.fogli.length, A.cestino.sezioni.length, Object.keys(A.immagini).length]);
+      if (metti.some(([k]) => k.startsWith('f:')) || firma !== firmaRiserva) riservaSporca = true;
+      const riserva = pulire > 0 || (riservaSporca && Date.now() - ultimaRiserva > 600000);
       /* un Foglio protetto ancora senza cifra (protetto proprio adesso) rimanda la pulizia della riserva */
       const tuttiCifrati = !dati.fogli.some(p => p.protetto && !p.cifra);
       if (riserva) metti.push([K_RISERVA, dati]);
@@ -3029,7 +3256,7 @@ async function salvaDavvero(){
       togli.forEach(k => { if (k.startsWith('f:')) suDisco.delete(k.slice(2)); });
       if (!pezziScritti){ try { localStorage.removeItem(K_VECCHIA); localStorage.removeItem(K_VECCHIA_RIS); } catch(e){} }
       pezziScritti = true;
-      if (riserva){ if (tuttiCifrati) riservaDaPulire -= pulire; ultimaRiserva = Date.now(); }
+      if (riserva){ if (tuttiCifrati) riservaDaPulire -= pulire; ultimaRiserva = Date.now(); riservaSporca = false; firmaRiserva = firma; }
     } else {
       scriviLocale(K_VECCHIA, dati);
     }
@@ -3310,7 +3537,8 @@ const inerte = document.implementation.createHTMLDocument('');
 function imgPulita(n){
   const nome = n.getAttribute('data-img');
   const src = nome ? 'immagini/' + nome : (n.getAttribute('src') || '');
-  if (!src || /^(blob|data):/i.test(src)) return null;
+  /* blob: è un indirizzo provvisorio dello schermo; data: resta solo se è un'immagine (9.0: prima spariva in silenzio) */
+  if (!src || /^blob:/i.test(src) || (/^data:/i.test(src) && !/^data:image\//i.test(src))) return null;
   const i = inerte.createElement('img');
   i.setAttribute('src', src);
   i.setAttribute('alt', n.getAttribute('alt') || '');
@@ -3431,7 +3659,12 @@ function mdVersoHtml(md){
     if (t.parentNode && t.parentNode.classList.contains('tabella-box')) return;
     const box = el('div','tabella-box'); t.parentNode.insertBefore(box, t); box.appendChild(t);
   });
-  d.querySelectorAll('a').forEach(a => { a.setAttribute('target','_blank'); a.setAttribute('rel','noopener noreferrer'); });
+  d.querySelectorAll('a').forEach(a => {
+    a.setAttribute('target','_blank'); a.setAttribute('rel','noopener noreferrer');
+    /* un collegamento a un file accanto al Foglio (allegati/x.pdf) non porta da nessuna parte dentro folio */
+    const h = a.getAttribute('href');
+    if (h && !/^(https?:|mailto:|tel:|#)/i.test(h)) a.classList.add('locale');
+  });
   collegaInterni(d);
   return d.innerHTML;
 }
@@ -3518,6 +3751,67 @@ function htmlVersoMd(html){
   d.innerHTML = html;
   normalizzaElenchi(d);
   return volgi.turndown(d).replace(/\n{3,}/g,'\n\n').replace(/[ \t]+$/gm,'').trim();
+}
+/* conversione a pezzi (9.0): ogni blocco di primo livello si converte da solo e il risultato resta in
+   memoria; a ogni salvataggio si riconvertono solo i blocchi cambiati. Il risultato deve essere identico
+   a quello di htmlVersoMd: se nel corpo c'è qualcosa che non è un blocco, si torna alla conversione intera. */
+const memoriaBlocchi = new Map();
+const SOLO_BLOCCHI = /^(P|H[1-6]|UL|OL|BLOCKQUOTE|PRE|DIV|TABLE|HR|SECTION)$/;
+function mdBlocco(n){
+  const k = n.outerHTML;
+  let v = memoriaBlocchi.get(k);
+  if (v === undefined){
+    const d = document.createElement('div');
+    d.appendChild(n.cloneNode(true));
+    v = volgi.turndown(d).replace(/\n{3,}/g,'\n\n').replace(/[ \t]+$/gm,'').trim();
+    if (memoriaBlocchi.size > 5000) memoriaBlocchi.clear();
+    memoriaBlocchi.set(k, v);
+  }
+  return v;
+}
+function htmlVersoMdAPezzi(html){
+  const d = document.createElement('div');
+  d.innerHTML = html;
+  normalizzaElenchi(d);
+  const nodi = [...d.childNodes];
+  if (!nodi.every(n => (n.nodeType === 1 && SOLO_BLOCCHI.test(n.nodeName)) || (n.nodeType === 3 && !n.nodeValue.trim()))) return null;
+  return nodi.filter(n => n.nodeType === 1).map(mdBlocco).filter(Boolean).join('\n\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+/* aprendo un Foglio lungo, i suoi blocchi si convertono nei momenti liberi: il primo salvataggio è già veloce */
+let scaldaId = 0;
+const attendiLibero = f => window.requestIdleCallback ? requestIdleCallback(f, { timeout:2000 }) : setTimeout(() => f(null), 40);
+function scaldaMemoria(){
+  const mio = ++scaldaId;
+  if (!corrente || vistaGrezza || corpo().childElementCount < 60) return;
+  const d = document.createElement('div');
+  d.innerHTML = htmlAperto;
+  normalizzaElenchi(d);
+  const nodi = [...d.children];
+  let i = 0;
+  const passo = sc => {
+    if (mio !== scaldaId) return;
+    const fine = i + 40;
+    while (i < nodi.length && (sc ? sc.timeRemaining() > 4 : i < fine)) mdBlocco(nodi[i++]);
+    if (i < nodi.length) attendiLibero(passo);
+  };
+  attendiLibero(passo);
+}
+/* il markdown del Foglio aperto: a pezzi, con un controllo sulla conversione intera la prima volta
+   per ogni Foglio non troppo lungo. Se i due risultati differiscono, quel Foglio torna alla conversione intera. */
+const soloInteri = new Set(), pezziVerificati = new Set();
+let ultimaConversione = 0;
+function mdCorrente(html){
+  const t0 = performance.now();
+  const fid = corrente ? corrente.id : '';
+  let md = soloInteri.has(fid) ? null : htmlVersoMdAPezzi(html);
+  if (md != null && !pezziVerificati.has(fid) && html.length < 120000){
+    pezziVerificati.add(fid);
+    const intero = htmlVersoMd(html);
+    if (intero !== md){ soloInteri.add(fid); md = intero; }
+  }
+  if (md == null) md = htmlVersoMd(html);
+  ultimaConversione = performance.now() - t0;
+  return md;
 }
 
 /* ============ accesso al modello ============ */
@@ -3631,6 +3925,12 @@ const TRATTI = {
   sotto:'<rect x="4" y="4" width="16" height="9" rx="1.8"/><path d="M12 15.5V21M9.25 18.25h5.5"/>',
   su:'<path d="M12 19V5M6.5 10.5 12 5l5.5 5.5"/>',
   giu:'<path d="M12 5v14M6.5 13.5 12 19l5.5-5.5"/>',
+  cartellaZip:'<path d="M4 7a2 2 0 0 1 2-2h3l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M12 10v5M10 13l2 2 2-2"/>',
+  ai:'<path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="m12 8 1.2 2.8L16 12l-2.8 1.2L12 16l-1.2-2.8L8 12l2.8-1.2z"/>',
+  allegato:'<path d="M15.5 7.5 8 15a2.1 2.1 0 0 0 3 3l7.5-7.5a4.2 4.2 0 0 0-6-6L5 12a6.4 6.4 0 0 0 9 9l5-5"/>',
+  info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.01"/>',
+  stampa:'<path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="7" rx="2"/><path d="M7 14h10v6H7z"/>',
+  copia:'<rect x="6" y="5" width="12" height="15" rx="2"/><path d="M9 5V3.8h6V5M9.5 11h5M9.5 14.5h5"/>',
   sincro:'<path d="M19.5 12a7.5 7.5 0 0 1-13.4 4.6M4.5 12a7.5 7.5 0 0 1 13.4-4.6"/><path d="M18.3 3.5v4.2h-4.2M5.7 20.5v-4.2h4.2"/>'
 };
 const svgTratto = nome => '<svg class="tratto" viewBox="0 0 24 24" aria-hidden="true">' + (TRATTI[nome] || '') + '</svg>';
@@ -3657,7 +3957,8 @@ function impostaModo(m){
   $('#bImpostazioni').classList.toggle('nascosto', m !== 'normale' || (dentroFoglio && stretto()));
   $('#bMenuFoglio').classList.toggle('nascosto', !dentroFoglio);
   $('#bIndietro').classList.toggle('nascosto', !dentroFoglio);
-  $('#marchio').classList.toggle('nascosto', m === 'ricerca' || m === 'selezione' || m === 'riordino');
+  /* su telefono, dentro a un Foglio, al posto del nome c'è il percorso: Quaderno / Gruppo */
+  $('#marchio').classList.toggle('nascosto', m === 'ricerca' || m === 'selezione' || m === 'riordino' || (dentroFoglio && stretto()));
   /* su telefono, dentro a un Foglio, al posto del logo c'è la freccia per tornare indietro */
   $('#logo').classList.toggle('nascosto', dentroFoglio && stretto());
   $('#bGrezzo').classList.toggle('nascosto', !dentroFoglio);
@@ -3666,6 +3967,7 @@ function impostaModo(m){
   document.body.dataset.foglio = corrente ? 'si' : 'no';
   $('#cestino').classList.toggle('nascosto', m !== 'cestino');
   $('#pieSelezione').classList.toggle('nascosto', m !== 'selezione');
+  $('#bNuovoFoglio').classList.toggle('nascosto', m !== 'normale');
 }
 
 /* ============ barra laterale ============ */
@@ -3679,9 +3981,7 @@ function disegnaLato(){
   bt.innerHTML = ICONE.doppia(tutteChiuse ? 'giu' : 'su');
   bt.title = tutteChiuse ? T('Apri tutti i Gruppi') : T('Chiudi tutti i Gruppi');
   const c = contaQuaderno(A.impostazioni.quaderno);
-  $('#conteggi').innerHTML =
-    '<span title="' + T('Gruppi') + '"><svg viewBox="0 0 24 24"><path d="M4 7a2 2 0 0 1 2-2h3l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg>' + c.sezioni + '</span>' +
-    '<span title="' + T('Fogli') + '"><svg viewBox="0 0 24 24"><path d="M7 4h7l4 4v12H7z"/><path d="M14 4v4h4"/></svg>' + c.fogli + '</span>';
+  $('#conteggi').textContent = tn(c.sezioni, 'Gruppo', 'Gruppi') + ' - ' + tn(c.fogli, 'Foglio', 'Fogli');
 
   const albero = $('#albero');
   albero.innerHTML = '';
@@ -3689,7 +3989,7 @@ function disegnaLato(){
 
   fasciaPreferiti(albero);
 
-  if (!sezQ.length){ albero.appendChild(el('p','vuoto',T('Nessun Gruppo. Creane uno con il segno più qui sopra.'))); return; }
+  if (!sezQ.length){ albero.appendChild(el('p','vuoto',T('Nessun Gruppo. Creane uno qui sotto.'))); albero.appendChild(bottoneNuovoGruppo()); return; }
 
   if (modo === 'riordino'){ disegnaRiordino(albero, sezQ); return; }
 
@@ -3704,7 +4004,12 @@ function disegnaLato(){
     if (selSez) apri2.appendChild(spunto(scelti.has(s.id)));
     else apri2.innerHTML = iconaGruppo(s);
     apri2.appendChild(el('span','nome', s.nome));
-    if (!selSez) apri2.appendChild(el('span','conta', String(fg.length)));
+    if (!selSez){
+      apri2.appendChild(el('span','conta', String(fg.length)));
+      /* lo stato del Gruppo, aperto o chiuso, si legge dalla freccetta accanto al conteggio */
+      if (modo !== 'selezione') apri2.insertAdjacentHTML('beforeend', '<span class="stato-gruppo" aria-hidden="true">' + ICONE.freccia(chiusa ? 'giu' : 'su') + '</span>');
+      apri2.setAttribute('aria-expanded', chiusa ? 'false' : 'true');
+    }
     apri2.onclick = () => {
       if (selSez){ commuta(s.id); return; }
       if (modo === 'selezione'){ tutteLeVoci(fg.map(p => p.id)); return; }
@@ -3713,11 +4018,6 @@ function disegnaLato(){
     cap.appendChild(apri2);
 
     if (!selSez && modo !== 'selezione'){
-      const frec = el('button','mini');
-      frec.title = chiusa ? T('Apri il Gruppo') : T('Chiudi il Gruppo');
-      frec.setAttribute('aria-label', frec.title);
-      frec.innerHTML = ICONE.freccia(chiusa ? 'giu' : 'su');
-      frec.onclick = e => { e.stopPropagation(); commutaSezione(s.id); };
       const punti = el('button','mini');
       punti.title = T('Opzioni del Gruppo');
       punti.setAttribute('aria-label', punti.title);
@@ -3732,20 +4032,29 @@ function disegnaLato(){
       piu.setAttribute('aria-label', piu.title);
       piu.innerHTML = ICONE.piu();
       piu.onclick = e => { e.stopPropagation(); nuovoFoglio(s.id); };
-      cap.append(frec, punti, piu);
+      cap.append(punti, piu);
     }
     cap.oncontextmenu = e => { if (modo === 'normale'){ e.preventDefault(); menuSezione(s, e.clientX, e.clientY); } };
     box.appendChild(cap);
 
     if (!selSez){
       const lista = el('div','fogli');
-      if (!fg.length) lista.appendChild(el('p','vuoto',T('Gruppo vuoto.')));
+      if (!fg.length) lista.appendChild(el('p','vuoto vuoto-gruppo',T('Nessun Foglio. Tocca + per scriverne uno.')));
       fg.forEach(p => lista.appendChild(voce(p)));
       box.appendChild(lista);
     }
     albero.appendChild(box);
   });
+  if (modo === 'normale') albero.appendChild(bottoneNuovoGruppo());
   aggiornaConta();
+}
+/* in fondo all'elenco: un Gruppo nuovo (il più grande crea un Foglio) */
+function bottoneNuovoGruppo(){
+  const b = el('button','nuovo-gruppo');
+  b.innerHTML = ICONE.piu();
+  b.appendChild(el('span', null, T('Nuovo Gruppo')));
+  b.onclick = nuovaSezione;
+  return b;
 }
 
 /* i preferiti stanno in cima e attraversano tutti i volumi */
@@ -3757,17 +4066,13 @@ function fasciaPreferiti(albero){
   const box = el('div','sezione preferiti' + (chiusa ? ' chiusa' : ''));
   const cap = el('div','cap-sezione');
   const apri2 = el('button','apri');
-  apri2.innerHTML = ICONE.stella();
-  apri2.firstChild.classList.add('linguetta');
+  apri2.innerHTML = '<span class="tondo-gruppo">' + ICONE.stella() + '</span>';
   apri2.appendChild(el('span','nome',T('Preferiti')));
   apri2.appendChild(el('span','conta', String(pf.length)));
+  apri2.insertAdjacentHTML('beforeend', '<span class="stato-gruppo" aria-hidden="true">' + ICONE.freccia(chiusa ? 'giu' : 'su') + '</span>');
+  apri2.setAttribute('aria-expanded', chiusa ? 'false' : 'true');
   apri2.onclick = () => { A.impostazioni.preferitiChiusi = !chiusa; salvaPresto(); disegnaLato(); };
   cap.appendChild(apri2);
-  const frec = el('button','mini');
-  frec.title = chiusa ? T('Apri i preferiti') : T('Chiudi i preferiti');
-  frec.innerHTML = ICONE.freccia(chiusa ? 'giu' : 'su');
-  frec.onclick = e => { e.stopPropagation(); A.impostazioni.preferitiChiusi = !chiusa; salvaPresto(); disegnaLato(); };
-  cap.appendChild(frec);
   box.appendChild(cap);
   const lista = el('div','fogli');
   pf.forEach(p => lista.appendChild(voce(p, null, true)));
@@ -3787,6 +4092,11 @@ function voce(p, frammento, conOrigine){
   if (p.protetto) t.insertAdjacentHTML('beforeend', ICONE.lucchetto());
   t.appendChild(nome);
   if (frammento) t.appendChild(frammento.nodeType ? frammento : el('span','frammento', frammento));
+  /* nell'elenco, sotto il titolo: data e inizio del testo (9.0) */
+  else if (!conOrigine && modo !== 'selezione'){
+    const a = p.protetto ? T('protetto') : anteprimaFoglio(p);
+    t.appendChild(el('span','frammento', dataBreve(p.modificata) + (a ? ' - ' + a : '')));
+  }
   if (conOrigine){
     const s = sezione(p.sezioneId), q = s ? quaderno(s.quadernoId) : null;
     t.appendChild(el('span','dove', (q ? q.nome + ' / ' : '') + (s ? s.nome : '')));
@@ -3839,6 +4149,16 @@ function disegnaRecenti(albero){
   albero.appendChild(lista);
 }
 
+/* il testo di ogni Foglio, già senza accenti, resta in memoria finché il Foglio non cambia */
+const memoriaRicerca = new Map();
+let limiteRicerca = 200;
+function testoCercabile(p){
+  const k = p.modificata + '|' + p.md.length, m = memoriaRicerca.get(p.id);
+  if (m && m.k === k) return m;
+  const md = senzaTessere(p.md), v = { k, md, norm: senzaAccenti(md) };
+  memoriaRicerca.set(p.id, v);
+  return v;
+}
 function disegnaRicerca(albero){
   const q = filtro.trim();
   const qn = senzaAccenti(q);
@@ -3847,13 +4167,13 @@ function disegnaRicerca(albero){
   A.quaderni.forEach(vol => {
     sezioniDi(vol.id).forEach(cap => {
       /* un Foglio protetto chiuso non si trova: né il titolo né il testo */
-      const fg = fogliDi(cap.id).filter(p => !chiuso(p) && (contiene(p.titolo) || contiene(senzaTessere(p.md))));
+      const fg = fogliDi(cap.id).filter(p => !chiuso(p) && (contiene(p.titolo) || testoCercabile(p).norm.includes(qn)));
       const capCorrisponde = contiene(cap.nome), volCorrisponde = contiene(vol.nome);
       if (!fg.length && !capCorrisponde && !volCorrisponde) return;
       esiti.push({ vol, cap, fogli: fg, capCorrisponde, volCorrisponde });
     });
   });
-  if (!esiti.length){ albero.appendChild(el('p','vuoto',T('Niente contiene "{q}".', { q }))); return; }
+  if (!esiti.length){ albero.appendChild(el('p','vuoto',T('Niente contiene "{q}".', { q }) + ' ' + T('Prova con una parola sola, o con l\'inizio di una parola.'))); return; }
 
   const totFogli = esiti.reduce((n,g) => n + g.fogli.length, 0);
   const nomi = esiti.filter(g => g.capCorrisponde || g.volCorrisponde).length;
@@ -3862,7 +4182,9 @@ function disegnaRicerca(albero){
   if (nomi) parti.push(tn(nomi, 'nome di Gruppo o Quaderno', 'nomi di Gruppo o Quaderno'));
   albero.appendChild(el('p','riassunto-ricerca', parti.join(', ') + '.'));
 
-  esiti.forEach(g => {
+  let mostrati = 0;
+  for (const g of esiti){
+    if (mostrati >= limiteRicerca) break;
     const box = el('div','gruppo-ricerca');
     const capo = el('div','titolo-ricerca');
     const nomeVol = el('span'); nomeVol.appendChild(segnaTesto(g.vol.nome, q));
@@ -3877,7 +4199,7 @@ function disegnaRicerca(albero){
       const dove = contiene(p.titolo) ? 'nel titolo' : 'nel testo';
       const fr = el('span','frammento');
       if (dove === 'nel testo'){
-        const md = senzaTessere(p.md), testo = senzaAccenti(md), i = testo.indexOf(qn);
+        const cc = testoCercabile(p), md = cc.md, testo = cc.norm, i = testo.indexOf(qn);
         const inizio = Math.max(0, i - 24);
         const pezzo = md.slice(inizio, i + q.length + 46).replace(/\s+/g,' ').trim();
         fr.appendChild(document.createTextNode(inizio > 0 ? '…' : ''));
@@ -3890,10 +4212,17 @@ function disegnaRicerca(albero){
       const tit = v.querySelector('.tit > span');
       if (dove === 'nel titolo'){ tit.textContent = ''; tit.appendChild(segnaTesto(p.titolo, q)); }
       lista.appendChild(v);
+      mostrati++;
     });
     box.appendChild(lista);
     albero.appendChild(box);
-  });
+  }
+  /* oltre i primi 200 Fogli trovati, il resto arriva a richiesta */
+  if (totFogli > mostrati && mostrati >= limiteRicerca){
+    const b = el('button','piccolo altri-ricerca', T('Mostra gli altri ({n})', { n: totFogli - mostrati }));
+    b.onclick = () => { limiteRicerca = Infinity; disegnaLato(); };
+    albero.appendChild(b);
+  }
 }
 
 /* ============ selezione ============ */
@@ -3944,10 +4273,94 @@ function collassaTutto(){
   A.impostazioni.sezioniChiuse = [...c];
   salva(); disegnaLato();
 }
+/* ============ peso dei Fogli (9.0) ============ */
+/* Nessun limite: sopra queste soglie folio lo dice e offre un rimedio. Le soglie vengono dalle misure
+   su un telefono medio: "lungo" è dove l'apertura supera 1,50 s, "enorme" dove supera 5 s. */
+const PESO_LUNGO = 300 * 1024, PESO_ENORME = 1024 * 1024;
+const pesoMd = md => new Blob([String(md || '')]).size;
+const giaAvvisati = new Set();
+function misura(b){
+  if (b < 1024 * 1024) return Math.max(1, Math.round(b / 1024)) + ' kB';
+  if (b < 1024 * 1024 * 1024) return numero(b / 1048576) + ' MB';
+  return numero(b / 1073741824) + ' GB';
+}
+function mostraFasciaPeso(p){
+  const f = $('#fasciaPeso');
+  f.innerHTML = '';
+  if (!p){ f.classList.add('nascosto'); return; }
+  f.appendChild(el('span', null, T('Foglio molto lungo ({mb}): aperto in vista testo.', { mb:misura(pesoMd(p.md)) })));
+  const a = el('button','piccolo',T('Apri formattato'));
+  a.onclick = () => { mostraFasciaPeso(null); chiudiGrezzo(); impostaModo(modo); };
+  const d = el('button','piccolo',T('Dividi'));
+  d.onclick = () => dividiFoglio(p);
+  f.append(a, d);
+  f.classList.remove('nascosto');
+}
+
+/* divide un Foglio ai titoli di livello più alto presenti (H1, altrimenti H2): ogni parte diventa un
+   Foglio nuovo nello stesso Gruppo, l'originale va nel Cestino. Prima un'anteprima, poi si può annullare. */
+function partiDiFoglio(md){
+  const righe = String(md || '').split('\n');
+  let recinto = false;
+  const titoli = [];
+  righe.forEach((r, i) => {
+    if (/^\s{0,3}(```|~~~)/.test(r)){ recinto = !recinto; return; }
+    if (recinto) return;
+    const m = /^\s{0,3}(#{1,2})\s+(.+?)\s*#*\s*$/.exec(r);
+    if (m) titoli.push({ i, liv:m[1].length, testo:m[2] });
+  });
+  if (!titoli.length) return null;
+  const liv = Math.min(...titoli.map(t => t.liv));
+  const tagli = titoli.filter(t => t.liv === liv);
+  const parti = [];
+  const prima = righe.slice(0, tagli[0].i).join('\n');
+  if (senzaTessere(prima).trim()) parti.push({ nome:'', md:prima.trim() });
+  tagli.forEach((t, k) => {
+    const fine = k + 1 < tagli.length ? tagli[k + 1].i : righe.length;
+    const nome = t.testo.replace(/[*_`~\[\]]/g, '').trim();
+    parti.push({ nome, md:righe.slice(t.i + 1, fine).join('\n').trim() });
+  });
+  return parti.length > 1 ? parti : null;
+}
+function dividiFoglio(p){
+  if (!p) return;
+  if (chiuso(p)){ seAperto(p, () => dividiFoglio(p)); return; }
+  if (corrente && corrente.id === p.id) scriviCorrente();
+  const parti = partiDiFoglio(p.md);
+  if (!parti){ avviso(T('Non ci sono titoli su cui dividerlo.')); return; }
+  dialogo(T('Dividi il Foglio'), c => {
+    c.appendChild(el('p', null, T('Diventano {n} Fogli, nello stesso Gruppo. L\'originale va nel Cestino.', { n:parti.length })));
+    const ol = el('ol','elenco-parti');
+    parti.forEach(x => ol.appendChild(el('li', null, x.nome || T('(inizio)'))));
+    c.appendChild(ol);
+  }, () => {
+    const nuovi = parti.map(x => {
+      const n = { id:id(), sezioneId:p.sezioneId, titolo:titoloLibero(p.titolo + (x.nome ? ' - ' + x.nome : '')), md:x.md, creata:oggi(), modificata:oggi() };
+      if (p.allinea) n.allinea = Object.assign({}, p.allinea);
+      if (p.sfondo) n.sfondo = Object.assign({}, p.sfondo);
+      if (p.diario && RIGA_TESSERA.test(x.md)) n.diario = true;
+      if (p.protetto){ n.protetto = true; }
+      A.fogli.push(n);
+      return n;
+    });
+    if (corrente && corrente.id === p.id){ chiudiGrezzo(); mostraFasciaPeso(null); }
+    cestinaFogli([p], true);
+    salva(); disegnaLato(); apri(nuovi[0].id);
+    avviso(T('Foglio diviso in {n}.', { n:tn(nuovi.length, 'Foglio', 'Fogli') }), T('Annulla'), () => {
+      const ids = new Set(nuovi.map(x => x.id));
+      if (corrente && ids.has(corrente.id)) mostraVuoto();
+      A.fogli = A.fogli.filter(x => !ids.has(x.id));
+      const r = ripristinaFoglio(A.cestino.fogli.find(x => x.id === p.id), true);
+      salva(); disegnaLato(); if (r) apri(r.id);
+    }, 10000);
+  }, T('Dividi'));
+}
+
 /* ============ apertura e scrittura del foglio ============ */
-function apri(fid){
+function apri(fid, opz){
+  opz = opz || {};
   const voluto = foglio(fid);
-  if (chiuso(voluto)){ seAperto(voluto, () => apri(fid)); return; }
+  if (chiuso(voluto)){ seAperto(voluto, () => apri(fid, opz)); return; }
   chiudiGrezzo();
   finalizzaTitolo();
   scriviCorrente();
@@ -3965,7 +4378,11 @@ function apri(fid){
   $('#corpo').setAttribute('contenteditable', soloLettura() ? 'false' : 'true');
   titoloPrima = p.titolo;
   $('#titolo').value = p.titolo;
-  $('#corpo').innerHTML = htmlFoglio(p.md);
+  const peso = pesoMd(p.md);
+  /* un Foglio enorme si apre in vista testo, che resta veloce: formattarlo è una scelta */
+  const enorme = peso >= PESO_ENORME && !opz.formattato;
+  $('#corpo').innerHTML = enorme ? '' : htmlFoglio(p.md);
+  mostraFasciaPeso(null);
   segnaTessere();
   applicaAllineamento();
   applicaSfondo();
@@ -3973,6 +4390,7 @@ function apri(fid){
   togliManiglie();
   disegnaSommario();
   htmlAperto = $('#corpo').innerHTML;
+  scaldaMemoria();
   riempiImmagini();
   aggiornaBarraImmagine();
   aggiornaVuoto();
@@ -3984,9 +4402,15 @@ function apri(fid){
   impostaModo('normale');
   vista('foglio');
   disegnaLato();
+  firmaVoce = firmaCorrente();
   $('#zona').scrollTop = 0;
   if (cercato) setTimeout(() => evidenziaRicerca(cercato), 30);
   salvaPresto();
+  if (enorme){ apriGrezzo(true); mostraFasciaPeso(p); }
+  else if (peso >= PESO_LUNGO && !giaAvvisati.has(p.id)){
+    giaAvvisati.add(p.id);
+    setTimeout(() => avviso(T('Foglio lungo ({kb}): può aprirsi e salvarsi più lentamente.', { kb:misura(peso) }), T('Dividi'), () => dividiFoglio(p), 8000), 400);
+  }
 }
 
 function mostraVuoto(){
@@ -4113,53 +4537,90 @@ function zonaPiega(bersaglio, x){
   if (!h || !eScatola(h.parentNode)) return null;
   return x > h.getBoundingClientRect().right - 40 ? h : null;
 }
+/* Sommario (9.0): una pillola accanto alla data, con il numero dei titoli. Sul telefono apre i titoli
+   in un foglio dal basso, sul computer in un riquadro sopra il Foglio, a destra. */
+let sommarioFoglio = null;
 function disegnaSommario(){
-  const box = $('#sommario');
+  const box = $('#sommario'), pill = $('#bSommario');
   titoliSommario = corrente ? blocchi().filter(livello) : [];
   applicaPieghe();
-  if (!corrente || !A.impostazioni.sommario || vistaGrezza || !titoliSommario.length){ box.classList.add('nascosto'); return; }
-  const aperto = A.impostazioni.sommarioAperto;
-  const insieme = insiemePiegati(), chiavi = chiaviTitoli();
-  const tutteChiuse = chiavi.every(k => insieme.has(k));
-  box.innerHTML = '';
-  const capo = el('div','capo');
-  const apri2 = el('button','apri-som');
-  apri2.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 7h14M8 12h11M11 17h8"/></svg>';
-  apri2.appendChild(el('span', null, T('In questo Foglio')));
-  apri2.appendChild(el('span','conta', String(titoliSommario.length)));
-  apri2.onclick = () => { A.impostazioni.sommarioAperto = !aperto; salvaPresto(); disegnaSommario(); };
-  const tutte = el('button','mini');
-  tutte.title = tutteChiuse ? T('Apri tutti i paragrafi') : T('Chiudi tutti i paragrafi');
-  tutte.setAttribute('aria-label', tutte.title);
-  tutte.innerHTML = ICONE.doppia(tutteChiuse ? 'giu' : 'su');
-  tutte.onclick = commutaTutte;
-  const frec = el('button','mini');
-  frec.title = aperto ? T('Riduci il sommario') : T('Mostra il sommario');
-  frec.setAttribute('aria-label', frec.title);
-  frec.innerHTML = ICONE.freccia(aperto ? 'su' : 'giu');
-  frec.onclick = apri2.onclick;
-  [apri2, tutte, frec].forEach(b => b.addEventListener('mousedown', e => e.preventDefault()));
-  capo.append(apri2, tutte, frec);
-  box.appendChild(capo);
-  if (aperto){
-    const ol = document.createElement('ol');
-    const minimo = Math.min(...titoliSommario.map(livello));     /* il rientro parte dal titolo più alto presente */
-    titoliSommario.forEach((h, i) => {
-      const li = document.createElement('li');
-      const b = el('button','voce-som liv' + (livello(h) - minimo + 1) + (insieme.has(chiavi[i]) ? ' chiusa' : ''), h.textContent.trim() || T('senza titolo'));
-      b.onclick = () => mostraTitolo(h);
-      li.appendChild(b); ol.appendChild(li);
-    });
-    box.appendChild(ol);
+  const visibile = !!corrente && A.impostazioni.sommario && !vistaGrezza && titoliSommario.length > 0;
+  pill.classList.toggle('nascosto', !visibile);
+  if (visibile){
+    pill.querySelector('.conta-som').textContent = String(titoliSommario.length);
+    pill.setAttribute('aria-label', T('Sommario: {n}', { n:tn(titoliSommario.length, 'titolo', 'titoli') }));
+    pill.title = T('In questo Foglio');
   }
-  box.classList.remove('nascosto');
+  const aperto = visibile && !stretto() && A.impostazioni.sommarioAperto;
+  pill.setAttribute('aria-expanded', aperto || !!sommarioFoglio ? 'true' : 'false');
+  if (!aperto) box.classList.add('nascosto');
+  else {
+    box.innerHTML = '';
+    const capo = el('div','capo');
+    capo.appendChild(el('span','titolo-som', T('In questo Foglio')));
+    capo.appendChild(bottoneTutteLePieghe());
+    const x = el('button','mini');
+    x.title = T('Chiudi il sommario'); x.setAttribute('aria-label', x.title);
+    x.innerHTML = '<svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>';
+    x.onclick = () => { A.impostazioni.sommarioAperto = false; salvaPresto(); disegnaSommario(); };
+    [x].forEach(b => b.addEventListener('mousedown', e => e.preventDefault()));
+    capo.appendChild(x);
+    box.append(capo, elencoTitoli());
+    box.classList.remove('nascosto');
+  }
+  if (sommarioFoglio){ if (sommarioFoglio.box.isConnected && visibile) sommarioFoglio.aggiorna(); else sommarioFoglio = null; }
+}
+function bottoneTutteLePieghe(){
+  const insieme = insiemePiegati(), chiavi = chiaviTitoli();
+  const tutteChiuse = chiavi.length > 0 && chiavi.every(k => insieme.has(k));
+  const b = el('button','mini');
+  b.title = tutteChiuse ? T('Apri tutti i paragrafi') : T('Chiudi tutti i paragrafi');
+  b.setAttribute('aria-label', b.title);
+  b.innerHTML = ICONE.doppia(tutteChiuse ? 'giu' : 'su');
+  b.onclick = commutaTutte;
+  b.addEventListener('mousedown', e => e.preventDefault());
+  return b;
+}
+function elencoTitoli(dopo){
+  const insieme = insiemePiegati(), chiavi = chiaviTitoli();
+  const ol = document.createElement('ol');
+  ol.className = 'elenco-som';
+  const minimo = Math.min(...titoliSommario.map(livello));     /* il rientro parte dal titolo più alto presente */
+  titoliSommario.forEach((h, i) => {
+    const li = document.createElement('li');
+    const b = el('button','voce-som liv' + (livello(h) - minimo + 1) + (insieme.has(chiavi[i]) ? ' chiusa' : ''), h.textContent.trim() || T('senza titolo'));
+    b.onclick = () => { if (dopo) dopo(); mostraTitolo(h); };
+    b.addEventListener('mousedown', e => e.preventDefault());
+    li.appendChild(b); ol.appendChild(li);
+  });
+  return ol;
+}
+function apriSommario(){
+  if (!corrente || !titoliSommario.length) return;
+  if (!stretto()){ A.impostazioni.sommarioAperto = !A.impostazioni.sommarioAperto; salvaPresto(); disegnaSommario(); return; }
+  dialogo(T('In questo Foglio'), (c, chiudi, pie) => {
+    const via = () => { sommarioFoglio = null; chiudi(); $('#bSommario').setAttribute('aria-expanded', 'false'); };
+    const aggiorna = () => {
+      c.innerHTML = ''; c.appendChild(elencoTitoli(via));
+      pie.innerHTML = '';
+      const t = bottoneTutteLePieghe(); t.classList.add('bott'); t.classList.remove('mini');
+      t.appendChild(el('span', null, t.title));
+      const x = el('button','bott pieno', T('Chiudi')); x.onclick = via;
+      pie.append(t, x);
+    };
+    sommarioFoglio = { box:c, aggiorna };
+    aggiorna();
+    $('#bSommario').setAttribute('aria-expanded', 'true');
+  }, null, null, { pieLibero:true, uscita: ch => { sommarioFoglio = null; ch(); $('#bSommario').setAttribute('aria-expanded', 'false'); } });
 }
 /* titoli e sommario si aggiornano mentre si scrive, una volta per fotogramma */
 let titoliInArrivo = false;
 function pianificaTitoli(){
   if (titoliInArrivo) return;
   titoliInArrivo = true;
-  requestAnimationFrame(() => { titoliInArrivo = false; if (corrente && !vistaGrezza) disegnaSommario(); });
+  const fai = () => requestAnimationFrame(() => { titoliInArrivo = false; if (corrente && !vistaGrezza) disegnaSommario(); });
+  /* in un Foglio lungo il sommario si aggiorna dopo una breve pausa, non a ogni tasto */
+  corpo().childElementCount > 300 ? setTimeout(fai, 300) : fai();
 }
 
 /* dopo una ricerca il termine viene selezionato nel foglio, come con il mouse */
@@ -4204,7 +4665,7 @@ function scriviCorrente(){
   if (t && t !== corrente.titolo){ corrente.titolo = t; cambiato = true; }
   const htmlOra = htmlCorpo();
   if (htmlOra !== htmlAperto){
-    const md = htmlVersoMd(htmlOra);
+    const md = mdCorrente(htmlOra);
     if (md !== corrente.md){ corrente.md = md; cambiato = true; }
     htmlAperto = htmlOra;
   }
@@ -4225,15 +4686,23 @@ function finalizzaTitolo(){
   titoloPrima = t;
 }
 
-const registra = rimbalzo(() => {
+/* a ogni pausa nella scrittura: il Foglio si converte e si salva. La pausa si allunga se la conversione
+   è lenta (Fogli molto lunghi); la colonna si ridisegna solo se cambia quello che mostra del Foglio aperto. */
+let timerRegistra = 0, firmaVoce = '';
+const firmaCorrente = () => corrente ? corrente.titolo + '|' + dataBreve(corrente.modificata) + '|' + anteprimaFoglio(corrente) : '';
+function registraOra(){
+  timerRegistra = 0;
   if (!corrente) return;
   scriviCorrente();
-  disegnaSommario();
   $('#metaFoglio').textContent = T('Modificato {quando}', { quando:dataBreve(corrente.modificata) });
   salva();
-  disegnaLato();
-  disegnaRimandi();
-}, 700);
+  const f = firmaCorrente();
+  if (f !== firmaVoce){ firmaVoce = f; disegnaLato(); }
+}
+function registra(){
+  clearTimeout(timerRegistra);
+  timerRegistra = setTimeout(registraOra, Math.min(3000, Math.max(700, ultimaConversione * 4)));
+}
 
 function rinominaRimandi(vecchio, nuovo){
   const c = senzaAccenti(vecchio).trim();
@@ -4275,7 +4744,7 @@ function disegnaRimandi(){
 }
 
 /* ============ vista testo: markdown grezzo, senza conversioni ============ */
-function apriGrezzo(){
+function apriGrezzo(silenzioso){
   if (!corrente || vistaGrezza) return;
   scriviCorrente();
   vistaGrezza = true;
@@ -4288,10 +4757,11 @@ function apriGrezzo(){
   $('#strumenti').classList.add('nascosto');
   $('#rimandi').classList.add('nascosto');
   impostaModo(modo);
-  avviso(T('Vista testo: stai modificando il markdown così com\'è.'));
+  if (silenzioso !== true) avviso(T('Vista testo: stai modificando il markdown così com\'è.'));
 }
 function chiudiGrezzo(){
   if (!vistaGrezza) return;
+  mostraFasciaPeso(null);
   const testo = $('#grezzo').value;
   if (corrente && testo !== corrente.md){ corrente.md = testo; corrente.modificata = oggi(); }
   vistaGrezza = false;
@@ -4312,8 +4782,9 @@ function chiudiGrezzo(){
 
 /* ============ creazione ============ */
 function nuovoFoglio(sid){
-  const sezioni = sezioniDi(A.impostazioni.quaderno);
-  const dove = sid || (corrente ? corrente.sezioneId : null) || (sezioni[0] && sezioni[0].id);
+  const sezioni = sezioniDi(A.impostazioni.quaderno), qui = new Set(sezioni.map(s => s.id));
+  const ultimo = A.impostazioni.recenti.map(x => foglio(x.id)).find(p => p && qui.has(p.sezioneId));
+  const dove = sid || (corrente && qui.has(corrente.sezioneId) ? corrente.sezioneId : null) || (ultimo && ultimo.sezioneId) || (sezioni[0] && sezioni[0].id);
   if (!dove){ nuovaSezione(); return; }
   const p = { id:id(), sezioneId:dove, titolo:titoloLibero(''), md:'', creata:oggi(), modificata:oggi() };
   A.fogli.push(p);
@@ -4598,7 +5069,10 @@ function segnaPasso(tipo){
   const f = fotografia();
   if (passi.length && passi[passi.length - 1].html === f.html && passi[passi.length - 1].al === f.al) return;
   passi.push(f);
+  /* al massimo 150 passi e circa 12 MB di fotografie, mai meno di 20 passi */
   if (passi.length > 150) passi.shift();
+  let peso = passi.reduce((s, x) => s + x.html.length, 0);
+  while (passi.length > 20 && peso > 6e6){ peso -= passi.shift().html.length; }
   rifatti = [];
 }
 function rimetti(f){
@@ -5101,6 +5575,9 @@ function aggiornaAccese(){
 }
 /* ============ avvisi e dialoghi ============ */
 function avviso(testo, etichetta, azione, durata){
+  /* al massimo due avvisi insieme: il più vecchio lascia il posto */
+  const pila = $('#avvisi');
+  while (pila.children.length >= 2) pila.firstElementChild.remove();
   const box = el('div','avviso');
   box.appendChild(el('span', null, testo));
   if (etichetta){
@@ -5115,8 +5592,13 @@ function avviso(testo, etichetta, azione, durata){
 function dialogo(titolo, costruisci, alConferma, etichetta, opz){
   opz = opz || {};
   const velo = el('div','velo' + (opz.schermoIntero ? ' intera' : ''));
-  const scheda = el('div','scheda' + (opz.schermoIntero ? ' intera' : ''));
-  scheda.appendChild(el('h2', null, titolo));
+  const scheda = el('div','scheda' + (opz.schermoIntero ? ' intera' : '') + (opz.classe ? ' ' + opz.classe : ''));
+  const prima = document.activeElement;
+  const idTitolo = 'dlg' + id();
+  scheda.setAttribute('role', 'dialog'); scheda.setAttribute('aria-modal', 'true'); scheda.setAttribute('aria-labelledby', idTitolo);
+  if (!opz.schermoIntero){ const pr = el('span','presa-foglio'); pr.setAttribute('aria-hidden', 'true'); scheda.appendChild(pr); }
+  const h2 = el('h2', null, titolo); h2.id = idTitolo;
+  scheda.appendChild(h2);
   const corpoS = el('div','corpo-scheda');
   scheda.appendChild(corpoS);
   const pie = el('div','pie');
@@ -5132,13 +5614,27 @@ function dialogo(titolo, costruisci, alConferma, etichetta, opz){
   scheda.appendChild(pie);
   velo.appendChild(scheda);
   document.body.appendChild(velo);
-  const chiudi = () => { velo.remove(); document.removeEventListener('keydown', tasti, true); };
+  /* chiuso il dialogo, il fuoco torna dov'era (non nel testo su telefono: riaprirebbe la tastiera) */
+  const chiudi = () => {
+    velo.remove(); document.removeEventListener('keydown', tasti, true);
+    if (prima && prima.focus && prima.isConnected && prima !== document.body && !document.querySelector('.velo')
+      && !(prima.isContentEditable && matchMedia('(pointer:coarse)').matches)) prima.focus({ preventScroll:true });
+  };
   /* toccare fuori o premere Esc vale come "chiudi", ma chi apre il dialogo può fermarlo */
   const prova = () => opz.uscita ? opz.uscita(chiudi) : chiudi();
   const inCima = () => { const v = document.querySelectorAll('.velo'); return v[v.length - 1] === velo; };
   const tasti = e => {
     if (!inCima()) return;
     if (e.key === 'Escape'){ e.stopPropagation(); prova(); }
+    /* Tab gira dentro al dialogo */
+    if (e.key === 'Tab'){
+      const f = [...scheda.querySelectorAll('button,input,select,textarea,a[href],[tabindex]:not([tabindex="-1"])')].filter(x => !x.disabled && x.offsetParent !== null);
+      if (!f.length) return;
+      const i = f.indexOf(document.activeElement);
+      if (e.shiftKey && i <= 0){ e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && i === f.length - 1){ e.preventDefault(); f[0].focus(); }
+      else if (i < 0){ e.preventDefault(); f[0].focus(); }
+    }
     if (e.key === 'Enter' && ok && e.target.tagName !== 'TEXTAREA' && !e.target.classList.contains('elenco-voce')){ e.preventDefault(); ok.click(); }
   };
   if (annulla) annulla.onclick = chiudi;
@@ -5277,24 +5773,60 @@ function sceltaDestinazione(titolo, opzioni, alFatto){
 }
 
 /* ============ menu ============ */
+/* menu: sul telefono sale dal basso, con un velo dietro; su computer sta accanto al pulsante.
+   Frecce su e giù per muoversi, Esc per chiudere (9.0) */
+let chiudiMenuAperto = null;
 function menu(x, y, voci){
-  document.querySelectorAll('.menu').forEach(m => m.remove());
-  const m = el('div','menu');
+  if (chiudiMenuAperto) chiudiMenuAperto();
+  document.querySelectorAll('.menu,.velo-menu').forEach(n => n.remove());
+  const basso = stretto();
+  const m = el('div','menu' + (basso ? ' dal-basso' : ''));
+  m.setAttribute('role', 'menu');
+  const velo = basso ? el('div','velo velo-menu') : null;
+  const prima = document.activeElement;
+  let finito = false;
+  const chiudi = ritorna => {
+    if (finito) return;
+    finito = true;
+    m.remove(); if (velo) velo.remove();
+    document.removeEventListener('pointerdown', via, true);
+    document.removeEventListener('keydown', tasti, true);
+    chiudiMenuAperto = null;
+    if (ritorna && prima && prima.focus && prima.isConnected && prima !== document.body) prima.focus({ preventScroll:true });
+  };
+  if (basso){ const pr = el('span','presa-foglio'); pr.setAttribute('aria-hidden', 'true'); m.appendChild(pr); }
   voci.forEach(v => {
-    if (v === '-'){ m.appendChild(document.createElement('hr')); return; }
+    if (v === '-'){ const h = document.createElement('hr'); h.setAttribute('role', 'separator'); m.appendChild(h); return; }
     const b = el('button', (v.rischio ? 'rischio' : '') + (v.scelto ? ' scelto' : '') + (v.icona ? ' con-icona' : ''), v.testo);
+    b.setAttribute('role', 'menuitem');
     if (v.icona) b.insertAdjacentHTML('afterbegin', svgTratto(v.icona));
-    b.onclick = () => { m.remove(); v.fai(); };
+    b.onclick = () => { chiudi(false); v.fai(); };
     m.appendChild(b);
   });
+  if (velo){ velo.onclick = () => chiudi(true); document.body.appendChild(velo); }
   document.body.appendChild(m);
-  const r = m.getBoundingClientRect();
-  m.style.left = Math.max(8, Math.min(x, innerWidth - r.width - 10)) + 'px';
-  m.style.top = Math.max(8, Math.min(y, innerHeight - r.height - 10)) + 'px';
-  setTimeout(() => {
-    const via = e => { if (!m.contains(e.target)){ m.remove(); document.removeEventListener('pointerdown', via); } };
-    document.addEventListener('pointerdown', via);
-  }, 0);
+  if (!basso){
+    const r = m.getBoundingClientRect();
+    m.style.left = Math.max(8, Math.min(x, innerWidth - r.width - 10)) + 'px';
+    m.style.top = Math.max(8, Math.min(y, innerHeight - r.height - 10)) + 'px';
+  }
+  const pulsanti = () => [...m.querySelectorAll('button')];
+  const tasti = e => {
+    if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); chiudi(true); return; }
+    if (e.key === 'Tab'){ chiudi(false); return; }
+    if (!['ArrowDown','ArrowUp','Home','End'].includes(e.key)) return;
+    const v = pulsanti();
+    if (!v.length) return;
+    e.preventDefault();
+    let i = v.indexOf(document.activeElement);
+    i = e.key === 'Home' ? 0 : e.key === 'End' ? v.length - 1 : i < 0 ? (e.key === 'ArrowDown' ? 0 : v.length - 1) : (i + (e.key === 'ArrowDown' ? 1 : -1) + v.length) % v.length;
+    v[i].focus();
+  };
+  const via = e => { if (!m.contains(e.target) && e.target !== velo) chiudi(false); };
+  setTimeout(() => { if (!finito) document.addEventListener('pointerdown', via, true); }, 0);
+  document.addEventListener('keydown', tasti, true);
+  if (!matchMedia('(pointer:coarse)').matches){ const v = pulsanti(); if (v.length) v[0].focus({ preventScroll:true }); }
+  chiudiMenuAperto = () => chiudi(false);
 }
 
 /* menu a tre punti di un Foglio, a gruppi: contenuto e aspetto, organizzazione,
@@ -5335,13 +5867,15 @@ function menuFoglio(p, x, y){
         if (p.diario) n.diario = true;
         A.fogli.push(n); salva(); disegnaLato(); apri(n.id);
       }) },
+    { testo:T('Informazioni sul Foglio'), icona:'info', fai: () => infoFoglio(p) },
     { testo:T('Seleziona Fogli'), icona:'seleziona', fai: () => entraSelezione('fogli') },
     '-',
     /* le tre forme di condivisione stanno in un secondo menu, per non allungare questo */
     ...(p.protetto ? [] : [{ testo:T('Condividi ed esporta') + ' \u203A', icona:'condividi', fai: () => menu(x, y, [
       { testo:T('Condividi il file .md'), icona:'condividi', fai: () => condividiFogli([p]) },
       { testo:T('Copia il file .md'), icona:'file', fai: () => copia(testoMd(p), T('Markdown copiato.')) },
-      { testo:T('Copia il testo'), icona:'testo', fai: () => copia(testoSemplice(p.md), T('Testo copiato.')) }
+      { testo:T('Copia il testo'), icona:'testo', fai: () => copia(testoSemplice(p.md), T('Testo copiato.')) },
+      { testo:T('Stampa o salva in PDF'), icona:'stampa', fai: () => stampaFoglio(p) }
     ]) }]),
     p.protetto
       ? { testo:T('Togli la protezione'), icona:'aperto', fai: () => sproteggi(p) }
@@ -5354,12 +5888,45 @@ function menuFoglio(p, x, y){
   menu(x, y, voci);
 }
 
+/* informazioni sul Foglio (9.0): date, parole, peso, immagini, tessere */
+function infoFoglio(p){
+  if (chiuso(p)){ seAperto(p, () => infoFoglio(p)); return; }
+  if (corrente && corrente.id === p.id) scriviCorrente();
+  const md = p.md, testo = testoSemplice(md), peso = pesoMd(md);
+  const parole = (testo.match(/[\p{L}\p{N}]+(?:['\u2019][\p{L}\p{N}]+)*/gu) || []).length;
+  const ids = idsImmagini(md), pesoImm = [...ids].reduce((s, k) => s + (+(A.immagini[k] || {}).peso || 0), 0);
+  const tessere = (md.match(new RegExp(RIGA_TESSERA.source, 'gm')) || []).length;
+  const cifra = n => n.toLocaleString(LINGUA === 'en' ? 'en-US' : 'it-IT');
+  dialogo(T('Informazioni sul Foglio'), (c, chiudi, pie) => {
+    c.appendChild(el('p','sotto-titolo', p.titolo));
+    const dl = el('dl','info-foglio');
+    const r = (k, v) => dl.append(el('dt', null, k), el('dd', null, v));
+    r(T('Creato'), dataBreve(p.creata));
+    r(T('Modificato'), dataBreve(p.modificata));
+    r(T('Parole'), cifra(parole));
+    r(T('Caratteri'), cifra([...testo].length));
+    r(T('Peso del testo'), misura(peso));
+    r(T('Immagini'), ids.size ? ids.size + ' - ' + numero(pesoImm / 1048576) + ' MB' : '0');
+    if (tessere) r(p.diario ? T('Tessere del diario') : T('Tessere'), String(tessere));
+    c.appendChild(dl);
+    if (peso >= PESO_LUNGO) c.appendChild(el('p','avvertenza', T('È un Foglio lungo: può aprirsi e salvarsi più lentamente. Puoi dividerlo ai titoli.')));
+    if (peso >= PESO_LUNGO && !p.protetto){ const d = el('button','bott', T('Dividi')); d.onclick = () => { chiudi(); dividiFoglio(p); }; pie.appendChild(d); }
+    const x = el('button','bott pieno', T('Chiudi')); x.onclick = chiudi; pie.appendChild(x);
+  }, null, null, { pieLibero:true });
+}
+/* stampa (9.0): il Foglio aperto, formattato; dal browser si sceglie anche "salva in PDF" */
+function stampaFoglio(p){
+  const vai = () => { if (vistaGrezza){ mostraFasciaPeso(null); chiudiGrezzo(); } setTimeout(() => window.print(), 120); };
+  if (!corrente || corrente.id !== p.id){ apri(p.id, { formattato:true }); setTimeout(vai, 200); }
+  else vai();
+}
+
 /* menu a tre punti di Gruppi e Quaderni, a gruppi come quello del Foglio:
    creare, organizzare, condividere, eliminare (sempre ultima) */
 function menuSezione(s, x, y){
   menu(x, y, [
     { testo:T('Nuovo Foglio qui'), icona:'piu', fai: () => nuovoFoglio(s.id) },
-    { testo:T('Importa file qui'), icona:'importa', fai: () => importaFile({ sezione:s.id }) },
+    { testo:T('Importa file qui'), icona:'importa', fai: () => scegliFile('.md,.markdown,.txt,.zip,text/markdown,text/plain,application/zip', f => importaDaFile(f, { sezione:s.id })) },
     '-',
     { testo:T('Rinomina'), icona:'rinomina', fai: () => rinominaSezione(s) },
     { testo:T('Cambia icona'), icona:'icona', fai: () => scegliIcona(s) },
@@ -5377,7 +5944,7 @@ function menuQuaderno(x, y){
   menu(x, y, [
     { testo:T('Nuovo Gruppo'), icona:'piu', fai: nuovaSezione },
     { testo:T('Nuovo Quaderno'), icona:'quaderno', fai: nuovoQuaderno },
-    { testo:T('Importa file'), icona:'importa', fai: () => importaFile({ quadernoId:q.id }) },
+    { testo:T('Importa'), icona:'importa', fai: () => pannelloImporta({ quadernoId:q.id }) },
     '-',
     { testo:T('Rinomina Quaderno'), icona:'rinomina', fai: () => rinominaQuaderno(q) },
     ...(A.impostazioni.riordinoManuale ? [{ testo:T('Riordina Gruppi'), icona:'riordina', fai: entraRiordino }] : []),
@@ -5554,6 +6121,17 @@ function disegnaCestino(){
   })));
 }
 
+/* seconda riga delle voci nell'elenco (9.0): l'inizio del testo, tenuto in memoria per Foglio.
+   Dei Fogli protetti non si mostra niente, nemmeno quando sono aperti. */
+const memoriaAnteprime = new Map();
+function anteprimaFoglio(p){
+  if (!p || p.protetto) return '';
+  const k = p.modificata + '|' + p.md.length, m = memoriaAnteprime.get(p.id);
+  if (m && m.k === k) return m.v;
+  const v = p.md.trim() ? primeRighe(p.md.slice(0, 1500)) : '';
+  memoriaAnteprime.set(p.id, { k, v });
+  return v;
+}
 function primeRighe(md){
   const t = senzaTessere(md).replace(/```[\s\S]*?```/g,' ').replace(/!\[[^\]]*\]\([^)]*\)/g,' ').replace(/<[^>]+>/g,' ')
     .replace(/[#>*_`|\[\]()!-]/g,' ').replace(/\s+/g,' ').trim();
@@ -5632,6 +6210,7 @@ function dispostaBarra(animata){
   const pos = i.barraPosizione, lato = pos === 'libera' ? i.barraLibera.lato : 'destra';
   b.dataset.pos = pos;
   b.dataset.lato = lato;
+  document.body.dataset.barra = pos;
   b.classList.toggle('arrotolata', !i.barraAperta);
   /* la freccia indica sempre dove andrà la barra al prossimo tocco */
   const verso = i.barraAperta ? (lato === 'destra' ? 'destra' : 'sinistra') : (lato === 'destra' ? 'sinistra' : 'destra');
@@ -5797,7 +6376,10 @@ function pannelloImpostazioni(){
     if (i.riordinoManuale && (i.ordineGruppi !== allApertura.ordineGruppi || !allApertura.riordinoManuale)) riordinaSecondo(i.ordineGruppi);
     salva(); disegnaLato();
   };
-  let chiudiPannello = null, piede = null, corpoP = null;
+  let chiudiPannello = null, piede = null, corpoP = null, pesoPannello = null, stimaPannello = null;
+  if (idb && navigator.storage && navigator.storage.estimate){
+    navigator.storage.estimate().then(e => { stimaPannello = e; if (corpoP && corpoP.isConnected) disegna(); }).catch(() => {});
+  }
 
   const aggiornaPiede = () => {
     piede.innerHTML = '';
@@ -5922,8 +6504,7 @@ function pannelloImpostazioni(){
     blocco(T('Backup'), 'backup');
     riga(T('Esporta tutto'), T('Un file .json che rimette l\'archivio esattamente com\'era, immagini comprese. I Fogli protetti restano cifrati.'), T('Esporta'), esportaJson);
     riga(T('Esporta i Fogli'), T('Uno .zip con le cartelle dei Quaderni e dei Gruppi, e le immagini.'), T('Esporta'), esportaMd);
-    riga(T('Importa un backup'), T('Da un file .json di folio.'), T('Importa'), () => esci(importaJson));
-    riga(T('Importa file di testo'), T('Da file .md o .txt, scegliendo dove metterli.'), T('Importa'), () => esci(() => importaFile({})));
+    riga(T('Importa'), T('File di testo, archivi .zip, cartelle, backup di folio, o da un\'altra app con un\'AI. Sempre con anteprima.'), T('Importa'), () => esci(() => pannelloImporta({})));
     const q = el('p','avvertenza');
     q.textContent = T('I Fogli vivono solo in questo browser. Se svuoti i dati del sito o cambi dispositivo, senza backup si perdono.') + ' '
       + (i.ultimoBackup ? T('Ultimo backup: {quando}.', { quando:dataBreve(i.ultimoBackup) }) : T('Non hai ancora fatto un backup.'));
@@ -5935,15 +6516,17 @@ function pannelloImpostazioni(){
       T('Quello che elimini resta qui 30 giorni, poi sparisce.'), T('Apri'), () => esci(apriCestino));
 
     blocco(T('Archivio'), 'archivio');
-    const kb = (new Blob([JSON.stringify(A)]).size / 1024).toFixed(1);
+    /* il peso si calcola una volta sola, all'apertura del pannello; lo spazio libero lo dice il browser */
+    if (pesoPannello == null) pesoPannello = new Blob([JSON.stringify(perSalvare(A))]).size;
     const imm = Object.values(A.immagini), pesoImm = imm.reduce((s, x) => s + (+x.peso || 0), 0);
-    const misura = el('p','avvertenza');
-    misura.textContent = tn(A.quaderni.length, 'Quaderno', 'Quaderni') + ', ' + tn(A.sezioni.length, 'Gruppo', 'Gruppi') + ', '
+    const mis = el('p','avvertenza');
+    mis.textContent = tn(A.quaderni.length, 'Quaderno', 'Quaderni') + ', ' + tn(A.sezioni.length, 'Gruppo', 'Gruppi') + ', '
       + tn(A.fogli.length, 'Foglio', 'Fogli') + '. '
-      + T('Occupa {kb} kB', { kb: LINGUA === 'en' ? kb : kb.replace('.', ',') })
-      + (idb ? T(' nella memoria estesa del browser.') : T(' nella memoria semplice, che si ferma attorno a 5 MB.'))
+      + (stimaPannello && stimaPannello.quota
+        ? T('Occupa {x} su circa {y} disponibili.', { x:misura(stimaPannello.usage || 0), y:misura(stimaPannello.quota) })
+        : T('Occupa {kb}', { kb:misura(pesoPannello + pesoImm) }) + (idb ? T(' nella memoria estesa del browser.') : T(' nella memoria semplice, che si ferma attorno a 5 MB.')))
       + (imm.length ? ' ' + T('Immagini incorporate: {n}, {mb} MB.', { n:imm.length, mb:numero(pesoImm / 1048576) }) : '');
-    dove.appendChild(misura);
+    dove.appendChild(mis);
 
     blocco(T('Ripristino'), 'ripristino');
     riga(T('Impostazioni iniziali'), T('Riporta aspetto e preferenze come al primo avvio. I Fogli restano dove sono.'), T('Ripristina'), () => {
@@ -5954,7 +6537,7 @@ function pannelloImpostazioni(){
     riga(T('Cancella tutti i Fogli'), T('Torna a un solo Quaderno, con un Gruppo e il Foglio di benvenuto.'), T('Cancella'), () => esci(dialogoCancellaTutto), true);
 
     const v = el('p','versione');
-    v.innerHTML = '<b>folio.</b> ' + fuga(T('versione')) + ' ' + VERSIONE_APP;
+    v.innerHTML = $('#marchio').innerHTML + ' <span>' + fuga(T('versione')) + ' ' + VERSIONE_APP + '</span>';
     c.appendChild(v);
     c.scrollTop = su;
   };
@@ -5964,7 +6547,7 @@ function pannelloImpostazioni(){
     /* lo stato della sincronizzazione si aggiorna da solo finché il pannello è aperto */
     ridisegnaSync = () => { if (corpoP && corpoP.isConnected) disegna(); else ridisegnaSync = null; };
     disegna(); aggiornaPiede();
-  }, null, null, { pieLibero:true, uscita: () => esci() });
+  }, null, null, { pieLibero:true, uscita: () => esci(), classe:'impostazioni' });
 }
 
 /* azzera l'archivio: resta la configurazione del primo avvio, con le preferenze attuali */
@@ -6025,7 +6608,10 @@ async function esportaJson(){
   try { immaginiDati = await datiImmagini(Object.keys(A.immagini)); }
   catch(e){ avviso(T('Non riesco a leggere le immagini: il backup non le contiene.'), null, null, 7000); }
   const dati = Object.assign({}, perSalvare(A), Object.keys(immaginiDati).length ? { immaginiDati } : {});
-  scarica('folio-' + timbro() + '.json', JSON.stringify(dati, null, 1), 'application/json');
+  let testo;
+  try { testo = JSON.stringify(dati, null, 1); }
+  catch(e){ avviso(T('Il backup è troppo grande per questo dispositivo: usa "Esporta i Fogli" (.zip) o un computer.'), null, null, 9000); return; }
+  scarica('folio-' + timbro() + '.json', testo, 'application/json');
   segnaBackup(); avviso(T('Backup completo scaricato.'));
 }
 
@@ -6039,7 +6625,7 @@ function fileEsportazione(){
       const cs = nomeCartella(s.nome, usati, cq);
       const fg = fogliDi(s.id);
       if (!fg.length) file.push({ nome: cq + '/' + cs + '/.cartella', testo: '' });
-      fg.forEach(p => file.push({ nome: cq + '/' + cs + '/' + nomeCartella(p.titolo, usati, cq + '/' + cs) + '.md', testo: mdDi(p) + '\n', cartella: cq + '/' + cs }));
+      fg.forEach(p => file.push({ nome: cq + '/' + cs + '/' + nomeCartella(p.titolo, usati, cq + '/' + cs) + '.md', testo: mdDi(p) + '\n', cartella: cq + '/' + cs, data: p.modificata }));
     });
   });
   return file;
@@ -6079,7 +6665,10 @@ async function esportaMd(){
   if (!file.length){ avviso(T('Non c\'è ancora niente da esportare.')); return; }
   const nMd = file.filter(f => f.nome.endsWith('.md')).length;
   try { file = await conImmagini(file); } catch(e){}
-  scarica('folio-' + timbro() + '.zip', creaZip(file), 'application/zip');
+  let zip;
+  try { zip = creaZip(file); }
+  catch(e){ avviso(T('L\'archivio è troppo grande per questo dispositivo: esporta un Quaderno alla volta dal suo menu.'), null, null, 9000); return; }
+  scarica('folio-' + timbro() + '.zip', zip, 'application/zip');
   segnaBackup(); avviso(tn(nMd, 'Foglio esportato.', 'Fogli esportati.'));
 }
 
@@ -6090,10 +6679,14 @@ function creaZip(file){
   const crc = b => { let c = 0xFFFFFFFF; for (let i=0;i<b.length;i++) c = tabella[(c ^ b[i]) & 0xFF] ^ (c>>>8); return (c ^ 0xFFFFFFFF) >>> 0; };
   const pezzi = [], centrale = [];
   let spostamento = 0;
-  const d = new Date();
-  const ora = ((d.getHours()<<11) | (d.getMinutes()<<5) | (d.getSeconds()/2)) & 0xFFFF;
-  const data = (((d.getFullYear()-1980)<<9) | ((d.getMonth()+1)<<5) | d.getDate()) & 0xFFFF;
+  /* ogni file porta la data di modifica del suo Foglio: reimportando, le date restano */
+  const dos = iso => {
+    let d = iso ? new Date(iso) : new Date();
+    if (isNaN(d) || d.getFullYear() < 1980) d = new Date();
+    return [((d.getHours()<<11) | (d.getMinutes()<<5) | (d.getSeconds()/2)) & 0xFFFF, (((d.getFullYear()-1980)<<9) | ((d.getMonth()+1)<<5) | d.getDate()) & 0xFFFF];
+  };
   file.forEach(f => {
+    const [ora, data] = dos(f.data);
     const nome = cod.encode(f.nome), dati = f.dati || cod.encode(f.testo), c = crc(dati);
     const loc = new DataView(new ArrayBuffer(30));
     loc.setUint32(0, 0x04034b50, true); loc.setUint16(4, 20, true); loc.setUint16(6, 0x0800, true);
@@ -6175,7 +6768,7 @@ async function condividiFogli(fg){
   const usati = new Set();
   let file = fg.map(p => {
     const s = sezione(p.sezioneId), cs = nomeCartella(s ? s.nome : T('fogli'), usati, 'z');
-    return { nome: cs + '/' + nomeCartella(p.titolo, usati, cs) + '.md', testo: testoMd(p, true), cartella: cs };
+    return { nome: cs + '/' + nomeCartella(p.titolo, usati, cs) + '.md', testo: testoMd(p, true), cartella: cs, data: p.modificata };
   });
   try { file = await conImmagini(file); } catch(e){}
   condividi('folio-' + timbro() + '.zip', creaZip(file), 'application/zip');
@@ -6188,7 +6781,7 @@ async function condividiSezioni(sez, nomeInsieme){
   let file = [];
   sez.forEach(s => {
     const cs = nomeCartella(s.nome, usati, 'z');
-    fogliDi(s.id).forEach(p => file.push({ nome: cs + '/' + nomeCartella(p.titolo, usati, cs) + '.md', testo: testoMd(p, true), cartella: cs }));
+    fogliDi(s.id).forEach(p => file.push({ nome: cs + '/' + nomeCartella(p.titolo, usati, cs) + '.md', testo: testoMd(p, true), cartella: cs, data: p.modificata }));
   });
   try { file = await conImmagini(file); } catch(e){}
   const nome = nomeFile(nomeInsieme || (sez.length === 1 ? sez[0].nome : T('gruppi'))) + '.zip';
@@ -6196,8 +6789,8 @@ async function condividiSezioni(sez, nomeInsieme){
 }
 
 /* ============ importazione ============ */
-function scegliFile(accetta, alFatto){
-  const i = el('input'); i.type = 'file'; i.accept = accetta; i.multiple = true;
+function scegliFile(accetta, alFatto, singolo){
+  const i = el('input'); i.type = 'file'; i.accept = accetta; i.multiple = !singolo;
   i.onchange = () => { if (i.files.length) alFatto([...i.files]); };
   i.click();
 }
@@ -6225,29 +6818,7 @@ function importaJson(){
       }, T('Sostituisci')); };
       g.append(b1,b2); c.appendChild(g);
     });
-  });
-}
-
-/* i file .md entrano così come sono: nessuna riscrittura del testo originale */
-function importaFile(dove){
-  scegliFile('.md,.markdown,.txt,text/markdown,text/plain', async file => {
-    const letti = [];
-    for (const f of file){
-      const testo = await f.text();
-      letti.push({ titolo: f.name.replace(/\.(md|markdown|txt)$/i,'').trim() || T('Foglio'), md: testo.replace(/\r\n/g,'\n') });
-    }
-    const metti = sid => {
-      const s = sezione(sid);
-      letti.forEach(x => {
-        A.fogli.push({ id:id(), sezioneId:sid, titolo:titoloLibero(x.titolo), md:x.md, creata:oggi(), modificata:oggi() });
-      });
-      salva(); disegnaLato();
-      avviso(T('{n} in {nome}.', { n:tn(letti.length, 'Foglio importato', 'Fogli importati'), nome:(s ? s.nome : '') }));
-    };
-    sceltaDestinazione(T('{n} da importare', { n:tn(letti.length, 'file', 'file') }),
-      { quaderno: dove && dove.quadernoId, sezione: dove && dove.sezione, etichetta:T('Importa') },
-      d => metti(d.sezioneId));
-  });
+  }, true);
 }
 
 function unisci(dati){
@@ -6286,6 +6857,568 @@ function unisci(dati){
   };
   if (chiave) apriCifre(chiave).then(fine); else fine();
 }
+/* ============ importazione (9.0): un solo ingresso, zip e cartelle, anteprima, annullamento ============ */
+/* Ogni sorgente (file sciolti, .zip, cartella) diventa un elenco di "voci": percorso, peso, data e una
+   funzione che ne legge i byte solo quando serve. Le cartelle dicono dove va ogni Foglio:
+   nessuna = Gruppo scelto, una = Gruppo, due = Quaderno/Gruppo, tre o più = Quaderno e Gruppo "a - b".
+   Prima di scrivere qualcosa c'è sempre un'anteprima; dopo, l'ultima importazione si può annullare. */
+const RE_NOTA = /\.(md|markdown|txt)$/i, RE_IMG_IMPORTA = /\.(jpe?g|png|gif|webp)$/i;
+const TIPI_IMG = { jpg:'image/jpeg', jpeg:'image/jpeg', png:'image/png', gif:'image/gif', webp:'image/webp' };
+const SOLO_CARTELLE_FILE = /^(immagini|allegati)$/i;
+const cartelleSupportate = () => 'webkitdirectory' in document.createElement('input');
+function erroreImporta(tipo){ const e = new Error(tipo); e.tipo = tipo; return e; }
+const MESSAGGI_IMPORTA = {
+  nonZip: 'Il file non è uno .zip leggibile.',
+  zip64: 'Questo .zip è in un formato che folio non legge (zip64, di solito oltre 4 GB): dividilo in archivi più piccoli.',
+  diviso: 'Gli .zip divisi in più parti non si leggono: uniscili prima.',
+  deflate: 'Questo browser non apre gli zip compressi: aggiornalo, oppure crea lo zip senza compressione.',
+  metodo: 'Alcuni file dello .zip usano una compressione che folio non legge.',
+  rotto: 'Una parte dello .zip è rovinata.'
+};
+
+/* ---------- lettore zip, senza librerie: l'indice dalla coda del file, poi una voce alla volta ---------- */
+function dataDos(g, o){
+  const d = new Date(((g >> 9) & 127) + 1980, ((g >> 5) & 15) - 1, g & 31, o >> 11, (o >> 5) & 63, (o & 31) * 2);
+  return isNaN(d) ? null : d;
+}
+async function vociDaZip(file){
+  const coda = new Uint8Array(await file.slice(Math.max(0, file.size - 65557)).arrayBuffer());
+  let e = -1;
+  for (let i = coda.length - 22; i >= 0; i--) if (coda[i] === 0x50 && coda[i+1] === 0x4b && coda[i+2] === 5 && coda[i+3] === 6){ e = i; break; }
+  if (e < 0) throw erroreImporta('nonZip');
+  const dv = new DataView(coda.buffer, coda.byteOffset + e);
+  if (dv.getUint16(4, true) !== 0 || dv.getUint16(6, true) !== 0) throw erroreImporta('diviso');
+  const n = dv.getUint16(10, true), dim = dv.getUint32(12, true), da = dv.getUint32(16, true);
+  if (n === 0xFFFF || dim === 0xFFFFFFFF || da === 0xFFFFFFFF) throw erroreImporta('zip64');
+  const cd = new Uint8Array(await file.slice(da, da + dim).arrayBuffer());
+  const cv = new DataView(cd.buffer);
+  const utf8 = new TextDecoder('utf-8', { fatal:true }), latino = new TextDecoder('windows-1252');
+  const voci = [];
+  let o = 0;
+  for (let k = 0; k < n && o + 46 <= cd.length; k++){
+    if (cv.getUint32(o, true) !== 0x02014b50) throw erroreImporta('rotto');
+    const flag = cv.getUint16(o + 8, true), metodo = cv.getUint16(o + 10, true);
+    const ora = cv.getUint16(o + 12, true), giorno = cv.getUint16(o + 14, true);
+    const comp = cv.getUint32(o + 20, true), piena = cv.getUint32(o + 24, true);
+    const ln = cv.getUint16(o + 28, true), lx = cv.getUint16(o + 30, true), lc = cv.getUint16(o + 32, true), loc = cv.getUint32(o + 42, true);
+    const nb = cd.subarray(o + 46, o + 46 + ln);
+    let nome;
+    if (flag & 0x800) nome = new TextDecoder().decode(nb);
+    else { try { nome = utf8.decode(nb); } catch(x){ nome = latino.decode(nb); } }
+    o += 46 + ln + lx + lc;
+    if (/\/$/.test(nome)) continue;
+    voci.push({ percorso:nome.replace(/\\/g, '/'), dimensione:piena, data:dataDos(giorno, ora), cifrato:!!(flag & 1), metodo,
+      leggi: async () => {
+        const h = new DataView(await file.slice(loc, loc + 30).arrayBuffer());
+        if (h.getUint32(0, true) !== 0x04034b50) throw erroreImporta('rotto');
+        const inizio = loc + 30 + h.getUint16(26, true) + h.getUint16(28, true);
+        const grezzi = file.slice(inizio, inizio + comp);
+        if (metodo === 0) return new Uint8Array(await grezzi.arrayBuffer());
+        if (metodo === 8){
+          if (!('DecompressionStream' in window)) throw erroreImporta('deflate');
+          return new Uint8Array(await new Response(grezzi.stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
+        }
+        throw erroreImporta('metodo');
+      } });
+  }
+  return voci;
+}
+function vociDaFileSciolti(files){
+  return files.map(f => ({ percorso:f.name, dimensione:f.size, data:null, leggi: async () => new Uint8Array(await f.arrayBuffer()) }));
+}
+/* da una cartella scelta: il suo nome non conta, conta quello che c'è dentro */
+function vociDaCartella(files){
+  return files.map(f => ({ percorso:String(f.webkitRelativePath || f.name).split('/').slice(1).join('/') || f.name,
+    dimensione:f.size, data:f.lastModified ? new Date(f.lastModified) : null, leggi: async () => new Uint8Array(await f.arrayBuffer()) }));
+}
+const scartata = p => /^([a-z]:)?\//i.test(p) || p.split('/').includes('..');
+const ignorata = p => { const s = p.split('/'), b = s[s.length - 1]; return s.some(x => x.startsWith('.') || x === '__MACOSX') || /^(per-claude\.md|thumbs\.db|desktop\.ini)$/i.test(b); };
+/* uno .zip fatto comprimendo una cartella ha tutto dentro a quella cartella: se serve, la si toglie */
+function togliRadice(voci){
+  const utili = voci.filter(v => !ignorata(v.percorso) || /(^|\/)\.cartella$/.test(v.percorso));
+  if (!utili.length) return voci;
+  const prima = utili[0].percorso.split('/')[0];
+  if (!utili.every(v => v.percorso.includes('/') && v.percorso.split('/')[0] === prima)) return voci;
+  const profondita = Math.max(...utili.filter(v => RE_NOTA.test(v.percorso)).map(v => v.percorso.split('/').filter(x => !SOLO_CARTELLE_FILE.test(x)).length - 1), 0);
+  if (profondita < 3) return voci;
+  return voci.map(v => Object.assign({}, v, { percorso:v.percorso.split('/').slice(1).join('/') }));
+}
+
+/* ---------- testo dei file ---------- */
+function decodificaTesto(b){
+  let t = new TextDecoder('utf-8').decode(b);
+  if (t.includes('�')) t = new TextDecoder('windows-1252').decode(b);
+  return t.replace(/^﻿/, '').replace(/\r\n?/g, '\n');
+}
+const normaTitolo = s => senzaAccenti(s).replace(/[^a-z0-9]+/g, ' ').trim();
+/* "Condividi" di folio mette il titolo come prima riga: reimportando non si raddoppia */
+function togliTitoloRipetuto(md, titolo){
+  const m = /^\s*#[ \t]+(.+?)[ \t]*#*[ \t]*(\n|$)/.exec(md);
+  return m && normaTitolo(m[1]) === normaTitolo(titolo) ? md.slice(m[0].length).replace(/^\n+/, '') : md;
+}
+function eDiario(md){
+  if (!RIGA_TESSERA.test(md)) return false;
+  const parti = md.split(new RegExp(RIGA_TESSERA.source, 'm')).map(x => x.trim()).filter(Boolean);
+  return parti.length > 0 && parti.every(x => /^\*\*\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2}\*\*/.test(x));
+}
+const dataValida = d => d instanceof Date && !isNaN(d) && d.getFullYear() >= 1990 && d.getTime() <= Date.now() + GIORNO ? d.toISOString() : null;
+function titoloImportato(t){
+  const base = String(t || '').trim() || T('Foglio');
+  if (!titoloOccupato(base)) return base;
+  let i = 2;
+  while (titoloOccupato(base + ' (' + i + ')')) i++;
+  return base + ' (' + i + ')';
+}
+
+/* ---------- immagini: quelle accanto al file entrano in folio, quelle scritte dentro (data:) pure ---------- */
+const RE_RIF_MD = /(!\[[^\]]*\]\()(<[^>\n]+>|[^)\s]+)((?:\s+"[^"]*")?\))/g;
+const RE_RIF_HTML = /(<img\b[^>]*?\ssrc=")([^"]+)(")/gi;
+const senzaRifImmagini = md => String(md).replace(RE_RIF_MD, '$1#$3').replace(RE_RIF_HTML, '$1#$3').trim();
+function risolviPercorso(cartella, src){
+  let s = src.replace(/^<|>$/g, '');
+  try { s = decodeURIComponent(s); } catch(e){}
+  s = s.split(/[?#]/)[0];
+  const parti = cartella ? cartella.split('/') : [];
+  s.split('/').forEach(x => { if (!x || x === '.') return; if (x === '..') parti.pop(); else parti.push(x); });
+  return parti.join('/');
+}
+const esterno = src => /^(https?:|data:|blob:|mailto:|#)/i.test(src);
+function rifImmagini(md){
+  const v = [];
+  String(md).replace(RE_RIF_MD, (m, a, src) => { v.push(src); return m; });
+  String(md).replace(RE_RIF_HTML, (m, a, src) => { v.push(src); return m; });
+  return v;
+}
+/* un'immagine (Blob) diventa incorporata: ridotta, salvata a parte, scritta nel Foglio come percorso */
+async function salvaImmagineImportata(blob){
+  const pronta = await preparaImmagine(blob);
+  const idI = id();
+  await scriviIdb('i:' + idI, { tipo:pronta.tipo, b64:pronta.b64 });
+  A.immagini[idI] = { tipo:pronta.tipo, w:pronta.w, h:pronta.h, peso:pronta.peso, creata:oggi() };
+  return 'immagini/' + idI + '.' + estensione(pronta.tipo);
+}
+function blobDaDataUri(u){
+  const m = /^data:(image\/[a-z0-9.+-]+)?(;base64)?,(.*)$/i.exec(u.replace(/\s+/g, ''));
+  if (!m) return null;
+  const tipo = m[1] || 'image/png';
+  const byte = m[2] ? daB64(m[3]) : new TextEncoder().encode(decodeURIComponent(m[3]));
+  return new Blob([byte], { type:tipo });
+}
+async function sostituisciRif(md, sostituto){
+  const fatti = new Map();
+  for (const src of new Set(rifImmagini(md))){
+    try { const n = await sostituto(src); if (n) fatti.set(src, n); } catch(e){}
+  }
+  if (!fatti.size) return md;
+  const metti = (m, a, src, b) => fatti.has(src) ? a + fatti.get(src) + b : m;
+  return md.replace(RE_RIF_MD, metti).replace(RE_RIF_HTML, metti);
+}
+async function incorporaDataUri(md, conta){
+  if (!idb || !/data:image\//i.test(md)) return md;
+  return sostituisciRif(md, async src => {
+    if (!/^data:image\//i.test(src)) return null;
+    const b = blobDaDataUri(src);
+    if (!b) return null;
+    const n = await salvaImmagineImportata(b);
+    if (conta) conta.immagini++;
+    return n;
+  });
+}
+
+/* ---------- ingresso: il pannello Importa ---------- */
+function pannelloImporta(dove){
+  dove = dove || {};
+  dialogo(T('Importa'), (c, chiudi, pie) => {
+    const g = el('div','scelte scelte-importa');
+    const voce = (icona, titolo, nota, fai, nuovo) => {
+      const b = el('button','opz opz-icona');
+      b.insertAdjacentHTML('afterbegin', '<span class="tondo" aria-hidden="true">' + svgTratto(icona) + '</span>');
+      const t = el('span','testi');
+      const r = el('b', null, titolo);
+      if (nuovo) r.appendChild(el('span','etichetta-nuovo', T('nuovo')));
+      t.append(r, el('small', null, nota));
+      b.appendChild(t);
+      b.onclick = () => { chiudi(); fai(); };
+      g.appendChild(b);
+      return b;
+    };
+    voce('file', T('File di testo'), T('.md o .txt, scegliendo il Gruppo.'),
+      () => scegliFile('.md,.markdown,.txt,text/markdown,text/plain', f => importaDaFile(f, dove)));
+    voce('cartellaZip', T('Archivio .zip o cartella'), T('Con Quaderni, Gruppi e immagini. Anche quello di "Esporta i Fogli".'),
+      () => scegliFile('.zip,application/zip,application/x-zip-compressed', f => importaDaFile(f, dove)), true);
+    if (cartelleSupportate()){
+      const b = el('button','piccolo scegli-cartella', T('Oppure scegli una cartella'));
+      b.onclick = () => { chiudi(); scegliCartella(f => importaDaFile(f, dove, true)); };
+      g.appendChild(b);
+    }
+    voce('archivio', T('Backup di folio'), T('Un file .json: aggiungi o sostituisci tutto.'), importaJson);
+    voce('ai', T('Da un\'altra app, con un\'AI'), T('Per esempio da Evernote: istruzioni pronte da dare all\'assistente.'), () => pannelloImportaAI(dove), true);
+    c.appendChild(g);
+    const u = A.impostazioni.ultimaImportazione;
+    if (u && u.fogli && u.fogli.some(x => foglio(x))){
+      const r = el('div','riga-annulla');
+      r.insertAdjacentHTML('afterbegin', svgTratto('ripristino'));
+      r.appendChild(el('span', null, T('Ultima importazione: {quando}, {n}.', { quando:dataBreve(u.quando), n:tn(u.fogli.length, 'Foglio', 'Fogli') })));
+      const b = el('button','piccolo', T('Annulla'));
+      b.onclick = () => { chiudi(); annullaImportazione(); };
+      r.appendChild(b);
+      c.appendChild(r);
+    }
+    c.appendChild(el('p','nota-campo', T('Prima di scrivere qualcosa, folio mostra un\'anteprima. Niente viene sovrascritto.')));
+    const x = el('button','bott', T('Chiudi')); x.onclick = chiudi; pie.appendChild(x);
+  }, null, null, { pieLibero:true });
+}
+function scegliCartella(alFatto){
+  const i = el('input'); i.type = 'file'; i.webkitdirectory = true; i.multiple = true;
+  i.onchange = () => { if (i.files.length) alFatto([...i.files]); };
+  i.click();
+}
+
+/* ---------- dai file al piano: niente viene scritto finché non si conferma ---------- */
+async function importaDaFile(files, dove, daCartella){
+  if (!files || !files.length) return;
+  avviso(T('Leggo i file…'), null, null, 1500);
+  const errori = [];
+  let voci = [];
+  const nomi = [];
+  if (daCartella) voci = togliRadice(vociDaCartella(files));
+  else {
+    const sciolti = files.filter(f => !/\.zip$/i.test(f.name));
+    if (sciolti.length) voci = voci.concat(vociDaFileSciolti(sciolti));
+    for (const f of files.filter(f => /\.zip$/i.test(f.name))){
+      nomi.push(f.name);
+      try { voci = voci.concat(togliRadice(await vociDaZip(f))); }
+      catch(e){ errori.push(T(MESSAGGI_IMPORTA[e.tipo] || MESSAGGI_IMPORTA.nonZip)); }
+    }
+  }
+  if (daCartella) nomi.push(String(files[0].webkitRelativePath || '').split('/')[0] || T('cartella'));
+  else if (!nomi.length) nomi.push(files.length === 1 ? files[0].name : tn(files.length, 'file', 'file'));
+  let piano;
+  try { piano = await preparaPiano(voci, dove); }
+  catch(e){ avviso(T(MESSAGGI_IMPORTA[e.tipo] || 'Non riesco a leggere questi file.'), null, null, 8000); return; }
+  piano.errori = errori.concat(piano.errori);
+  piano.nome = nomi.join(', ');
+  if (!piano.fogli.length && !piano.cartelleVuote.length){
+    avviso([T('Qui non ci sono file .md o .txt da importare.')].concat(piano.errori).join(' '), null, null, 8000);
+    return;
+  }
+  anteprimaImportazione(piano, dove);
+}
+async function preparaPiano(voci, dove){
+  const piano = { fogli:[], immagini:new Map(), cartelleVuote:[], allegati:[], ignorati:0, scartati:0, cifrati:0, doppioni:0,
+    mancanti:0, trovate:new Set(), peso:0, lunghi:0, enormi:0, errori:[] };
+  const note = [];
+  voci.forEach(v => {
+    const parti = v.percorso.split('/'), b = parti[parti.length - 1];
+    if (b === '.cartella' && !scartata(v.percorso)){ piano.cartelleVuote.push(parti.slice(0, -1).filter(x => !x.startsWith('.'))); return; }
+    if (scartata(v.percorso)){ piano.scartati++; return; }
+    if (ignorata(v.percorso)){ piano.ignorati++; return; }
+    if (v.cifrato){ piano.cifrati++; return; }
+    piano.peso += v.dimensione || 0;
+    if (RE_NOTA.test(b)) note.push(v);
+    else if (RE_IMG_IMPORTA.test(b)) piano.immagini.set(v.percorso.toLowerCase(), v);
+    else piano.allegati.push(v.percorso);
+  });
+  if (voci.some(v => v.metodo === 8) && !('DecompressionStream' in window)) throw erroreImporta('deflate');
+  for (const v of note){
+    let testo;
+    try { testo = decodificaTesto(await v.leggi()); }
+    catch(e){ piano.errori.push(T(MESSAGGI_IMPORTA[e.tipo] || 'Un file non si legge: {nome}.', { nome:v.percorso })); continue; }
+    const parti = v.percorso.split('/'), nome = parti.pop();
+    const dirs = parti.filter(x => !SOLO_CARTELLE_FILE.test(x));
+    const titolo = nome.replace(RE_NOTA, '').trim() || T('Foglio');
+    const md = togliTitoloRipetuto(testo, titolo);
+    /* doppione: stesso titolo e stesso testo; i percorsi delle immagini non contano, perché entrando cambiano */
+    const firma = senzaRifImmagini(md);
+    if (A.fogli.some(p => normaTitolo(p.titolo) === normaTitolo(titolo) && senzaRifImmagini(p.md) === firma)){ piano.doppioni++; continue; }
+    const r = { titolo, md, cartella:parti.join('/'), dirs, data:dataValida(v.data), peso:pesoMd(md), diario:eDiario(md) };
+    if (r.peso >= PESO_ENORME) piano.enormi++;
+    else if (r.peso >= PESO_LUNGO) piano.lunghi++;
+    rifImmagini(md).forEach(src => {
+      if (esterno(src)) return;
+      const k = risolviPercorso(r.cartella, src).toLowerCase();
+      if (piano.immagini.has(k)) piano.trovate.add(k);
+      else if (!(/^immagini\/[a-z0-9]+\.[a-z0-9]+$/i.test(src) && A.immagini[src.split('/')[1].split('.')[0]])) piano.mancanti++;
+    });
+    piano.fogli.push(r);
+  }
+  return piano;
+}
+/* dove va un Foglio, secondo le sue cartelle: null = la destinazione scelta nell'anteprima */
+function destinoDi(dirs){
+  if (!dirs.length) return { q:null, s:null };
+  if (dirs.length === 1) return { q:null, s:dirs[0] };
+  return { q:dirs[0], s:dirs.slice(1).join(' - ') };
+}
+const perNome = (v, nome) => v.find(x => normaTitolo(x.nome) === normaTitolo(nome));
+
+/* ---------- anteprima ---------- */
+function anteprimaImportazione(piano, dove){
+  const sDove = dove.sezione && sezione(dove.sezione);
+  const scelta = {
+    q: sDove ? sDove.quadernoId : (dove.quadernoId && quaderno(dove.quadernoId) ? dove.quadernoId : A.impostazioni.quaderno),
+    s: sDove ? sDove.id : null,
+    dividi: true
+  };
+  const serveQ = piano.fogli.some(r => r.dirs.length <= 1) || piano.cartelleVuote.some(d => d.length <= 1);
+  const serveS = piano.fogli.some(r => !r.dirs.length) || piano.cartelleVuote.some(d => !d.length);
+  dialogo(T('Anteprima'), (c, chiudi, pie) => {
+    const disegna = () => {
+      c.innerHTML = '';
+      c.appendChild(el('p','sotto-titolo', piano.nome + ' - ' + misura(piano.peso)));
+      /* l'albero di destinazione: Quaderno, poi i suoi Gruppi con quanti Fogli */
+      const albero = new Map();
+      const nomeQ = qid => (quaderno(qid) || {}).nome || '';
+      const nomeS = () => scelta.s && sezione(scelta.s) ? sezione(scelta.s).nome : nomeSezioneLibero(scelta.q, T('Importati'));
+      const metti = (d, conta) => {
+        const q = d.q == null ? nomeQ(scelta.q) : d.q, s = d.s == null ? nomeS() : d.s;
+        if (!albero.has(q)) albero.set(q, new Map());
+        const g = albero.get(q);
+        g.set(s, (g.get(s) || 0) + conta);
+      };
+      piano.fogli.forEach(r => metti(destinoDi(r.dirs), 1));
+      piano.cartelleVuote.forEach(d => metti(destinoDi(d), 0));
+      const nGruppi = [...albero.values()].reduce((s, g) => s + g.size, 0);
+      const tessere = el('div','conti-import');
+      [[albero.size, 'Quaderno', 'Quaderni'], [nGruppi, 'Gruppo', 'Gruppi'], [piano.fogli.length, 'Foglio', 'Fogli'], [piano.trovate.size, 'immagine', 'immagini']].forEach(([n, a, b]) => {
+        const t = el('div','conto'); t.append(el('b', null, String(n)), el('span', null, T(n === 1 ? a : b))); tessere.appendChild(t);
+      });
+      c.appendChild(tessere);
+      const box = el('div','albero-import');
+      albero.forEach((gruppi, q) => {
+        const qe = perNome(A.quaderni, q);
+        const rq = el('div','riga-q');
+        rq.insertAdjacentHTML('afterbegin', svgTratto('quaderno'));
+        rq.append(el('b', null, q), el('small', null, qe ? T('esiste già: si unisce') : T('nuovo')));
+        box.appendChild(rq);
+        gruppi.forEach((n, s) => {
+          const se = qe && A.sezioni.find(x => x.quadernoId === qe.id && normaTitolo(x.nome) === normaTitolo(s));
+          const rs = el('div','riga-s');
+          rs.append(el('span', null, s), el('small', null, tn(n, 'Foglio', 'Fogli') + (se ? ', ' + T('esiste già: si unisce') : '')));
+          box.appendChild(rs);
+        });
+      });
+      c.appendChild(box);
+      /* destinazione dei Fogli senza cartella e dei Gruppi senza Quaderno */
+      if (serveQ){
+        const l = el('div','campo');
+        l.appendChild(el('span', null, serveS ? T('I Fogli senza cartella vanno in') : T('I Gruppi senza Quaderno vanno in')));
+        const gq = el('div','gruppo');
+        A.quaderni.forEach(q => {
+          const b = el('button','opz' + (scelta.q === q.id ? ' scelta' : ''), q.nome);
+          b.onclick = () => { scelta.q = q.id; scelta.s = null; disegna(); };
+          gq.appendChild(b);
+        });
+        l.appendChild(gq);
+        if (serveS){
+          const gs = el('div','gruppo');
+          gs.style.marginTop = '6px';
+          sezioniDi(scelta.q).forEach(s => {
+            const b = el('button','opz' + (scelta.s === s.id ? ' scelta' : ''), s.nome);
+            b.onclick = () => { scelta.s = s.id; disegna(); };
+            gs.appendChild(b);
+          });
+          const bn = el('button','opz' + (!scelta.s ? ' scelta' : ''), T('+ Nuovo Gruppo'));
+          bn.onclick = () => { scelta.s = null; disegna(); };
+          gs.appendChild(bn);
+          l.appendChild(gs);
+        }
+        c.appendChild(l);
+      }
+      /* avvisi: niente si perde in silenzio */
+      const av = el('div','avvisi-import');
+      const riga = (icona, testo) => { const r = el('div','riga-avviso'); r.insertAdjacentHTML('afterbegin', svgTratto(icona)); r.appendChild(el('span', null, testo)); av.appendChild(r); return r; };
+      if (piano.enormi){
+        const r = riga('file', T('{n} oltre 1 MB: si aprono in vista testo.', { n:tn(piano.enormi, 'Foglio molto lungo', 'Fogli molto lunghi') }));
+        r.classList.add('forte');
+        const g2 = el('div','gruppo');
+        [[true, T('Dividi ai titoli')], [false, T('Importa così')]].forEach(([v, t]) => {
+          const b = el('button','opz' + (scelta.dividi === v ? ' scelta' : ''), t);
+          b.onclick = () => { scelta.dividi = v; disegna(); };
+          g2.appendChild(b);
+        });
+        r.appendChild(g2);
+      }
+      if (piano.lunghi) riga('file', T('{n}: possono aprirsi più lentamente.', { n:tn(piano.lunghi, 'Foglio lungo', 'Fogli lunghi') }));
+      if (piano.doppioni) riga('duplica', T('{n}: già in folio, uguali.', { n:tn(piano.doppioni, 'doppione saltato', 'doppioni saltati') }));
+      if (piano.mancanti) riga('immagine', T('{n}: il Foglio le cita ma nell\'archivio non ci sono.', { n:tn(piano.mancanti, 'immagine mancante', 'immagini mancanti') }));
+      if (piano.allegati.length){
+        const r = riga('allegato', T('{n} (folio tiene solo testo e immagini).', { n:tn(piano.allegati.length, 'allegato non importato', 'allegati non importati') }));
+        const b = el('button','link-avviso', T('vedi elenco'));
+        b.onclick = () => { b.replaceWith(el('small','elenco-allegati', piano.allegati.slice(0, 60).join(', ') + (piano.allegati.length > 60 ? '…' : ''))); };
+        r.appendChild(b);
+      }
+      if (piano.cifrati) riga('lucchetto', T('{n} nello .zip: folio non li apre.', { n:tn(piano.cifrati, 'file cifrato', 'file cifrati') }));
+      if (piano.scartati) riga('elimina', T('{n} con un percorso non valido.', { n:tn(piano.scartati, 'file scartato', 'file scartati') }));
+      piano.errori.forEach(t => riga('elimina', t));
+      if (av.children.length) c.appendChild(av);
+      pie.innerHTML = '';
+      const a = el('button','bott', T('Annulla')); a.onclick = chiudi;
+      const ok = el('button','bott pieno', piano.fogli.length ? T('Importa {n}', { n:tn(piano.fogli.length, 'Foglio', 'Fogli') }) : T('Importa'));
+      ok.onclick = () => { chiudi(); eseguiImportazione(piano, scelta); };
+      pie.append(a, ok);
+    };
+    disegna();
+  }, null, null, { pieLibero:true });
+}
+
+/* ---------- scrittura ---------- */
+async function eseguiImportazione(piano, scelta){
+  avviso(T('Importo…'), null, null, 1500);
+  const creati = { fogli:[], sezioni:[], quaderni:[] };
+  const conta = { immagini:0, mancanti:0 };
+  const qPer = nome => {
+    if (nome == null) return scelta.q;
+    const e = perNome(A.quaderni, nome);
+    if (e) return e.id;
+    const q = { id:id(), nome:nomeQuadernoLibero(nome), creato:oggi() };
+    A.quaderni.push(q); creati.quaderni.push(q.id);
+    return q.id;
+  };
+  const sPer = (qid, nome) => {
+    if (nome == null){
+      if (scelta.s && sezione(scelta.s)) return scelta.s;
+      const s = { id:id(), quadernoId:qid, nome:nomeSezioneLibero(qid, T('Importati')), creata:oggi() };
+      A.sezioni.push(s); creati.sezioni.push(s.id); scelta.s = s.id;
+      return s.id;
+    }
+    const e = A.sezioni.find(x => x.quadernoId === qid && normaTitolo(x.nome) === normaTitolo(nome));
+    if (e) return e.id;
+    const s = { id:id(), quadernoId:qid, nome:nomeSezioneLibero(qid, nome), creata:oggi() };
+    A.sezioni.push(s); creati.sezioni.push(s.id);
+    return s.id;
+  };
+  piano.cartelleVuote.forEach(d => { const x = destinoDi(d); sPer(qPer(x.q), x.s); });
+  const giaFatte = new Map();
+  for (const r of piano.fogli){
+    const x = destinoDi(r.dirs), sid = sPer(qPer(x.q), x.s);
+    let md = r.md;
+    if (idb){
+      md = await sostituisciRif(md, async src => {
+        if (esterno(src)) return null;
+        const k = risolviPercorso(r.cartella, src).toLowerCase(), v = piano.immagini.get(k);
+        if (!v) return null;
+        if (giaFatte.has(k)) return giaFatte.get(k);
+        const est = (k.match(/\.([a-z0-9]+)$/) || [])[1];
+        const n = await salvaImmagineImportata(new Blob([await v.leggi()], { type:TIPI_IMG[est] || 'image/jpeg' }));
+        giaFatte.set(k, n); conta.immagini++;
+        return n;
+      });
+      md = await incorporaDataUri(md, conta);
+    }
+    const parti = r.peso >= PESO_ENORME && scelta.dividi ? partiDiFoglio(md) : null;
+    const quando = r.data || oggi();
+    (parti || [{ nome:'', md }]).forEach(pz => {
+      const p = { id:id(), sezioneId:sid, titolo:titoloImportato(r.titolo + (pz.nome ? ' - ' + pz.nome : '')), md:pz.md, creata:quando, modificata:quando };
+      if (r.diario && (!parti || RIGA_TESSERA.test(pz.md))) p.diario = true;
+      A.fogli.push(p); creati.fogli.push(p.id);
+    });
+  }
+  A.impostazioni.ultimaImportazione = { quando:oggi(), fogli:creati.fogli, sezioni:creati.sezioni, quaderni:creati.quaderni };
+  salva(); disegnaLato();
+  const extra = [];
+  if (piano.allegati.length) extra.push(tn(piano.allegati.length, 'allegato non importato', 'allegati non importati'));
+  if (piano.doppioni) extra.push(tn(piano.doppioni, 'doppione saltato', 'doppioni saltati'));
+  avviso(T('{n} importati.', { n:tn(creati.fogli.length, 'Foglio', 'Fogli') }) + (extra.length ? ' ' + extra.join(', ') + '.' : ''), T('Annulla'), annullaImportazione, 15000);
+}
+/* l'ultima importazione torna indietro: i suoi Fogli nel Cestino, via i Gruppi e i Quaderni nati con lei e rimasti vuoti */
+function annullaImportazione(){
+  const u = A.impostazioni.ultimaImportazione;
+  if (!u) return;
+  const ids = new Set(u.fogli || []);
+  const fg = A.fogli.filter(p => ids.has(p.id));
+  if (fg.length) cestinaFogli(fg, true);
+  (u.sezioni || []).forEach(sid => {
+    if (A.sezioni.length > 1 && !A.fogli.some(p => p.sezioneId === sid)) A.sezioni = A.sezioni.filter(s => s.id !== sid);
+  });
+  (u.quaderni || []).forEach(qid => {
+    if (A.quaderni.length > 1 && !A.sezioni.some(s => s.quadernoId === qid)) A.quaderni = A.quaderni.filter(q => q.id !== qid);
+  });
+  if (!quaderno(A.impostazioni.quaderno)) A.impostazioni.quaderno = A.quaderni[0].id;
+  delete A.impostazioni.ultimaImportazione;
+  salva(); disegnaLato();
+  avviso(T('Importazione annullata: {n} nel Cestino.', { n:tn(fg.length, 'Foglio', 'Fogli') }));
+}
+
+/* ---------- importare da un'altra app, con un'AI ---------- */
+function pannelloImportaAI(dove){
+  let struttura = 'A';
+  dialogo(T('Da un\'altra app, con un\'AI'), (c, chiudi, pie) => {
+    c.appendChild(el('p','nota-campo', T('folio non legge i formati delle altre app. Un assistente AI sì: gli dai il file e queste istruzioni, lui ti restituisce uno .zip pronto da importare.')));
+    const passo = (n, titolo, nota) => {
+      const r = el('div','passo-ai');
+      r.appendChild(el('span','numero-passo', String(n)));
+      const d = el('div','corpo-passo');
+      d.appendChild(el('b', null, titolo));
+      if (nota) d.appendChild(el('small', null, nota));
+      r.appendChild(d); c.appendChild(r);
+      return d;
+    };
+    passo(1, T('Esporta le note dall\'altra app.'), T('Da Evernote su computer: File > Esporta, formato .enex.'));
+    const d2 = passo(2, T('Dai all\'assistente il file e queste istruzioni.'));
+    d2.appendChild(el('span','etichetta-campo', T('Come vuoi ritrovarle?')));
+    const g = el('div','scelte-radio');
+    const voci = [['A', T('Un Foglio per nota, nei Gruppi come nell\'altra app')], ['B', T('Tutto in un solo Foglio, a tessere')], ['C', T('Un Foglio per nota, tutte in un Gruppo')]];
+    const disegnaScelte = () => {
+      g.innerHTML = '';
+      voci.forEach(([k, t]) => {
+        const b = el('button','radio' + (struttura === k ? ' scelta' : ''));
+        b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', struttura === k ? 'true' : 'false');
+        b.append(el('span','pallino'), el('span', null, t));
+        b.onclick = () => { struttura = k; disegnaScelte(); };
+        g.appendChild(b);
+      });
+    };
+    disegnaScelte();
+    d2.appendChild(g);
+    const testo = () => (LINGUA === 'en' ? ISTRUZIONI_AI_EN : ISTRUZIONI_AI_IT).replace(/^(Struttura richiesta|Requested structure): A$/m, (m, e) => e + ': ' + struttura);
+    const bb = el('div','due-bottoni');
+    const cp = el('button','bott pieno');
+    cp.innerHTML = svgTratto('copia'); cp.appendChild(el('span', null, T('Copia le istruzioni')));
+    cp.onclick = () => copia(testo(), T('Istruzioni copiate.'));
+    const sc = el('button','bott');
+    sc.innerHTML = svgTratto('backup'); sc.appendChild(el('span', null, T('Scarica (.md)')));
+    sc.onclick = () => scarica(LINGUA === 'en' ? 'folio-import-instructions.md' : 'folio-istruzioni-importazione.md', testo(), 'text/markdown');
+    bb.append(cp, sc);
+    d2.appendChild(bb);
+    const d3 = passo(3, T('Importa qui lo .zip che ti restituisce.'));
+    const z = el('button','bott tratteggiato');
+    z.innerHTML = svgTratto('cartellaZip'); z.appendChild(el('span', null, T('Scegli lo .zip')));
+    z.onclick = () => { chiudi(); scegliFile('.zip,application/zip,application/x-zip-compressed', f => importaDaFile(f, dove)); };
+    d3.appendChild(z);
+    const ul = el('ul','avvertenze-ai');
+    [T('Così le note passano dall\'assistente che scegli tu. folio non le manda a nessuno.'),
+     T('Gli assistenti accettano file fino a una certa dimensione: se il tuo è troppo grande, esporta un taccuino alla volta.'),
+     T('Serve un assistente che sappia leggere file e crearne (per esempio Claude o ChatGPT con gli strumenti per i file).')].forEach(t => ul.appendChild(el('li', null, t)));
+    c.appendChild(ul);
+    const x = el('button','bott', T('Chiudi')); x.onclick = chiudi; pie.appendChild(x);
+  }, null, null, { pieLibero:true });
+}
+
+/* istruzioni da dare a un assistente AI per convertire le note di un'altra app: un testo che vive nell'app,
+   si copia o si scarica. La riga della struttura cambia secondo la scelta fatta nel pannello. */
+const ISTRUZIONI_AI_IT = "# Istruzioni: preparare un archivio di note da importare in folio\n\nTi allego le note esportate da un'altra app. Convertile in un archivio .zip che l'app folio (folio.nautargo.com) sa importare. Converti solo quello che c'è: non riassumere, non correggere, non inventare. Se qualcosa non si può convertire, lascialo fuori e dimmelo alla fine.\n\nStruttura richiesta: A\n\n## Cosa devi produrre\n\nUn solo file `folio-import.zip`, fatto così:\n\n    Nome del Quaderno/\n      Nome del Gruppo/\n        Titolo della nota.md\n        immagini/\n          foto-1.jpg\n        allegati/\n          documento.pdf\n\n- Tre livelli: la cartella del Quaderno, la cartella del Gruppo, un file .md per ogni nota.\n- Il nome del file è il titolo della nota. Togli i caratteri \\ / : * ? \" < > | e fermati a 80 caratteri. Nota senza titolo: usa le prime parole del testo. Due note con lo stesso titolo nello stesso Gruppo: aggiungi \" (2)\", \" (3)\".\n- File in UTF-8, righe che finiscono con \\n.\n- Nello zip, la data di ogni file .md deve essere la data di ultima modifica della nota: folio la usa come data del Foglio.\n\n## Struttura\n\n- A (predefinita): un file per nota. Ogni taccuino o cartella dell'altra app diventa un Gruppo. Il Quaderno prende il nome della raccolta che contiene i taccuini, se c'è, altrimenti il nome dell'app di origine.\n- B: un solo file .md con tutte le note, dalla più vecchia alla più recente. Prima di ogni nota scrivi una riga con solo `<!-- tessera -->`, poi una riga vuota, poi `## Titolo della nota`, poi il testo. Il file sta in `Nome dell'app/Importate/`.\n- C: un file per nota, tutti nello stesso Gruppo `Nome dell'app/Importate/`.\n\nUsa la lettera indicata nella riga \"Struttura richiesta\".\n\n## Come scrivere ogni file .md\n\n- Markdown semplice: titoli con #, ## e ###; **grassetto**, *corsivo*, ~~barrato~~, `codice`; elenchi con \"- \" e con \"1. \"; caselle con \"- [ ] \" e \"- [x] \"; citazioni con \"> \"; tabelle con |; linea con ---; collegamenti [testo](https://...).\n- Non ripetere il titolo della nota come prima riga.\n- Niente HTML, niente blocco iniziale fra righe --- (front matter), niente colori o stili: folio non li conserva.\n- Sottolineato ed evidenziato in folio non esistono: scrivili in **grassetto**.\n- Immagini: salva il file in `immagini/`, accanto al .md, e nel testo scrivi `![descrizione](immagini/nome.jpg)` nel punto in cui stava. Formati ammessi: jpg, png, gif, webp. Converti gli altri (heic, tiff, bmp, svg) in jpg o png. Nomi dei file solo con lettere minuscole, cifre e trattini. Non scrivere mai un'immagine dentro al testo come `data:`.\n- Altri allegati (pdf, audio, documenti): folio non li contiene. Mettili in `allegati/`, accanto al .md, e nel punto in cui stavano scrivi una riga: `[Allegato non importato: nome.pdf]`.\n- Etichette, se ci sono: ultima riga della nota, `Etichette: lavoro, casa`.\n- Indirizzo web di origine, se c'è: penultima riga, `Origine: https://...`.\n- Se una nota ne richiama un'altra, scrivi `[[Titolo dell'altra nota]]`.\n- Testo cifrato o protetto che non puoi leggere: scrivi `[Testo protetto non importato]`.\n\n## Se il file viene da Evernote (.enex)\n\n- Ogni file .enex è un taccuino: il nome del file è il nome del Gruppo.\n- Ogni nota è un elemento `note` con `title`, `content`, `created`, `updated`, zero o più `tag`, zero o più `resource`.\n- Il testo sta in `content`, in un formato simile all'HTML. `en-todo` è una casella (`checked=\"true\"` vuol dire spuntata). `en-media` indica un'immagine o un allegato: il suo `hash` è l'MD5 dei dati della `resource` corrispondente.\n- Ogni `resource` ha i dati in base64 in `data`, il tipo in `mime` e spesso il nome in `resource-attributes/file-name`.\n- Le date sono scritte come `20240131T101500Z`, in ora universale.\n- L'indirizzo di origine, se c'è, sta in `note-attributes/source-url`.\n- `en-crypt` è testo cifrato: scrivi `[Testo protetto non importato]`.\n\n## Se non puoi creare file\n\nDimmelo subito. In quel caso scrivi qui in risposta un solo testo markdown con la struttura B, senza immagini: lo incollerò io in un Foglio.\n\n## Alla fine\n\nScrivi un riepilogo breve: note convertite per Gruppo, immagini, allegati non importati (con il nome), note saltate e perché, note con più di 300 kB di testo.";
+const ISTRUZIONI_AI_EN = "# Instructions: prepare an archive of notes to import into folio\n\nI'm attaching notes exported from another app. Convert them into a .zip archive that the folio app (folio.nautargo.com) can import. Convert only what is there: do not summarize, correct or invent anything. If something cannot be converted, leave it out and tell me at the end.\n\nRequested structure: A\n\n## What you must produce\n\nA single file `folio-import.zip`, laid out like this:\n\n    Notebook name/\n      Group name/\n        Note title.md\n        immagini/\n          photo-1.jpg\n        allegati/\n          document.pdf\n\n- Three levels: the Notebook folder, the Group folder, one .md file per note.\n- The file name is the note title. Remove the characters \\ / : * ? \" < > | and stop at 80 characters. Note without a title: use the first words of the text. Two notes with the same title in the same Group: add \" (2)\", \" (3)\".\n- Files in UTF-8, lines ending with \\n.\n- Inside the zip, the date of each .md file must be the note's last modified date: folio uses it as the Page date.\n\n## Structure\n\n- A (default): one file per note. Each notebook or folder of the other app becomes a Group. The Notebook takes the name of the collection that holds the notebooks, if there is one, otherwise the name of the source app.\n- B: a single .md file with all the notes, oldest first. Before each note write a line with only `<!-- tessera -->`, then an empty line, then `## Note title`, then the text. The file goes in `App name/Imported/`.\n- C: one file per note, all in the same Group `App name/Imported/`.\n\nUse the letter given in the \"Requested structure\" line.\n\n## How to write each .md file\n\n- Plain markdown: headings with #, ## and ###; **bold**, *italic*, ~~strikethrough~~, `code`; lists with \"- \" and \"1. \"; checkboxes with \"- [ ] \" and \"- [x] \"; quotes with \"> \"; tables with |; a line with ---; links [text](https://...).\n- Do not repeat the note title as the first line.\n- No HTML, no front matter block between --- lines, no colors or styles: folio does not keep them.\n- Underline and highlight do not exist in folio: write them in **bold**.\n- Images: save the file in `immagini/`, next to the .md, and in the text write `![description](immagini/name.jpg)` where it was. Allowed formats: jpg, png, gif, webp. Convert the others (heic, tiff, bmp, svg) to jpg or png. File names only with lowercase letters, digits and hyphens. Never write an image inside the text as `data:`.\n- Other attachments (pdf, audio, documents): folio does not hold them. Put them in `allegati/`, next to the .md, and where they were write a line: `[Attachment not imported: name.pdf]`.\n- Tags, if any: last line of the note, `Tags: work, home`.\n- Source web address, if any: second to last line, `Source: https://...`.\n- If a note refers to another one, write `[[Title of the other note]]`.\n- Encrypted or protected text you cannot read: write `[Protected text not imported]`.\n\n## If the file comes from Evernote (.enex)\n\n- Each .enex file is a notebook: the file name is the Group name.\n- Each note is a `note` element with `title`, `content`, `created`, `updated`, zero or more `tag`, zero or more `resource`.\n- The text is in `content`, in an HTML-like format. `en-todo` is a checkbox (`checked=\"true\"` means ticked). `en-media` marks an image or an attachment: its `hash` is the MD5 of the data of the matching `resource`.\n- Each `resource` has its data in base64 in `data`, its type in `mime` and often its name in `resource-attributes/file-name`.\n- Dates are written like `20240131T101500Z`, in universal time.\n- The source address, if any, is in `note-attributes/source-url`.\n- `en-crypt` is encrypted text: write `[Protected text not imported]`.\n\n## If you cannot create files\n\nTell me right away. In that case reply here with a single markdown text in structure B, without images: I'll paste it into a Page myself.\n\n## At the end\n\nWrite a short summary: notes converted per Group, images, attachments not imported (with their names), notes skipped and why, notes with more than 300 kB of text.";
+
+/* immagini incollate dentro al testo (data:): diventano incorporate, così il Foglio resta leggero */
+async function incorporaIncollate(){
+  if (!corrente || corrente.protetto || !idb) return;
+  const imgs = [...corpo().querySelectorAll('img[src^="data:image/"]')];
+  if (!imgs.length) return;
+  const p = corrente;
+  for (const img of imgs){
+    const b = blobDaDataUri(img.getAttribute('src'));
+    if (!b) continue;
+    try {
+      const nome = (await salvaImmagineImportata(b)).split('/')[1];
+      if (corrente !== p || !corpo().contains(img)) return;
+      urlImmagini.set(nome, URL.createObjectURL(b));
+      img.setAttribute('data-img', nome); img.setAttribute('src', urlImmagini.get(nome));
+    } catch(e){}
+  }
+  dopoModifica();
+}
+
 /* ============ immagini ============ */
 /* Due tipi di immagine:
    - incorporate (fotocamera, galleria): ridotte a 1600 px, salvate a parte nel database ("i:" + id)
@@ -6587,7 +7720,7 @@ const ICONE_GRUPPI = [
 ];
 const MAPPA_ICONE = new Map(ICONE_GRUPPI.map(x => [x[0], x]));
 const disegnoIcona = s => (MAPPA_ICONE.get(s && s.icona) || ICONE_GRUPPI[0])[2];
-const iconaGruppo = s => '<svg class="linguetta" viewBox="0 0 24 24">' + disegnoIcona(s) + '</svg>';
+const iconaGruppo = s => '<span class="tondo-gruppo"><svg class="linguetta" viewBox="0 0 24 24">' + disegnoIcona(s) + '</svg></span>';
 
 /* la scelta dell'icona occupa tutto lo schermo: le icone si vedono bene e si toccano facilmente */
 function scegliIcona(s){
@@ -6830,7 +7963,9 @@ function imponiSfondo(dopo){
    Il diario (8.1) è un Foglio a tessere con p.diario: ogni tessera nuova parte con data e ora
    in grassetto, "11/10/2026, 20:31", modificabili. */
 function segnaTessere(){
-  corpo().toggleAttribute('data-tessere', !!corpo().querySelector(':scope > section.tessera'));
+  const t = !!corpo().querySelector(':scope > section.tessera');
+  corpo().toggleAttribute('data-tessere', t);
+  corpo().toggleAttribute('data-diario', t && !!(corrente && corrente.diario));
 }
 const nuovaSezioneTessera = diario => {
   const s = document.createElement('section');
@@ -6906,6 +8041,7 @@ function commutaDiario(){
   if (!corrente || vistaGrezza) return;
   if (corrente.diario && conTessere()){
     delete corrente.diario; corrente.modificata = oggi();
+    segnaTessere();
     avviso(T('Tessere senza data: le nuove tessere partono vuote.'));
     dopoModifica();
     return;
@@ -6967,10 +8103,22 @@ function selezionaTessera(t){
   r.selectNodeContents(t);
   const s = getSelection(); s.removeAllRanges(); s.addRange(r);
 }
+/* il testo della tessera negli appunti, come "Copia il testo" del Foglio: senza segni markdown */
+function copiaTessera(t){
+  const testo = testoSemplice(htmlVersoMd(t.innerHTML));
+  if (!testo.trim()){ avviso(T('Niente da copiare.')); return; }
+  copia(testo, T('Testo della tessera copiato.'));
+}
+/* in sola lettura il menu della presa ha solo selezione e copia */
 function menuTessera(t, x, y){
   const prima = t.previousElementSibling, dopo = t.nextElementSibling;
-  menu(x, y, [
+  const voci = [
     { testo:T('Seleziona testo'), icona:'selezionaTesto', fai: () => selezionaTessera(t) },
+    { testo:T('Copia testo'), icona:'copia', fai: () => copiaTessera(t) }
+  ];
+  if (soloLettura()){ menu(x, y, voci); return; }
+  menu(x, y, [
+    ...voci,
     '-',
     { testo:T('Nuova tessera sopra'), icona:'sopra', fai: () => nuovaTessera(t, true) },
     { testo:T('Nuova tessera sotto'), icona:'sotto', fai: () => nuovaTessera(t, false) },
@@ -7024,14 +8172,14 @@ let gestoTessera = null, fineTessera = 0;
 function avviaTessere(){
   const c = corpo();
   c.addEventListener('pointerdown', e => {
-    if (soloLettura()) return;
     const z = zonaTessera(e.target, e.clientX, e.clientY);
     if (!z) return;
     if (e.pointerType !== 'touch') e.preventDefault();
-    gestoTessera = { z, x:e.clientX, y:e.clientY, id:e.pointerId, volo:false, dove:null, linea:null };
+    /* in sola lettura la presa apre il menu ridotto, ma non si trascina */
+    gestoTessera = { z, x:e.clientX, y:e.clientY, id:e.pointerId, volo:false, dove:null, linea:null, fermo:soloLettura(), mosso:false };
   });
   /* mentre si trascina una tessera la pagina non scorre */
-  c.addEventListener('touchmove', e => { if (gestoTessera) e.preventDefault(); }, { passive:false });
+  c.addEventListener('touchmove', e => { if (gestoTessera && !gestoTessera.fermo) e.preventDefault(); }, { passive:false });
   /* il tocco sulla presa non mette il cursore e non apre la tastiera */
   c.addEventListener('touchend', e => {
     const p = e.changedTouches[0];
@@ -7042,6 +8190,7 @@ function avviaTessere(){
     if (!g || e.pointerId !== g.id || g.z.tipo !== 'presa') return;
     if (!g.volo){
       if (Math.hypot(e.clientX - g.x, e.clientY - g.y) < 6) return;
+      if (g.fermo){ g.mosso = true; return; }
       g.volo = true;
       g.z.t.classList.add('in-volo');
       g.linea = el('div','linea-posto');
@@ -7065,7 +8214,7 @@ function avviaTessere(){
       if (e.type === 'pointerup' && g.dove != null) spostaTessera(g.z.t, scatole()[g.dove] || null);
       return;
     }
-    if (e.type !== 'pointerup') return;
+    if (e.type !== 'pointerup' || g.mosso) return;
     menuTessera(g.z.t, e.clientX - 20, e.clientY + 14);
   };
   addEventListener('pointerup', fine);
@@ -8050,13 +9199,19 @@ function collegaEventi(){
     if (!A.impostazioni.splash){ splash.remove(); }
     else {
       const via = () => { splash.classList.add('via'); setTimeout(() => splash.remove(), 600); };
-      setTimeout(via, 2000);        /* due secondi, oppure un tocco per saltarla */
+      setTimeout(via, 1600);        /* un secondo e mezzo, oppure un tocco per saltarla */
       splash.onclick = via;
     }
   }
   $('#bCollassaTutto').onclick = collassaTutto;
+  $('#bSommario').addEventListener('mousedown', e => e.preventDefault());
+  $('#bSommario').onclick = apriSommario;
+  /* la barra in alto prende una riga sottile solo quando sotto qualcosa scorre */
+  const bordoBarra = () => $('#barra').classList.toggle('scorsa', (document.body.dataset.vista === 'elenco' || !stretto() ? $('#albero').scrollTop : 0) > 2 || (document.body.dataset.vista === 'foglio' ? $('#zona').scrollTop : 0) > 2);
+  $('#albero').addEventListener('scroll', bordoBarra, { passive:true });
+  $('#zona').addEventListener('scroll', bordoBarra, { passive:true });
   $('#bGrezzo').onclick = () => { vistaGrezza ? chiudiGrezzo() : apriGrezzo(); impostaModo(modo); };
-  $('#bNuovaSezione').onclick = nuovaSezione;
+  $('#bNuovoFoglio').onclick = () => nuovoFoglio();
   $('#bImpostazioni').onclick = pannelloImpostazioni;
   $('#bChiudiCestino').onclick = chiudiCestino;
   $('#bSvuota').onclick = svuotaCestino;
@@ -8140,6 +9295,7 @@ function collegaEventi(){
   };
   $('#cerca').oninput = rimbalzo(e => {
     filtro = e.target.value.trim();
+    limiteRicerca = 200;
     disegnaLato();
   }, 140);
   $('#cerca').onkeydown = e => {
@@ -8225,6 +9381,7 @@ function collegaEventi(){
   });
   c.addEventListener('click', e => {
     const a = e.target.closest('a');
+    if (a && a.classList.contains('locale')){ e.preventDefault(); avviso(T('Questo collegamento porta a un file che non è in folio.')); return; }
     if (a && a.classList.contains('interno')){
       e.preventDefault();
       const nome = a.getAttribute('data-foglio');
@@ -8252,7 +9409,7 @@ function collegaEventi(){
     e.preventDefault();
     segnaPasso('comando');
     const pareMd = /(^|\n)\s{0,3}(#{1,3}\s|[-*]\s|\d+\.\s|>\s|\||```)/.test(testo);
-    if (pareMd && testo.length > 12){ esegui('insertHTML', mdVersoHtml(senzaTessere(testo))); riempiImmagini(); }
+    if (pareMd && testo.length > 12){ esegui('insertHTML', mdVersoHtml(senzaTessere(testo))); riempiImmagini(); incorporaIncollate(); }
     else esegui('insertText', testo);
     dopoModifica();
   });
@@ -8382,6 +9539,26 @@ function mettiInPausa(){
   }, null, null, { pieLibero:true, uscita: () => {} });
 }
 
+/* memoria quasi piena: un avviso al giorno, con l'esportazione a portata di mano */
+function controllaSpazio(){
+  const oggiS = new Date().toDateString();
+  let ultimo = '';
+  try { ultimo = localStorage.getItem('folio.avvisoSpazio') || ''; } catch(e){}
+  if (ultimo === oggiS) return;
+  const di = () => { try { localStorage.setItem('folio.avvisoSpazio', oggiS); } catch(e){} };
+  if (!idb){
+    if (new Blob([JSON.stringify(perSalvare(A))]).size > 4 * 1024 * 1024){
+      di(); setTimeout(() => avviso(T('La memoria semplice del browser è quasi piena (circa 5 MB): esporta un backup.'), T('Esporta'), esportaJson, 12000), 3000);
+    }
+    return;
+  }
+  if (!navigator.storage || !navigator.storage.estimate) return;
+  navigator.storage.estimate().then(e => {
+    if (!e.quota || (e.usage || 0) / e.quota < 0.8) return;
+    di(); setTimeout(() => avviso(T('La memoria del browser per folio è quasi piena: esporta un backup.'), T('Esporta'), esportaJson, 12000), 3000);
+  }).catch(() => {});
+}
+
 async function avvia(){
   await aspettaAltreFinestre();
   const esito = await carica();
@@ -8418,6 +9595,7 @@ async function avvia(){
 
   const i = A.impostazioni;
   const giorni = i.ultimoBackup ? (Date.now() - new Date(i.ultimoBackup)) / GIORNO : 99;
+  controllaSpazio();
   if (i.modificheDaSalvare && A.fogli.length > 2 && giorni > 7){
     setTimeout(() => avviso(T('Ci sono modifiche non ancora salvate in un backup.'), T('Esporta'), esportaJson, 9000), 2500);
   }
@@ -8440,8 +9618,31 @@ async function avvia(){
   }
 }
 
+/* banco di prova (9.0): un Foglio del peso dato, i tempi di apertura e di salvataggio dopo una modifica */
+async function banco(kb){
+  const par = 'Lorem ipsum dolor sit amet, **consectetur** adipiscing elit, sed do *eiusmod* tempor incididunt ut labore et dolore magna aliqua.\n\n';
+  const pezzo = '## Titolo di paragrafo\n\n' + par.repeat(3) + '- voce uno\n- voce due\n- [ ] da fare\n- [x] fatto\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n';
+  let md = '', i = 0; while (md.length < kb * 1024) md += pezzo.replace(/Titolo di paragrafo|voce uno|Lorem/g, x => x + ' ' + (++i));
+  const p = { id:id(), sezioneId:A.sezioni[0].id, titolo:titoloLibero('banco ' + kb), md, creata:oggi(), modificata:oggi() };
+  A.fogli.push(p);
+  let t0 = performance.now(); apri(p.id, { formattato:true }); const apertura = performance.now() - t0;
+  await new Promise(r => setTimeout(r, 0));
+  const meta = blocchi()[Math.floor(blocchi().length / 2)];
+  const testo = document.createTreeWalker(meta, NodeFilter.SHOW_TEXT).nextNode();
+  if (testo) testo.nodeValue += ' modificato';
+  t0 = performance.now(); scriviCorrente(); const salvataggio = performance.now() - t0;
+  t0 = performance.now(); const intero = htmlVersoMd(htmlCorpo()); const conversione = performance.now() - t0;
+  const uguale = intero === corrente.md;
+  A.fogli = A.fogli.filter(x => x.id !== p.id); mostraVuoto(); salva(); disegnaLato();
+  const r = x => Math.round(x);
+  return { kb, apertura:r(apertura), salvataggio:r(salvataggio), conversioneIntera:r(conversione), uguale };
+}
+
 /* appiglio per i controlli automatici */
 window.__prova = {
+  banco, htmlVersoMdAPezzi, mdCorrente, anteprimaFoglio, copiaTessera, menuTessera,
+  importaDaFile, vociDaZip, preparaPiano, eseguiImportazione, annullaImportazione, pannelloImporta, pannelloImportaAI,
+  dividiFoglio, partiDiFoglio, cancellaTutto, salvaImmagineImportata, fileEsportazione, eDiario, togliTitoloRipetuto,
   mdVersoHtml, htmlVersoMd, titoloLibero, creaZip, ripulisci, nomeUnico, timbroNome,
   stato: () => A, apri, nuovoFoglio, cestinaFogli, entraSelezione, apriCestino, scadenzeCestino,
   fileEsportazione, collassaTutto, apriGrezzo, chiudiGrezzo, rientra, forseRichiamo, dialogoCollega, comando,

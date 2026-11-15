@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>folio - menu della tessera con Copia testo</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+svg{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #F2EBDC; color: #26211B; font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-size: 15px; line-height: 1.4">
+
+  <header style="height: 56px; flex: none; display: flex; align-items: center; padding: 0 6px 0 4px">
+    <button aria-label="Torna all'elenco" style="width: 44px; height: 44px; display: grid; place-items: center">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 22px; height: 22px; stroke-width: 2"><path d="M15 5l-7 7 7 7"></path></svg>
+    </button>
+    <span style="flex-grow: 1; min-width: 0; font-size: 13px; color: #5A5045; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Lavoro / Cantiere via Roma</span>
+    <button aria-label="Azioni del Foglio" style="width: 44px; height: 44px; display: grid; place-items: center; color: #5A5045">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px; fill: currentColor; stroke: none"><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg>
+    </button>
+  </header>
+
+  <main style="flex-grow: 1; min-height: 0; overflow: hidden; padding: 12px 16px 0; display: flex; flex-direction: column">
+    <h1 style="margin: 0 4px; font-size: 28px; line-height: 1.2; font-weight: 700; letter-spacing: -0.015em">Diario di cantiere</h1>
+    <span style="font-size: 12.5px; color: #5A5045; margin: 6px 4px 16px; font-variant-numeric: tabular-nums">Modificato oggi alle 16:26</span>
+
+    <div style="display: flex; flex-direction: column; gap: 12px; font-size: 17px; line-height: 1.6">
+      <section style="position: relative; background: #FBF8F1; border: 1px solid #DDD0B6; border-radius: 12px; padding: 22px 16px 14px; display: flex; flex-direction: column; gap: 6px">
+        <span aria-hidden="true" style="position: absolute; top: 8px; left: 50%; width: 36px; height: 4px; margin-left: -18px; border-radius: 2px; background: #CEBFA2"></span>
+        <span style="font-size: 12.5px; font-weight: 600; color: #5A5045; letter-spacing: .02em; font-variant-numeric: tabular-nums">13/11/2026, 08:30</span>
+        <p style="margin: 0">Sopralluogo con il direttore dei lavori. Armatura del solaio completa.</p>
+      </section>
+      <section style="position: relative; background: #FBF8F1; border: 1.5px solid #B8863F; border-radius: 12px; padding: 22px 16px 14px; display: flex; flex-direction: column; gap: 6px">
+        <span aria-hidden="true" style="position: absolute; top: 8px; left: 50%; width: 36px; height: 4px; margin-left: -18px; border-radius: 2px; background: #B8863F"></span>
+        <span style="font-size: 12.5px; font-weight: 600; color: #5A5045; letter-spacing: .02em; font-variant-numeric: tabular-nums">13/11/2026, 18:15</span>
+        <p style="margin: 0">Sentito il fornitore: consegna del calcestruzzo <strong>confermata per giovedì</strong> alle 7:00.</p>
+      </section>
+    </div>
+  </main>
+
+  <div aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 390px; height: 844px; background: rgba(30,24,14,.34)"></div>
+
+  <div role="menu" aria-label="Azioni della tessera" style="position: absolute; left: 0; right: 0; bottom: 0; background: #FBF8F1; border-radius: 18px 18px 0 0; padding: 10px 8px 22px; display: flex; flex-direction: column; box-shadow: 0 -8px 28px rgba(40,30,15,.2)">
+    <span aria-hidden="true" style="align-self: center; width: 36px; height: 4px; border-radius: 2px; background: #CEBFA2; margin-bottom: 8px"></span>
+
+    <button role="menuitem" style="height: 50px; display: flex; align-items: center; gap: 14px; padding: 0 14px; border-radius: 10px; text-align: left; font-size: 15.5px">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px; color: #5A5045; flex: none"><path d="M7 4H5.5v16H7M17 4h1.5v16H17"></path><path d="M12 7v10M10.5 7h3M10.5 17h3"></path></svg>
+      <span>Seleziona testo</span>
+    </button>
+    <button role="menuitem" style="height: 50px; display: flex; align-items: center; gap: 14px; padding: 0 14px; border-radius: 10px; text-align: left; font-size: 15.5px; font-weight: 600; background: #EED7B0">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px; color: #82531A; flex: none"><rect x="6" y="5" width="12" height="15" rx="2"></rect><path d="M9 5V3.8h6V5M9.5 11h5M9.5 14.5h5"></path></svg>
+      <span>Copia testo</span>
+    </button>
+
+    <span aria-hidden="true" style="height: 1px; background: #DDD0B6; margin: 6px 14px"></span>
+
+    <button role="menuitem" style="height: 50px; display: flex; align-items: center; gap: 14px; padding: 0 14px; border-radius: 10px; text-align: left; font-size: 15.5px">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px; color: #5A5045; flex: none"><rect x="4" y="11" width="16" height="9" rx="1.8"></rect><path d="M12 3v5.5M9.25 5.75h5.5"></path></svg>
+      <span>Nuova tessera sopra</span>
+    </button>
+    <button role="menuitem" style="height: 50px; display: flex; align-items: center; gap: 14px; padding: 0 14px; border-radius: 10px; text-align: left; font-size: 15.5px">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px; color: #5A5045; flex: none"><rect x="4" y="4" width="16" height="9" rx="1.8"></rect><path d="M12 15.5V21M9.25 18.25h5.5"></path></svg>
+      <span>Nuova tessera sotto</span>
+    </button>
+
+    <span aria-hidden="true" style="height: 1px; background: #DDD0B6; margin: 6px 14px"></span>
+
+    <button role="menuitem" style="height: 50px; display: flex; align-items: center; gap: 14px; padding: 0 14px; border-radius: 10px; text-align: left; font-size: 15.5px">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px; color: #5A5045; flex: none"><path d="M12 19V5M6.5 10.5 12 5l5.5 5.5"></path></svg>
+      <span>Sposta su</span>
+    </button>
+
+    <span aria-hidden="true" style="height: 1px; background: #DDD0B6; margin: 6px 14px"></span>
+
+    <button role="menuitem" style="height: 50px; display: flex; align-items: center; gap: 14px; padding: 0 14px; border-radius: 10px; text-align: left; font-size: 15.5px; color: #8E3B31">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px; flex: none"><path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13"></path></svg>
+      <span>Elimina tessera</span>
+    </button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
