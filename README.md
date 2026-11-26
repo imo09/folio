@@ -4,6 +4,7 @@ Blocco note calmo, a pagine, di nautargo. Il Quaderno contiene i Gruppi, il Grup
 I Fogli, e le immagini incorporate, restano sul dispositivo di chi usa l'app: nessun account, nessun server.
 Dalla 8.0, se si vuole, si allineano fra i propri dispositivi in una cartella del proprio Dropbox: il browser parla solo con Dropbox.
 Dalla 9.0 importa file di testo, archivi .zip e cartelle, con anteprima e annullamento; le note di altre app arrivano con l'aiuto di un assistente AI, che riceve da folio le istruzioni.
+Dalla 9.1 un Foglio si lega a un evento, a una serie o a più eventi di [hora](https://hora.nautargo.com): hora lo crea nel Gruppo "hora", e dal Foglio "Apri in hora" riporta all'evento.
 L'app parla italiano e inglese (Notebook, Group, Page).
 
 Online su [folio.nautargo.com](https://folio.nautargo.com).
@@ -29,7 +30,7 @@ Si sostituiscono i file con quelli della nuova versione. Il numero di versione �
 e `sw.js`: chi ha l'app installata riceve l'aggiornamento entro un paio di riaperture.
 
 Chi modifica `index.html` deve ricalcolare l'impronta dei due script nella regola di sicurezza (riga 5): il comando
-è in `_progetto/folio-istruzioni-9.0.md`, punto 129.
+è in `_progetto/folio-istruzioni-9.0.md`, punto 129. Novità della 9.1 in `_progetto/folio-handoff-9.1.md`.
 
 ## Caratteri
 
@@ -38,4 +39,4 @@ trasformato in un tracciato SVG dentro `index.html`: l'app non carica caratteri 
 
 ## Versione
 
-9.0
+9.1
