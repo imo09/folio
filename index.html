@@ -2,7 +2,7 @@
 <html lang="it" data-tema="chiaro">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Yx0vceP6m/ZHHJUbs/7mefYfLQKQi6vzZvy8MWk+1Y0=' 'sha256-zj8GaIsZWNs2J068wxTw2TAA+A9GkpLndH631oYm1MU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://api.dropboxapi.com https://content.dropboxapi.com; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'self'; manifest-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Yx0vceP6m/ZHHJUbs/7mefYfLQKQi6vzZvy8MWk+1Y0=' 'sha256-vVxF4aFwnCrKhC8kbvYGeO0fruLj2OIa3KFURd8zlEQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://api.dropboxapi.com https://content.dropboxapi.com; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'self'; manifest-src 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>folio</title>
 <meta name="description" content="Blocco note semplice. Le pagine restano sul tuo dispositivo.">
@@ -1994,7 +1994,7 @@ return exports;
 (function(){
 'use strict';
 
-const VERSIONE_APP = '9.1';
+const VERSIONE_APP = '9.2';
 
 /* ============ utilità ============ */
 const $ = s => document.querySelector(s);
@@ -3269,6 +3269,7 @@ async function salvaDavvero(){
     }
     salvataggioRotto = false;
     segnaStato('salvato');
+    if (canale) canale.postMessage({ hora:'salvato' });     /* 9.2: hora aggiorna le anteprime */
     dopoSalvataggio();
   } catch(e){
     if (!salvataggioRotto){
@@ -9532,6 +9533,7 @@ function ascoltaAltreFinestre(){
   if (!canale) return;
   canale.addEventListener('message', async e => {
     if (inPausa) return;
+    if (e.data && typeof e.data === 'object'){ servizioHora(e.data); return; }
     if (e.data === 'chi-c-e') canale.postMessage('ci-sono');
     if (e.data === 'prendo'){
       chiudiGrezzo(); scriviCorrente(); finalizzaTitolo();
@@ -9660,20 +9662,62 @@ function arrivoDaFuori(){
   }
   return false;
 }
-function apriDaHora(hid, titolo, quando){
+function creaPerHora(hid, titolo, quando){
   let p = A.fogli.find(x => x.hora === hid);
-  if (!p){
-    const qid = A.impostazioni.quaderno;
-    let s = sezioniDi(qid).find(x => x.nome === 'hora');
-    if (!s){ s = { id:id(), quadernoId:qid, nome:nomeSezioneLibero(qid, 'hora'), creata:oggi() }; A.sezioni.push(s); }
-    const torna = '[' + T('Apri in hora') + '](' + HORA_URL + '#nota=' + encodeURIComponent(hid) + ')';
-    const md = (quando ? quando.replace(/([\\`*_[\]<>#|])/g, '\\$1') + '\n\n' : '') + torna + '\n\n';
-    p = { id:id(), sezioneId:s.id, titolo:titoloLibero(titolo || T('Nota da hora')), md, creata:oggi(), modificata:oggi(), hora:hid };
-    A.fogli.push(p);
-    salva(); disegnaLato();
-    setTimeout(() => avviso(T('Foglio creato da hora.')), 300);
+  if (p) return { p, nuovo:false };
+  const qid = A.impostazioni.quaderno;
+  let s = sezioniDi(qid).find(x => x.nome === 'hora');
+  if (!s){ s = { id:id(), quadernoId:qid, nome:nomeSezioneLibero(qid, 'hora'), creata:oggi() }; A.sezioni.push(s); }
+  const torna = '[' + T('Apri in hora') + '](' + HORA_URL + '#nota=' + encodeURIComponent(hid) + ')';
+  const md = (quando ? quando.replace(/([\\`*_[\]<>#|])/g, '\\$1') + '\n\n' : '') + torna + '\n\n';
+  p = { id:id(), sezioneId:s.id, titolo:titoloLibero(titolo || T('Nota da hora')), md, creata:oggi(), modificata:oggi(), hora:hid };
+  A.fogli.push(p);
+  salva(); disegnaLato();
+  return { p, nuovo:true };
+}
+function apriDaHora(hid, titolo, quando){
+  const r = creaPerHora(hid, titolo, quando);
+  if (r.nuovo) setTimeout(() => avviso(T('Foglio creato da hora.')), 300);
+  apri(r.p.id);
+}
+
+/* servizio per hora (9.2): la pagina ponte.html, aperta da hora in modo invisibile, chiede alla finestra
+   di folio aperta di leggere, creare o riscrivere i Fogli legati agli eventi. Senza finestre aperte
+   il ponte lavora da solo sull'archivio. */
+const trovaPerHora = k => k && (k.by === 'folio' ? foglio(k.id) : A.fogli.find(x => x.hora === k.id)) || null;
+function notaPerHora(p){
+  if (!p) return { trovato:false };
+  if (corrente && corrente.id === p.id) scriviCorrente();
+  const s = sezione(p.sezioneId), q = s ? quaderno(s.quadernoId) : null;
+  return { trovato:true, fid:p.id, titolo:p.titolo, md: p.protetto ? '' : p.md, protetto:!!p.protetto, modificata:p.modificata, percorso:(q ? q.nome + ' / ' : '') + (s ? s.nome : '') };
+}
+function servizioHora(d){
+  if (!d || typeof d !== 'object' || typeof d.hora !== 'string' || !d.req || inPausa || !A) return;
+  const rispondi = dati => canale.postMessage({ hora:'risposta', req:d.req, dati });
+  if (d.hora === 'chi') { canale.postMessage({ hora:'qui', req:d.req }); return; }
+  if (d.hora === 'leggi'){
+    const note = {};
+    (Array.isArray(d.chiavi) ? d.chiavi.slice(0, 50) : []).forEach(k => { if (k && k.id) note[k.by + ':' + k.id] = notaPerHora(trovaPerHora(k)); });
+    rispondi({ ok:true, note });
+    return;
   }
-  apri(p.id);
+  if (soloLettura()){ rispondi({ ok:false, motivo:'lettura' }); return; }
+  if (d.hora === 'crea'){
+    const hid = rigaPulita(d.hid, 40);
+    if (!/^[A-Za-z0-9_-]{4,40}$/.test(hid)){ rispondi({ ok:false }); return; }
+    const r = creaPerHora(hid, rigaPulita(d.titolo, 120), rigaPulita(d.quando, 200));
+    rispondi({ ok:true, nota:notaPerHora(r.p) });
+    return;
+  }
+  if (d.hora === 'scrivi'){
+    const p = trovaPerHora(d.chiave);
+    if (!p || p.protetto || typeof d.md !== 'string'){ rispondi({ ok:false }); return; }
+    if (corrente && corrente.id === p.id) scriviCorrente();
+    p.md = d.md.slice(0, 2000000); p.modificata = oggi();
+    if (corrente && corrente.id === p.id && document.body.dataset.vista === 'foglio') apri(p.id);
+    salva(); disegnaLato();
+    rispondi({ ok:true, nota:notaPerHora(p) });
+  }
 }
 
 /* banco di prova (9.0): un Foglio del peso dato, i tempi di apertura e di salvataggio dopo una modifica */
@@ -9699,7 +9743,7 @@ async function banco(kb){
 /* appiglio per i controlli automatici */
 window.__prova = {
   banco, htmlVersoMdAPezzi, mdCorrente, anteprimaFoglio, copiaTessera, menuTessera,
-  importaDaFile, vociDaZip, arrivoDaFuori, apriDaHora, preparaPiano, eseguiImportazione, annullaImportazione, pannelloImporta, pannelloImportaAI,
+  importaDaFile, vociDaZip, arrivoDaFuori, apriDaHora, creaPerHora, servizioHora, preparaPiano, eseguiImportazione, annullaImportazione, pannelloImporta, pannelloImportaAI,
   dividiFoglio, partiDiFoglio, cancellaTutto, salvaImmagineImportata, fileEsportazione, eDiario, togliTitoloRipetuto,
   mdVersoHtml, htmlVersoMd, titoloLibero, creaZip, ripulisci, nomeUnico, timbroNome,
   stato: () => A, apri, nuovoFoglio, cestinaFogli, entraSelezione, apriCestino, scadenzeCestino,
