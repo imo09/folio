@@ -2,7 +2,7 @@
 <html lang="it" data-tema="chiaro">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Yx0vceP6m/ZHHJUbs/7mefYfLQKQi6vzZvy8MWk+1Y0=' 'sha256-vc20LYKT7mge2JS1/tDl0k/g1hmKWxYrrX4xWLhhcpc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://api.dropboxapi.com https://content.dropboxapi.com; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'self'; manifest-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Yx0vceP6m/ZHHJUbs/7mefYfLQKQi6vzZvy8MWk+1Y0=' 'sha256-zj8GaIsZWNs2J068wxTw2TAA+A9GkpLndH631oYm1MU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://api.dropboxapi.com https://content.dropboxapi.com; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'self'; manifest-src 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>folio</title>
 <meta name="description" content="Blocco note semplice. Le pagine restano sul tuo dispositivo.">
@@ -1994,7 +1994,7 @@ return exports;
 (function(){
 'use strict';
 
-const VERSIONE_APP = '9.0';
+const VERSIONE_APP = '9.1';
 
 /* ============ utilità ============ */
 const $ = s => document.querySelector(s);
@@ -2737,6 +2737,13 @@ const EN = {
   "Rilascia per sincronizzare": "Release to sync",
   "Tira per sincronizzare": "Pull to sync",
   "Fogli allineati.": "Pages synced.",
+  /* 9.1: collegamento con hora */
+  "Apri in hora": "Open in hora",
+  "Nota da hora": "Note from hora",
+  "Foglio creato da hora.": "Page created from hora.",
+  "Copia collegamento": "Copy link",
+  "Collegamento copiato: incollalo in hora.": "Link copied: paste it in hora.",
+  "Questo Foglio non è su questo dispositivo.": "This Page is not on this device.",
   /* 9.0 */
   "Copia testo": "Copy text",
   "Testo della tessera copiato.": "Card text copied.",
@@ -3930,6 +3937,8 @@ const TRATTI = {
   allegato:'<path d="M15.5 7.5 8 15a2.1 2.1 0 0 0 3 3l7.5-7.5a4.2 4.2 0 0 0-6-6L5 12a6.4 6.4 0 0 0 9 9l5-5"/>',
   info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.01"/>',
   stampa:'<path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="7" rx="2"/><path d="M7 14h10v6H7z"/>',
+  collega:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  hora:'<path d="M5 20h14" opacity=".55"/><path d="M8.5 20V5"/><path d="M8.5 12.5a3.5 3.5 0 0 1 7 0V20"/><circle cx="17.5" cy="6" r="1.8" fill="currentColor" stroke="none"/>',
   copia:'<rect x="6" y="5" width="12" height="15" rx="2"/><path d="M9 5V3.8h6V5M9.5 11h5M9.5 14.5h5"/>',
   sincro:'<path d="M19.5 12a7.5 7.5 0 0 1-13.4 4.6M4.5 12a7.5 7.5 0 0 1 13.4-4.6"/><path d="M18.3 3.5v4.2h-4.2M5.7 20.5v-4.2h4.2"/>'
 };
@@ -5868,6 +5877,9 @@ function menuFoglio(p, x, y){
         A.fogli.push(n); salva(); disegnaLato(); apri(n.id);
       }) },
     { testo:T('Informazioni sul Foglio'), icona:'info', fai: () => infoFoglio(p) },
+    /* 9.1: collegamento con hora, per legare il Foglio a un evento o a una serie */
+    { testo:T('Copia collegamento'), icona:'collega', fai: () => copia(FOLIO_URL + '#foglio=' + encodeURIComponent(p.id), T('Collegamento copiato: incollalo in hora.')) },
+    ...(p.hora ? [{ testo:T('Apri in hora'), icona:'hora', fai: () => apriHora(p.hora) }] : []),
     { testo:T('Seleziona Fogli'), icona:'seleziona', fai: () => entraSelezione('fogli') },
     '-',
     /* le tre forme di condivisione stanno in un secondo menu, per non allungare questo */
@@ -8244,7 +8256,7 @@ const K_SYNC = 'sync', K_ACCESSO = 'folio.accesso';
 const F_INDICE = '/.folio/indice.json', F_CLAUDE = '/.folio/per-claude.md';
 const URL_TOKEN = 'https://api.dropboxapi.com/oauth2/token';
 const SYNC_OGNI = 60000, SYNC_DOPO = 4000, ESTERNI_DOPO = 20000;
-const META = ['sezioneId','titolo','creata','modificata','preferito','allinea','sfondo','diario'];
+const META = ['sezioneId','titolo','creata','modificata','preferito','allinea','sfondo','diario','hora'];
 const RE_IMG_FILE = /\/immagini\/([a-z0-9]{8,})\.(jpe?g|png|gif|webp)$/;
 let SY = null;                     /* collegamento e memoria dell'allineamento: record "sync", mai nei backup */
 let giroInCorso = null, ancoraUnGiro = false, timerSync = 0, ridisegnaSync = null;
@@ -9585,6 +9597,10 @@ async function avvia(){
     }
   }
 
+  /* 9.1: arrivo da hora o da un collegamento a un Foglio */
+  arrivoDaFuori();
+  window.addEventListener('hashchange', arrivoDaFuori);
+
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   if (esito.nota) setTimeout(() => avviso(esito.nota), 800);
   if (letturaFallita) dialogo(T('Archivio non leggibile'), (c, chiudi, pie) => {
@@ -9618,6 +9634,48 @@ async function avvia(){
   }
 }
 
+/* collegamento con hora (9.1). hora apre folio con #hora?id=...&t=titolo&q=quando: il Foglio legato
+   a quell'id si apre, o nasce nel Gruppo "hora" del Quaderno aperto. #foglio=<id> apre un Foglio qualsiasi. */
+const HORA_URL = 'https://hora.nautargo.com/', FOLIO_URL = 'https://folio.nautargo.com/';
+const rigaPulita = (v, max) => String(v || '').replace(/[\u0000-\u001f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
+function apriHora(hid){ window.open(HORA_URL + '#nota=' + encodeURIComponent(hid), '_blank', 'noopener'); }
+function fermaHash(){ try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* niente */ } }
+function arrivoDaFuori(){
+  const h = location.hash || '';
+  if (h.startsWith('#hora?')){
+    const q = new URLSearchParams(h.slice(6));
+    const hid = rigaPulita(q.get('id'), 40);
+    fermaHash();
+    if (!/^[A-Za-z0-9_-]{4,40}$/.test(hid)) return false;
+    apriDaHora(hid, rigaPulita(q.get('t'), 120), rigaPulita(q.get('q'), 200));
+    return true;
+  }
+  if (h.startsWith('#foglio=')){
+    let fid = h.slice(8);
+    try { fid = decodeURIComponent(fid); } catch (e) { /* com'è */ }
+    fermaHash();
+    const p = foglio(fid);
+    if (p) apri(p.id); else avviso(T('Questo Foglio non è su questo dispositivo.'));
+    return true;
+  }
+  return false;
+}
+function apriDaHora(hid, titolo, quando){
+  let p = A.fogli.find(x => x.hora === hid);
+  if (!p){
+    const qid = A.impostazioni.quaderno;
+    let s = sezioniDi(qid).find(x => x.nome === 'hora');
+    if (!s){ s = { id:id(), quadernoId:qid, nome:nomeSezioneLibero(qid, 'hora'), creata:oggi() }; A.sezioni.push(s); }
+    const torna = '[' + T('Apri in hora') + '](' + HORA_URL + '#nota=' + encodeURIComponent(hid) + ')';
+    const md = (quando ? quando.replace(/([\\`*_[\]<>#|])/g, '\\$1') + '\n\n' : '') + torna + '\n\n';
+    p = { id:id(), sezioneId:s.id, titolo:titoloLibero(titolo || T('Nota da hora')), md, creata:oggi(), modificata:oggi(), hora:hid };
+    A.fogli.push(p);
+    salva(); disegnaLato();
+    setTimeout(() => avviso(T('Foglio creato da hora.')), 300);
+  }
+  apri(p.id);
+}
+
 /* banco di prova (9.0): un Foglio del peso dato, i tempi di apertura e di salvataggio dopo una modifica */
 async function banco(kb){
   const par = 'Lorem ipsum dolor sit amet, **consectetur** adipiscing elit, sed do *eiusmod* tempor incididunt ut labore et dolore magna aliqua.\n\n';
@@ -9641,7 +9699,7 @@ async function banco(kb){
 /* appiglio per i controlli automatici */
 window.__prova = {
   banco, htmlVersoMdAPezzi, mdCorrente, anteprimaFoglio, copiaTessera, menuTessera,
-  importaDaFile, vociDaZip, preparaPiano, eseguiImportazione, annullaImportazione, pannelloImporta, pannelloImportaAI,
+  importaDaFile, vociDaZip, arrivoDaFuori, apriDaHora, preparaPiano, eseguiImportazione, annullaImportazione, pannelloImporta, pannelloImportaAI,
   dividiFoglio, partiDiFoglio, cancellaTutto, salvaImmagineImportata, fileEsportazione, eDiario, togliTitoloRipetuto,
   mdVersoHtml, htmlVersoMd, titoloLibero, creaZip, ripulisci, nomeUnico, timbroNome,
   stato: () => A, apri, nuovoFoglio, cestinaFogli, entraSelezione, apriCestino, scadenzeCestino,
