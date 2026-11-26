@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-fMFCxzvg15sKjJwR7p4FPRDxuylnX3MG8XhCE8hd9TY='">
+<meta name="robots" content="noindex">
+<title>folio - ponte per hora</title>
+</head>
+<body>
+<script>
+/* folio 9.2 - ponte per hora. hora (hora.nautargo.com) apre questa pagina in modo invisibile per leggere,
+   creare o riscrivere i Fogli legati ai suoi eventi. Risponde solo a hora. Se una finestra di folio è aperta,
+   chiede a lei (che ha i dati in memoria); altrimenti lavora sull'archivio, senza mai crearne uno nuovo. */
+(function () {
+  'use strict';
+  var AMMESSI = /^(https:\/\/hora\.nautargo\.com|http:\/\/(localhost|127\.0\.0\.1)(:\d+)?)$/;
+  var DB = 'folio', NEG = 'dati', HORA = 'https://hora.nautargo.com/';
+  var canale = ('BroadcastChannel' in self) ? new BroadcastChannel('folio') : null;
+  var attese = {}, genitore = null;
+  var ora = function () { return new Date().toISOString(); };
+  var nuovoId = function () { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); };
+  var pulita = function (v, max) { return String(v || '').replace(/[\u0000-\u001f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max); };
+  var piano = function (s) { return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim(); };
+
+  /* archivio: si apre solo se esiste già (folio usata almeno una volta su questo dispositivo) */
+  function apri() {
+    return new Promise(function (res) {
+      var r;
+      try { r = indexedDB.open(DB, 1); } catch (e) { res(null); return; }
+      r.onupgradeneeded = function () { try { r.transaction.abort(); } catch (e) { /* niente */ } };
+      r.onsuccess = function () { var d = r.result; if (!d.objectStoreNames.contains(NEG)) { d.close(); res(null); } else res(d); };
+      r.onerror = function () { res(null); };
+      r.onblocked = function () { res(null); };
+      setTimeout(function () { res(null); }, 4000);
+    });
+  }
+  function leggi(db, k) {
+    return new Promise(function (res) {
+      try { var q = db.transaction(NEG, 'readonly').objectStore(NEG).get(k); q.onsuccess = function () { res(q.result == null ? null : q.result); }; q.onerror = function () { res(null); }; }
+      catch (e) { res(null); }
+    });
+  }
+  function scrivi(db, metti) {
+    return new Promise(function (res) {
+      try {
+        var tx = db.transaction(NEG, 'readwrite'), st = tx.objectStore(NEG);
+        metti.forEach(function (m) { st.put(m[1], m[0]); });
+        tx.oncomplete = function () { res(true); }; tx.onerror = function () { res(false); }; tx.onabort = function () { res(false); };
+      } catch (e) { res(false); }
+    });
+  }
+  function trova(s, k) {
+    if (!s || !Array.isArray(s.fogli) || !k) return null;
+    return s.fogli.find(function (p) { return k.by === 'folio' ? p.id === k.id : p.hora === k.id; }) || null;
+  }
+  function nota(s, p, rec) {
+    if (!p) return { trovato: false };
+    var sz = (s.sezioni || []).find(function (x) { return x.id === p.sezioneId; }), q = sz && (s.quaderni || []).find(function (x) { return x.id === sz.quadernoId; });
+    var prot = !!(p.protetto || (rec && rec.cifra));
+    return { trovato: true, fid: p.id, titolo: p.titolo, md: prot ? '' : (rec && rec.md) || '', protetto: prot, modificata: p.modificata, percorso: (q ? q.nome + ' / ' : '') + (sz ? sz.nome : '') };
+  }
+
+  /* la finestra di folio aperta, se c'è, risponde lei */
+  function finestra(msg, ms) {
+    return new Promise(function (res) {
+      if (!canale) { res(null); return; }
+      var req = 'p' + nuovoId();
+      attese[req] = res;
+      msg.req = req;
+      canale.postMessage(msg);
+      setTimeout(function () { if (attese[req]) { delete attese[req]; res(null); } }, ms);
+    });
+  }
+  if (canale) canale.onmessage = function (e) {
+    var d = e.data;
+    if (!d || typeof d !== 'object') return;
+    if ((d.hora === 'qui' || d.hora === 'risposta') && attese[d.req]) { var f = attese[d.req]; delete attese[d.req]; f(d.hora === 'qui' ? true : d.dati); }
+    if (d.hora === 'salvato' && genitore) parent.postMessage({ ponte: 'cambiato' }, genitore);
+  };
+
+  async function gestisci(d) {
+    var c = d.op === 'leggi' ? { hora: 'leggi', chiavi: d.chiavi } : d.op === 'crea' ? { hora: 'crea', hid: d.hid, titolo: d.titolo, quando: d.quando } : d.op === 'scrivi' ? { hora: 'scrivi', chiave: d.chiave, md: d.md } : null;
+    if (!c) return { ok: false };
+    if (await finestra({ hora: 'chi' }, 300)) { var r = await finestra(c, 6000); if (r) return Object.assign({ via: 'finestra' }, r); }
+    var db = await apri();
+    if (!db) return { ok: false, motivo: 'vuoto' };
+    try {
+      var s = await leggi(db, 'struttura');
+      if (!s || !Array.isArray(s.fogli) || !Array.isArray(s.quaderni) || !s.quaderni.length) return { ok: false, motivo: 'vuoto' };
+      if (d.op === 'leggi') {
+        var note = {};
+        var chiavi = Array.isArray(d.chiavi) ? d.chiavi.slice(0, 50) : [];
+        for (var i = 0; i < chiavi.length; i++) {
+          var k = chiavi[i]; if (!k || !k.id) continue;
+          var p = trova(s, k);
+          note[k.by + ':' + k.id] = nota(s, p, p ? await leggi(db, 'f:' + p.id) : null);
+        }
+        return { ok: true, note: note, via: 'archivio' };
+      }
+      if (d.op === 'crea') {
+        var hid = pulita(d.hid, 40);
+        if (!/^[A-Za-z0-9_-]{4,40}$/.test(hid)) return { ok: false };
+        var g = trova(s, { by: 'hora', id: hid });
+        if (g) return { ok: true, nota: nota(s, g, await leggi(db, 'f:' + g.id)) };
+        var imp = s.impostazioni || {};
+        var qid = s.quaderni.some(function (q) { return q.id === imp.quaderno; }) ? imp.quaderno : s.quaderni[0].id;
+        s.sezioni = Array.isArray(s.sezioni) ? s.sezioni : [];
+        var sz = s.sezioni.find(function (x) { return x.quadernoId === qid && x.nome === 'hora'; });
+        if (!sz) { sz = { id: nuovoId(), quadernoId: qid, nome: 'hora', creata: ora() }; s.sezioni.push(sz); }
+        var base = pulita(d.titolo, 120) || 'Nota da hora', titolo = base, n = 2;
+        var presi = (s.fogli || []).concat((s.cestino && s.cestino.fogli) || []).map(function (x) { return piano(x.titolo || ''); });
+        while (presi.indexOf(piano(titolo)) >= 0) titolo = base + ' (' + (n++) + ')';
+        var quando = pulita(d.quando, 200);
+        var md = (quando ? quando.replace(/([\\`*_[\]<>#|])/g, '\\$1') + '\n\n' : '') + '[Apri in hora](' + HORA + '#nota=' + encodeURIComponent(hid) + ')\n\n';
+        var meta = { id: nuovoId(), sezioneId: sz.id, titolo: titolo, creata: ora(), modificata: ora(), hora: hid };
+        s.fogli.push(meta);
+        if (!(await scrivi(db, [['struttura', s], ['f:' + meta.id, { md: md }]]))) return { ok: false };
+        return { ok: true, nota: nota(s, meta, { md: md }), via: 'archivio' };
+      }
+      if (d.op === 'scrivi') {
+        var w = trova(s, d.chiave);
+        if (!w || w.protetto || typeof d.md !== 'string') return { ok: false };
+        var rec = await leggi(db, 'f:' + w.id);
+        if (rec && rec.cifra) return { ok: false };
+        w.modificata = ora();
+        var nuovo = { md: d.md.slice(0, 2000000) };
+        if (!(await scrivi(db, [['struttura', s], ['f:' + w.id, nuovo]]))) return { ok: false };
+        return { ok: true, nota: nota(s, w, nuovo), via: 'archivio' };
+      }
+      return { ok: false };
+    } finally { db.close(); }
+  }
+
+  addEventListener('message', function (e) {
+    if (e.source !== parent || !AMMESSI.test(e.origin)) return;
+    var d = e.data;
+    if (!d || typeof d !== 'object' || d.hora !== 1 || !d.req) return;
+    genitore = e.origin;
+    gestisci(d).then(function (r) { parent.postMessage(Object.assign({ ponte: 'risposta', req: d.req }, r), e.origin); },
+      function () { parent.postMessage({ ponte: 'risposta', req: d.req, ok: false }, e.origin); });
+  });
+  if (parent !== self) parent.postMessage({ ponte: 'pronto' }, '*');
+})();
+</script>
+</body>
+</html>
